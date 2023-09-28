@@ -17,11 +17,6 @@ target_link_libraries(chatserver
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
-# Command for adding something into the resource folder
-# Need to change the target
-add_custom_command(TARGET chatserver PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources/networking/ ${CMAKE_BINARY_DIR}/resources/networking/)
 
 install(TARGETS chatserver
   RUNTIME DESTINATION bin
