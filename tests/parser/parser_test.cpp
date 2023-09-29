@@ -27,7 +27,7 @@ TEST(ParserTests, RPS_TEST) {
     ts::Parser parser{language};
 
     // Parse the provided JSON string into a syntax tree.
-     std::string sourcecode = file_to_string(RPS_LOCATION);
+    std::string sourcecode = file_to_string(RPS_LOCATION);
     ts::Tree tree = parser.parseString(sourcecode);
 
     // Access the root node of the AST
