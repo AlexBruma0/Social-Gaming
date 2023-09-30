@@ -1,6 +1,6 @@
 
 add_library(parser
-  src/parser.cpp
+        src/gameParser.cpp
 )
 
 target_include_directories(parser
