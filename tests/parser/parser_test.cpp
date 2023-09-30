@@ -20,23 +20,18 @@
 
 extern "C" {
 //TSLanguage *tree_sitter_json();
-TSLanguage *tree_sitter_socialgaming();
+    TSLanguage *tree_sitter_socialgaming();
 }
 
-TEST(ParserTests, RPS_TEST) {
-    // Read file as SocialGaming code and parse into a syntax tree
-    std::string sourcecode = file_to_string(RPS_LOCATION);
+TEST (ParserTests, NO_SOURCECODE_TEST) {
+    std::string sourcecode = "";
     ts::Tree tree = string_to_tree(sourcecode);
 
-    // Access the root node of the AST
     ts::Node root = tree.getRootNode();
+    ASSERT_FALSE(root.isNull());
+    ASSERT_EQ(root.getNumChildren(), 0);
+    ASSERT_EQ(root.getType(), "ERROR");
 
-    // GTest to see if correct number of children are read
-    ASSERT_EQ(root.getNumChildren(), 19);
-    std::cout << root.getNumChildren() << "\n";
-    //std::cout << root.getSExpr().get() << "\n";
-    dfs(root);
-    ts::Node n = root.getChild(0);
 }
 
 TEST(ParserTests, EMPTY_TEST) {
@@ -50,7 +45,33 @@ TEST(ParserTests, EMPTY_TEST) {
     // GTest to see if correct number of children are read
     ASSERT_EQ(root.getNumChildren(), 7);
     std::cout << root.getNumChildren() << "\n";
+
+    ASSERT_EQ(root.getType(), "game");
+    ASSERT_EQ(root.getChild(0).getType(), "configuration");
+    ASSERT_EQ(root.getChild(1).getType(), "constants");
+    ASSERT_EQ(root.getChild(2).getType(), "variables");
+    ASSERT_EQ(root.getChild(3).getType(), "per_player");
+    ASSERT_EQ(root.getChild(4).getType(), "per_audience");
+    ASSERT_EQ(root.getChild(5).getType(), "rules");
+
+    // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
     dfs(root);
-    ts::Node n = root.getChild(0);
+}
+
+TEST(ParserTests, RPS_TEST) {
+    // Read file as SocialGaming code and parse into a syntax tree
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    // Access the root node of the AST
+    ts::Node root = tree.getRootNode();
+
+    // GTest to see if correct number of children are read
+    ASSERT_EQ(root.getNumChildren(), 19);
+    std::cout << root.getNumChildren() << "\n";
+
+    // Printing the tree; leave commented out unless you want to see it
+    //std::cout << root.getSExpr().get() << "\n";
+    //dfs(root);
 }

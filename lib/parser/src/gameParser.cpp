@@ -37,10 +37,16 @@ ts::Tree string_to_tree(const std::string tree_string) {
 }
 
 void dfs(const ts::Node& node) {
+    // Skip nodes with type "comment"
+    if (node.getType() == "comment") {
+        return;
+    }
+
+    // Print out all information about a node
     std::cout << "Node Type: " << node.getType() << std::endl;
     std::cout << "Node Symbol: " << node.getSymbol() << std::endl;
     std::cout << "Node Range: [" << node.getPointRange().start.row << ", " << node.getPointRange().start.column << "] - ["
-    << node.getPointRange().end.row << ", " << node.getPointRange().end.column << "]" << std::endl << std::endl;
+              << node.getPointRange().end.row << ", " << node.getPointRange().end.column << "]" << std::endl << std::endl;
 
     // Recursively visit children nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
