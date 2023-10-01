@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cpp-tree-sitter.h>
+#include <exception>
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -39,20 +40,19 @@ ts::Tree string_to_tree(const std::string tree_string) {
 std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte) {
     // Ensure startByte is within range
     if (startByte >= input.size())
-        return "";
+        throw std::runtime_error("Start byte exceeds source code size, invalid range");
 
     // Adjust endByte if it's beyond the string length
     endByte = std::min(endByte, input.size() - 1);
-    endByte = endByte - 1;
     // Calculate the character indices for the substring
     size_t startIndex = startByte;
-    size_t length = endByte - startByte + 1;
+    size_t length = endByte - startByte;
 
     // Extract the substring
     return input.substr(startIndex, length);
 }
 
-void dfs(const ts::Node& node, std::string source_code) {
+void dfs(const ts::Node& node, const std::string& source_code) {
     // Skip nodes with type "comment"
     if (node.getType() == "comment") {
         return;
