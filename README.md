@@ -5,6 +5,7 @@
   <li>Kevin Chen</li>
   <li>Caleb Tong</li>
   <li>Arjun Singh-Shokar</li>
+  <li>Alex Bruma</li>
 </ol>
 
 ## How to use
