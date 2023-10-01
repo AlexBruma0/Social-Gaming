@@ -14,7 +14,10 @@ std::string file_to_string(const std::string path);
 // parse a tree string into a syntax tree
 ts::Tree string_to_tree(const std::string tree_string);
 
+// gets the value for the substring given by the byte range
+std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte);
+
 // depth first search for a tree
-void dfs(const ts::Node& node);
+void dfs(const ts::Node& node, std::string source_code);
 
 #endif //SOCIAL_GAMING_GAMEPARSER_H

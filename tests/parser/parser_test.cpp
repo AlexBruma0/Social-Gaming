@@ -56,7 +56,7 @@ TEST(ParserTests, EMPTY_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    dfs(root);
+    dfs(root, sourcecode);
 }
 
 TEST(ParserTests, RPS_TEST) {
@@ -73,5 +73,5 @@ TEST(ParserTests, RPS_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    //dfs(root);
+    dfs(root, sourcecode);
 }

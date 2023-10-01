@@ -36,20 +36,41 @@ ts::Tree string_to_tree(const std::string tree_string) {
     return parser.parseString(tree_string);
 }
 
-void dfs(const ts::Node& node) {
+std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte) {
+    // Ensure startByte is within range
+    if (startByte >= input.size())
+        return "";
+
+    // Adjust endByte if it's beyond the string length
+    endByte = std::min(endByte, input.size() - 1);
+    endByte = endByte - 1;
+    // Calculate the character indices for the substring
+    size_t startIndex = startByte;
+    size_t length = endByte - startByte + 1;
+
+    // Extract the substring
+    return input.substr(startIndex, length);
+}
+
+void dfs(const ts::Node& node, std::string source_code) {
     // Skip nodes with type "comment"
     if (node.getType() == "comment") {
         return;
     }
 
     // Print out all information about a node
+
     std::cout << "Node Type: " << node.getType() << std::endl;
-    std::cout << "Node Symbol: " << node.getSymbol() << std::endl;
-    std::cout << "Node Range: [" << node.getPointRange().start.row << ", " << node.getPointRange().start.column << "] - ["
-              << node.getPointRange().end.row << ", " << node.getPointRange().end.column << "]" << std::endl << std::endl;
+    std::cout << "byte range: " << node.getByteRange().start << ", " << node.getByteRange().end << std::endl;
+
+    if(node.getType() == "quoted_string" || node.getType() == "number"){
+        std::cout << "substring: " << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end ) << std::endl;
+    }
+
+    std::cout << "num of children: " << node.getNumChildren() << std::endl << std::endl;
 
     // Recursively visit children nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        dfs(node.getChild(i));
+        dfs(node.getChild(i), source_code);
     }
 }
