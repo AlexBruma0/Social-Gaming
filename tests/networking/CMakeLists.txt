@@ -1,6 +1,6 @@
 add_executable(networking_test networking_test.cpp)
 set_target_properties(networking_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/networking)
-target_link_libraries(networking_test networking ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(networking_test networking ${GTEST_BOTH_LIBRARIES} pthread)
 add_test(NAME networking_test COMMAND networking_test)
 
 
