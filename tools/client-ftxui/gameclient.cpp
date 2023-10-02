@@ -4,6 +4,10 @@
 #include <vector>
 
 #include "Client.h"
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/loop.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include "ftxui/dom/elements.hpp"
 
 
 int main(int argc, char* argv[]) {
@@ -26,4 +30,70 @@ int main(int argc, char* argv[]) {
     }
   };
 
+
+
+//we'll have to edit the ftxui depending on the game states 
+using namespace ftxui;
+
+  std::string entry;
+  std::vector<Element> history;
+  Component entryField = Input(&entry, "Enter messages here.");
+
+  // Define the core appearance with a renderer for the components.
+  // A `Renderer` takes input consuming components like `Input` and
+  // produces a DOM to visually represent their current state.
+  auto renderer = Renderer(entryField, [&history,&entryField] {
+    return vbox({
+      window(text("Chat"),
+        yframe(
+          vbox(history) | focusPositionRelative(0, 1)
+        )
+      ) | yflex,
+
+      window(text("Next Message"),
+        entryField->Render()
+      ) | size(HEIGHT, EQUAL, 3)
+    }) | color(Color::GreenLight);
+  });
+
+  auto screen = ScreenInteractive::Fullscreen();
+
+  // Bind a handler for "return" presses that consumes the text entered
+  // so far.
+  auto handler = CatchEvent(renderer, [&entry,&onTextEntry](const Event& event) {
+    if (event == Event::Return) {
+      onTextEntry(std::move(entry));
+      entry.clear();
+      return true;
+    }
+    return false;
+  });
+
+
+
+
+
+//I think we can keep this the same, considering its just waiting for a response and has a 50 millisecond delay
+const int UPDATE_INTERVAL_IN_MS = 50;
+  Loop loop(&screen, handler);
+  while (!done && !client.isDisconnected() && !loop.HasQuitted()) {
+    try {
+      client.update();
+    } catch (std::exception& e) {
+      history.push_back(text("Exception from Client update:"));
+      history.push_back(text(e.what()));
+      done = true;
+    }
+
+    auto response = client.receive();
+    if (!response.empty()) {
+      history.push_back(paragraphAlignLeft(response));
+      screen.RequestAnimationFrame();
+    }
+
+    loop.RunOnce();
+    std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_INTERVAL_IN_MS));
+  }
+
+  return 0;
 }
