@@ -1,11 +1,18 @@
 #include "include/Game.h"
 
-Game::Game(Config config,
-           map<string, map<string, string>> constants,
-           map<string, string> variables,
-           map<string, int> per_player,
-           map<string, int> per_audience): 
-           config(config), constants(constants), variables(variables),
-           per_player(per_player), per_audience(per_audience){
+Game::Game(){
+    this->config = new Config();
+    this->constants = new map<string, map<string, string>>();
+    this->variables = new map<string, string>();
+    this->per_player = new map<string, int>();
+    this->per_audience = new map<string, int>();
+}
+
+Game::~Game(){
+    delete this->config;
+    delete this->constants;
+    delete this->per_audience;
+    delete this->per_player;
+    delete this->variables;
 }
 
