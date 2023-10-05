@@ -1,6 +1,7 @@
 #include <string>
 #include <map>
-#include "resources/model/include/Support.h"
+#include "Support.h"
+
 using std::map;
 
 class Config{

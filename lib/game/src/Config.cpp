@@ -1,5 +1,4 @@
-#include "include/Config.h"
-
+#include "Config.h"
 std::string Config::getName(){
     return this->name;
 }

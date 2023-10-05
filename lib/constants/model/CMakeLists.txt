@@ -1,9 +1,7 @@
+add_library(model 
+            src/Support.cpp)
 
-add_library(parser
-        src/gameParser.cpp
-)
-
-target_include_directories(parser
+target_include_directories(model
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -12,14 +10,8 @@ target_include_directories(parser
 )
 
 
-set_target_properties(parser
+set_target_properties(lib_game
                       PROPERTIES
                       LINKER_LANGUAGE CXX
                       CXX_STANDARD 17
-)
-target_link_libraries( parser
-tree-sitter-socialgaming
-cpp-tree-sitter)
-install(TARGETS parser
-  ARCHIVE DESTINATION lib
 )
