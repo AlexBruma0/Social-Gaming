@@ -1,6 +1,6 @@
 #include <string>
 #include <map>
-#include "Support.h"
+#include "../../lib/constants/model/include/Support.h"
 
 using std::map;
 
@@ -20,7 +20,7 @@ private:
 public:
     Range player_range;
     Setup setup;
-
+    
     Config();
     std::string getName();
     bool getAudience();
