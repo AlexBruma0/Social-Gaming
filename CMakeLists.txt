@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(klah)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
@@ -62,6 +62,10 @@ add_grammar_from_repo_no_version(tree-sitter-socialgaming
   https://github.com/nsumner/tree-sitter-socialgaming.git
   7ad013c8773b07e27e7eb7a9e4779d473a85c24f
 )
+CPMAddPackage(
+    NAME nlohmann_json
+    GITHUB_REPOSITORY nlohmann/json
+    VERSION 3.10.1)
 
 add_subdirectory(lib)
 add_subdirectory(tests)

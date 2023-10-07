@@ -4,7 +4,12 @@
 #include <memory>
 #include <string>
 #include <iostream>
-
+#include <any>
+#include <regex>
+#include <nlohmann/json.hpp>
+#include <sstream>
+#include <cctype>
+#include <regex>
 // Wrapper API
 #include <cpp-tree-sitter.h>
 
@@ -18,58 +23,20 @@
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
 
+using json = nlohmann::json;
 extern "C" {
 //TSLanguage *tree_sitter_json();
     TSLanguage *tree_sitter_socialgaming();
 }
-struct Statement {
-    // Define different types of statements in the game language
-    enum class StatementType {
-        Assignment,
-        Message,
-        // Add other statement types as needed
-    };
 
-    // Define a variant to hold different types of statements
-    std::variant<AssignmentStatement, MessageStatement> statement;
-
-    StatementType type;
-};
-
-struct AssignmentStatement {
-    std::string variable;
-    std::string value;
-};
-
-struct MessageStatement {
-    std::string message;
-};
-
-void executeStatement(const Statement &statement) {
-    // Dispatch based on the statement type
-    switch (statement.type) {
-        case Statement::StatementType::Assignment:
-            executeAssignmentStatement(std::get<AssignmentStatement>(statement.statement));
-            break;
-        case Statement::StatementType::Message:
-            executeMessageStatement(std::get<MessageStatement>(statement.statement));
-            break;
-        // Add cases for other statement types as needed
-    }
-}
-
-void executeAssignmentStatement(const AssignmentStatement &assignment) {
-    // TODO: Execute the assignment statement
-    // Example: Assign the value to the variable
-    std::cout << "Assigning " << assignment.value << " to " << assignment.variable << "\n";
-}
-
-void executeMessageStatement(const MessageStatement &message) {
-    // TODO: Execute the message statement
-    // Example: Print the message
-    std::cout << "Displaying message: " << message.message << "\n";
-}
-
+std::string jsonString = R"(
+{
+    "weapons": [
+        { "name": "Rock", "beats": "Scissors" },
+        { "name": "Paper", "beats": "Rock" },
+        { "name": "Scissors", "beats": "Paper" }
+    ]
+})";
 void printNode (const ts::Node& node){
 std::cout << "Node Type: " << node.getType() << "              Children: " << node.getNumChildren() << std::endl;
 }
@@ -79,67 +46,179 @@ void print_bfs(const ts::Node& node){
         printNode(node.getChild(i));
     }
 }
-// Define data structures to store game state
-struct Player {
-    std::string name;
-    std::string weaponChoice;
-    int wins;
-};
-
-std::vector<Player> players;  // Store player state
-
-std::unordered_map<std::string, std::vector<std::string>> constants;  // Store constants
-
-// Helper function to generate a list of numbers from 1 to count
-std::vector<int> generateNumbersList(int start, int end) {
-    std::vector<int> numbers;
-    for (int i = start; i <= end; ++i) {
-        numbers.push_back(i);
-    }
-    return numbers;
+void print_node_value(const ts::Node& node, const std::string& source_code){
+    std::cout << getSubstringByByteRange(source_code, node.getByteRange().start,node.getByteRange().end ) << "\n";
 }
+std::string get_node_value(const ts::Node& node, const std::string& source_code){
+    return getSubstringByByteRange(source_code, node.getByteRange().start,node.getByteRange().end );
+}
+bool isPunctuation(char c) {
+    return ispunct(c) && c != '"';
+}
+std::string removeCharacterAtIndex(const std::string& str, size_t k) {
+    if (k >= str.length()) {
+        std::cerr << "Index out of range\n";
+        return str;
+    }
 
-// Function to interpret the "for" construct with a generic list type
-template<typename T>
-void interpretFor(const std::string &variable, const T &list, const ts::Node& sub_tree_node_to_execute) {
-    // Traverse the list of elements and execute the statement list for each element
-    for (const auto &element : list) {
-        std::cout << "Executing for " << variable << " = " << element << ":\n";
+    std::string result;
+    for (size_t i = 0; i < str.length(); i++) {
+        if (i != k) {
+            result += str[i];
+        }
+    }
 
-        // TODO: Execute the statement list for the current element
-        // You can call a function to handle the logic for the statement list
-        for(int i = 0: i < sub_tree_node_to_execute.getNumChildren(); i++){
-            executeStatement
+    return result;
+}
+std::string  RemoveLastNonSpaceBeforeClosingBracket(const std::string& str) {
+    char lastNonSpace = '\0';  // Initialize to null character
+
+    for (int i = str.length() - 1; i >= 0; --i) {
+        if (str[i] == ']'){
+            for(int k = i - 1; k >= 0; --k){
+                if (str[k] != ' ' && str[k] != '\n' && str[k] == ',') {
+                    std::string result = removeCharacterAtIndex(str,k);
+                    return result;
+                }
+            }
+
         }
 
-        // For demonstration, we'll just print the element
-        std::cout << "Statement executed for " << variable << " = " << element << "\n";
+
+
     }
+
+    return str;
 }
 
-// Overloaded version of interpretFor to handle numerical attributes
-void interpretFor(const std::string &variable, const int& start, const int& end, const ts::Node& rules_node) {
-    // Extract the count from the expression
-    std::vector<int> numbersList = generateNumbersList(start, end);
-    interpretFor(variable, numbersList, rules_node);
-        
+void replaceSubstring(std::string& str, const std::string& substr, const std::string& replacement) {
+    std::vector<size_t> indices;
+    size_t pos = str.find(substr, 0);
+
+    while (pos != std::string::npos) {
+        str.replace(pos, substr.length(), replacement);
+        indices.push_back(pos);
+        pos = str.find(substr, pos + replacement.length());
+    }
+
+}
+void deleteCommaInRegularExpression(std::string& str) {
+
+    // Modify the regular expression pattern
+    std::regex regExpr(R"(,[\s\n]*\})");
+
+    std::smatch match;
+    if (std::regex_search(str, match, regExpr)) {
+        // Replace the first occurrence of "," in the match
+        std::size_t pos = match.position();
+        if (pos != std::string::npos) {
+            pos = str.find(",", pos, 1);  // Find the first ","
+            if (pos != std::string::npos)
+                str.erase(pos, 1);  // Erase the ","
+        }
+    }
+
+}
+
+std::string formatString(std::string& input) {
+    input = RemoveLastNonSpaceBeforeClosingBracket(input);
+    std::istringstream iss(input);
+    std::ostringstream oss;
+    
+    bool inQuotes = false;
+
+    char c;
+    while (iss.get(c)) {
+        if (isspace(c) && !inQuotes) {
+            oss.put(c);
+        } else if (isPunctuation(c) || isdigit(c)) {
+            oss.put(c);
+        } else if (c == '"') {
+            oss.put(c);
+            inQuotes = !inQuotes;
+        }
+         else {
+            if (inQuotes) {
+                oss.put(c);
+            } else {
+                oss.put('"');
+                oss.put(c);
+                while (iss.get(c) && !isspace(c) && !isPunctuation(c)) {
+                    oss.put(c);
+                }
+                oss.put('"');
+                iss.unget();
+            }
+        }
+    }
+    std::string output = oss.str();
+    std::string substring= "\" \"";
+    size_t found = output.find(substring);
+    if (found != std::string::npos){
+        output.erase(found, substring.length());
+        std::string to_insert = "_";
+        int index = found; 
+        output.insert(index, to_insert);
+    }
+    std::string find = "\" {";
+    std::string replace = "\": {";
+    replaceSubstring(output, find , replace);
+
+    find = "(";
+    replace = "[";
+    replaceSubstring(output, find , replace);
+
+    find = ")";
+    replace = "]";
+    replaceSubstring(output, find , replace);
+
+    find = "\n";
+    replace = ",\n";
+    replaceSubstring(output, find , replace);
+
+    find = "{,";
+    replace = "{";
+    replaceSubstring(output, find , replace);
+
+    find = "[,";
+    replace = "[";
+    replaceSubstring(output, find , replace);
+
+    find = "},";
+    replace = "}";
+    replaceSubstring(output, find , replace);
+
+
+
+    if(output.at(0) != '{'){
+        output.insert(0,"{");
+        output.append("}");
+    }
+
+    deleteCommaInRegularExpression(output);
+    
+    return output;
 }
 
 TEST(ParserTests, RPS_TEST) {
-    // Read file as SocialGaming code and parse into a syntax tree
-    // Rules node = 17 
     std::string sourcecode = file_to_string(RPS_LOCATION);
     ts::Tree tree = string_to_tree(sourcecode);
 
     // Access the root node of the AST
     ts::Node root = tree.getRootNode();
-    std::string_view s1{"rules"};
-    std::string s2{"round"};
-    ts::Node rules_node = root.getChildByFieldName("rules");
-    ts::Node rules_node_body = rules_node.getChildByFieldName("body");
+    ts::Node config_node = root.getChildByFieldName("configuration");
+    ts::Node constants_node = root.getChildByFieldName("constants");
 
-    interpretFor(s2, 1, 2, rules_node_body);
-    //rules.body.firstrule
-    //bfs(rules_node_body);
+    std::string constants_node_to_string = get_node_value(constants_node.getChild(1), sourcecode);
+    std::string config_node_to_string = get_node_value(config_node, sourcecode);
+    std::string formattedString = formatString(constants_node_to_string);
+    std::cout << formattedString << "\n";
+    json jsonData = json::parse(formattedString);
+    // std::cout << jsonData["weapons"][0]["name"]; //"rock"
+    // // Access and print the JSON data
+    // for (const auto& weapon : jsonData["weapons"]) {
+    //     std::cout << "Weapon: " << weapon["name"] << ", Beats: " << weapon["beats"] << "\n";
+    // }
+
 
 }

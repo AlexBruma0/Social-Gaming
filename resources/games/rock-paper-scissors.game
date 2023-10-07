@@ -58,7 +58,9 @@ rules {
     }
 
     for weapon in weapons {
+      // checks if there are any players whos weapon is not "rock"
       match !players.elements.weapon.contains(weapon.name) {
+        //if a players weapon is not "rock", push to winners players that have the weapon that beat rock
         true => {
           extend winners with players.elements.collect(player, player.weapon = weapon.beats);
         }

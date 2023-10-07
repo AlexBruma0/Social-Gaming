@@ -10,6 +10,7 @@ set_target_properties(parser_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BI
 target_link_libraries(parser_test
   tree-sitter-socialgaming
   cpp-tree-sitter
+  nlohmann_json
   ${GTEST_BOTH_LIBRARIES} pthread
   parser
 )
