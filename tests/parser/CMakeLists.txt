@@ -13,6 +13,7 @@ target_link_libraries(parser_test
   nlohmann_json
   ${GTEST_BOTH_LIBRARIES} pthread
   parser
+  utils
 )
 
 add_test(NAME parser_test COMMAND parser_test)

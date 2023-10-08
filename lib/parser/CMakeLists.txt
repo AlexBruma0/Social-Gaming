@@ -2,7 +2,10 @@
 add_library(parser
         src/gameParser.cpp
 )
-set(CMAKE_CXX_STANDARD 20)
+add_library(utils
+        src/utils.cpp
+)
+
 target_include_directories(parser
   PUBLIC
     $<INSTALL_INTERFACE:include>
@@ -10,17 +13,37 @@ target_include_directories(parser
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+target_include_directories(utils
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
-target_compile_features(parser PUBLIC cxx_std_20)
 set_target_properties(parser
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 20
+                      CXX_STANDARD 17
+)
+
+set_target_properties(utils
+                      PROPERTIES
+                      LINKER_LANGUAGE CXX
+                      CXX_STANDARD 17
 )
 target_link_libraries( parser
 tree-sitter-socialgaming
 cpp-tree-sitter)
+
+target_link_libraries( utils
+tree-sitter-socialgaming
+nlohmann_json
+cpp-tree-sitter)
+
 install(TARGETS networking
   ARCHIVE DESTINATION lib
 )
+
+
+
