@@ -1,3 +1,11 @@
+/////////////////////////////////////////////////////////////////////////////
+//                         Single Threaded Networking
+//
+// This file is distributed under the MIT License. See the LICENSE file
+// for details.
+/////////////////////////////////////////////////////////////////////////////
+
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -9,15 +17,34 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-
-int main(int argc, char* argv[]) {
-
-    if (argc < 3) {
+int
+main(int argc, char* argv[]) {
+  if (argc < 3) {
     std::cerr << "Usage: \n  " << argv[0] << " <ip address> <port>\n"
               << "  e.g. " << argv[0] << " localhost 4002\n";
     return 1;
   }
+   // Get the number of clients you want to run from command line arguments.
+  int numClients = std::stoi(argv[3]);
 
+  // Create and run each client in a separate thread.
+  std::vector<std::thread> threads;
+  for (int i = 0; i < numClients; ++i) {
+    threads.emplace_back([&argv, i] {
+      RunChatClient(argv[1], argv[2]);
+    });
+  }
+
+  // Wait for all threads to finish.
+  for (auto& thread : threads) {
+    thread.join();
+  }
+  
+  return 0;
+}
+
+
+void RunChatClient(const std::string& ipAddress, const std::string& port) {
   networking::Client client{argv[1], argv[2]};
 
   bool done = false;
@@ -30,10 +57,7 @@ int main(int argc, char* argv[]) {
     }
   };
 
-
-
-//we'll have to edit the ftxui depending on the game states 
-using namespace ftxui;
+  using namespace ftxui;
 
   std::string entry;
   std::vector<Element> history;
@@ -69,12 +93,7 @@ using namespace ftxui;
     return false;
   });
 
-
-
-
-
-//I think we can keep this the same, considering its just waiting for a response and has a 50 millisecond delay
-const int UPDATE_INTERVAL_IN_MS = 50;
+  const int UPDATE_INTERVAL_IN_MS = 50;
   Loop loop(&screen, handler);
   while (!done && !client.isDisconnected() && !loop.HasQuitted()) {
     try {
@@ -95,5 +114,4 @@ const int UPDATE_INTERVAL_IN_MS = 50;
     std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_INTERVAL_IN_MS));
   }
 
-  return 0;
 }

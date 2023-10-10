@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////
+//                         Single Threaded Networking
+//
+// This file is distributed under the MIT License. See the LICENSE file
+// for details.
+/////////////////////////////////////////////////////////////////////////////
+
+
+#include "Server.h"
 
 #include <fstream>
 #include <iostream>
@@ -6,7 +15,6 @@
 #include <unistd.h>
 #include <vector>
 
-#include "Server.h"
 
 using networking::Server;
 using networking::Connection;
@@ -14,10 +22,13 @@ using networking::Message;
 
 
 std::vector<Connection> clients;
+//for multiple sessions
+std::vector<Server> gameServers;
 
 
-void onConnect(Connection c) {
-  std::cout << "New user found: " << c.id << "\n";
+void
+onConnect(Connection c) {
+  std::cout << "New connection found: " << c.id << "\n";
   clients.push_back(c);
 }
 
@@ -78,15 +89,29 @@ getHTTPMessage(const char* htmlLocation) {
   std::exit(-1);
 }
 
-int main(int argc, char* argv[]) {
+void StartGameServer(unsigned short port, const char* htmlLocation) {
+  Server server{port, getHTTPMessage(htmlLocation), onConnect, onDisconnect};
+  gameServers.push_back(server);
+}
+
+
+int
+main(int argc, char* argv[]) {
   if (argc < 3) {
     std::cerr << "Usage:\n  " << argv[0] << " <port> <html response>\n"
               << "  e.g. " << argv[0] << " 4002 ./webchat.html\n";
     return 1;
   }
 
-  const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
+  // const unsigned short port = std::stoi(argv[1]);
+  // Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
+
+  //parse with for loop, create new
+  for (int i = 1; i < argc; i += 2) {
+    unsigned short port = std::stoi(argv[i]);
+    const char* htmlLocation = argv[i + 1];
+    StartGameServer(port, htmlLocation);
+  }
 
   while (true) {
     bool errorWhileUpdating = false;
