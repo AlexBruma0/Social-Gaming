@@ -13,4 +13,7 @@ class Range{
     Range();
     int start;
     int end;
+    bool operator==(const Range &r) const;
 };
+
+

@@ -8,3 +8,7 @@ Range::Range(int s, int e){
 Range::Range(){
     
 }
+bool Range::operator==(const Range &r) const{
+    return this->start == r.start &&
+     this->end == r.end;
+}
