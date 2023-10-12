@@ -24,9 +24,9 @@ struct NodeTrait {
     static T parse(const std::string& data);
 };
 
-// (cstong) Wrapper class so that we can iterate over all tree nodes
-// Could not iterate over Treenode<T> since T might be different
-// Could try and use variants later, but will become long
+// (cstong) Base class to implement all other node types
+// Changed to no template so that the children nodes can be put in one list
+// Coulnd't iterate over a Treenode<T> vector because the t could be different types
 class TreeNode {
     public:
         TreeNode(const std::string& value)
@@ -45,6 +45,23 @@ class TreeNode {
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
 };
 
+
+class RuleNode: public TreeNode {
+public:
+    RuleNode(const std::string& value);
+    ~RuleNode();
+
+private:
+    std::string type;
+    std::string rule;
+};
+
+
+
+// (cstong) Traversere class to do execute and parse on each node
+// Like a wrapper class that will of form TreeNodeTraverse<RuleNode> 
+// Unsure if it should be a has or not 
+// Will experiment more
 template <typename T>
 class TreeNodeTraverser{
     public: 
@@ -54,6 +71,7 @@ class TreeNodeTraverser{
         ~TreeNodeTraverser(){};
 
         // Functions that every tree node should have
+        // Template classes need to have their functions implemented in the .h files
         void execute() {
             printf("executing\n");
             NodeTrait<T>::execute(static_cast<const T&>(node));
@@ -67,15 +85,6 @@ class TreeNodeTraverser{
             T node;
 };
 
-class RuleNode: public TreeNode {
-public:
-    RuleNode(const std::string& value);
-    ~RuleNode();
-
-private:
-    std::string type;
-    std::string rule;
-};
 
 // Explicit specialization for NodeTrait
 template <>
@@ -93,6 +102,7 @@ struct NodeTrait<discardNode> {
 template <>
 struct NodeTrait<RuleNode> {
     static void execute(const RuleNode& node){
+        // Printing Test
         printf("I'm a ruleNode!\n");
     };
     static RuleNode parse(const std::string& data);

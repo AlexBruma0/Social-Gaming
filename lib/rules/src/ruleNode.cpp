@@ -29,7 +29,7 @@ T NodeTrait<T>::parse(const std::string& data) {
 
 /*
 -------------------------------------------
-TREE BASE CLASS 
+TREE NODE CLASS 
 -------------------------------------------
 */
 
@@ -47,8 +47,6 @@ void TreeNode::printTree(int depth) const {
         child->printTree(depth + 1);
     }
 }
-
-
 
 
 
