@@ -9,12 +9,13 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <gtest/gtest_prod.h>
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 class forNode;
 class discardNode;
-class TreeInterface;
-template <typename T> class TreeNode;
+class TreeNode;
+template <typename T> class TreeNodeImpl;
 
 // Define a trait for Node behavior
 template <typename T>
@@ -23,39 +24,53 @@ struct NodeTrait {
     static T parse(const std::string& data);
 };
 
-
-class TreeInterface {
-
-};
-
-template <typename T>
+// (cstong) Wrapper class so that we can iterate over all tree nodes
+// Could not iterate over Treenode<T> since T might be different
+// Could try and use variants later, but will become long
 class TreeNode {
-    public: 
+    public:
         TreeNode(const std::string& value)
-            : value(value){};
+            : value(value){}
 
         // (cstong) Destructor needed if we cast a derrived class into a treenode pointer then destruct it
         // Might not need but I'll leave just in case
         virtual ~TreeNode(){};
-
-        // Functions that every tree node should have
         void printTree(int depth = 0) const;
-        void execute() ;
-        static T parse(const std::string& data);
-        void addChild(const TreeNode<T>& child);
-    private: 
-        std::vector<TreeNode> children;
+        void addChild(const TreeNode* child);
+    private:
+        std::vector<const TreeNode*> children;
         std::string value;
-
+        
+        // Gtest to test private fields
+        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
 };
 
-
 template <typename T>
-class RuleNode: public TreeNode<T> {
+class TreeNodeTraverser{
+    public: 
+        TreeNodeTraverser(const T& node)
+            : node(node){};
+
+        ~TreeNodeTraverser(){};
+
+        // Functions that every tree node should have
+        void execute() {
+            printf("executing\n");
+            NodeTrait<T>::execute(static_cast<const T&>(node));
+        }
+
+        // Parse data to create a node
+        T parse(const std::string& data) {
+            return NodeTrait<T>::parse(data);
+        }
+        private:
+            T node;
+};
+
+class RuleNode: public TreeNode {
 public:
     RuleNode(const std::string& value);
     ~RuleNode();
-    void addChild(const TreeNode<T>& child);
 
 private:
     std::string type;
@@ -73,6 +88,14 @@ template <>
 struct NodeTrait<discardNode> {
     static void execute(const discardNode& node);
     static discardNode parse(const std::string& data);
+};
+
+template <>
+struct NodeTrait<RuleNode> {
+    static void execute(const RuleNode& node){
+        printf("I'm a ruleNode!\n");
+    };
+    static RuleNode parse(const std::string& data);
 };
 
 #endif //SOCIAL_GAMING_RULENODE_H

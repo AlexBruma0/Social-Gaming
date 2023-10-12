@@ -18,25 +18,13 @@ NODE TRIAT CLASSES
 template <typename T>
 void NodeTrait<T>::execute(const T& node) {
     // Default behavior (do nothing)
+    printf("test");
 }
 template <typename T>
 T NodeTrait<T>::parse(const std::string& data) {
     // Default behavior (return an empty node)
     return T();
 }
-
-template <typename T>
-void TreeNode<T>::printTree(int depth) const {
-    for (int i = 0; i < depth; i++) {
-        std::cout << "  ";
-    }
-    std::cout << value << std::endl;
-
-    for (const TreeNode& child : children) {
-        child.printTree(depth + 1);
-    }
-}
-
 
 
 /*
@@ -45,21 +33,22 @@ TREE BASE CLASS
 -------------------------------------------
 */
 
-template <typename T>
-void TreeNode<T>::execute() {
-    NodeTrait<T>::execute(static_cast<const T&>(*this));
-}
-
-// Parse data to create a node
-template <typename T>
-T TreeNode<T>::parse(const std::string& data) {
-    return NodeTrait<T>::parse(data);
-}
-
-template <typename T>
-void TreeNode<T>::addChild(const TreeNode<T>& child) {
+void TreeNode::addChild(const TreeNode* child) {
     children.push_back(child);
 }
+
+void TreeNode::printTree(int depth) const {
+    for (int i = 0; i < depth; i++) {
+        std::cout << "  ";
+    }
+    std::cout << value << std::endl;
+
+    for (const auto child : children) {
+        child->printTree(depth + 1);
+    }
+}
+
+
 
 
 
@@ -70,8 +59,9 @@ RULE NODE CLASSES
 */
 
 // Needs to call base class constructor to populate and use the value field
-template <typename T>
-RuleNode<T>::RuleNode(const std::string& value) : TreeNode<T>(value) {};
+RuleNode::RuleNode(const std::string& value) : TreeNode(value) {};
+
+RuleNode::~RuleNode(){}
 
 
 

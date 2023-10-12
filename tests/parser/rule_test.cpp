@@ -26,13 +26,14 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
-TEST (RuleTests, NO_SOURCECODE_TEST) {
-    std::string sourcecode = "";
-    ts::Tree tree = string_to_tree(sourcecode);
+TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
+    TreeNode t("test");
+    ASSERT_EQ(t.value, "test");
+    ASSERT_EQ(t.children.size(), 0);
+}
 
-    ts::Node root = tree.getRootNode();
-    ASSERT_FALSE(root.isNull());
-    ASSERT_EQ(root.getNumChildren(), 0);
-    ASSERT_EQ(root.getType(), "ERROR");
-
+TEST (RuleTests, RULE_NODE_INSTANTIATE) {
+    RuleNode r("test");
+    TreeNodeTraverser t(r);
+    t.execute();
 }
