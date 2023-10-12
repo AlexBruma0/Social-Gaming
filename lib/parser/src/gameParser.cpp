@@ -3,7 +3,9 @@
 #include <iostream>
 #include <cstdio>
 #include <cpp-tree-sitter.h>
+#include <vector>
 #include <exception>
+#include <algorithm>
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -52,20 +54,27 @@ std::string getSubstringByByteRange(const std::string& input, size_t startByte, 
     return input.substr(startIndex, length);
 }
 
+std::string getSubstringForNode(const ts::Node& node, const std::string& source_code) {
+    return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
+}
+
 void dfs(const ts::Node& node, const std::string& source_code) {
+    // valid rule types
+    std::vector<std::string_view> allowedTypes = {
+            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
+            "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
+            "input_range", "message", "scores"
+    };
+
     // Skip nodes with type "comment"
     if (node.getType() == "comment") {
         return;
     }
-
-    // Print out all information about a node
-    std::cout << "Node Type: " << node.getType() << std::endl;
-    std::cout << "byte range: " << node.getByteRange().start << ", " << node.getByteRange().end << std::endl;
-    // Pring substring if type is quoted_string or number
-    if(node.getType() == "quoted_string" || node.getType() == "number"){
-        std::cout << "substring: " << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end ) << std::endl;
+    auto it = std::find(allowedTypes.begin(), allowedTypes.end(), node.getType());
+    if (it != allowedTypes.end()) {
+        std::cout << "NODE FOUND of type " << node.getType() << std::endl;
+        std::cout << getSubstringForNode(node, source_code) << std::endl;
     }
-    std::cout << "num of children: " << node.getNumChildren() << std::endl << std::endl;
 
     // Recursively visit children nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
