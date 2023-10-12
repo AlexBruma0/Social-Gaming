@@ -1,60 +1,83 @@
-//
-// Created by kevin on 10/11/2023.
-//
+/*
+ Created by kevin on 10/11/2023.
 
-#include "../support/include/interpreterSupport.h"
-#include "RuleNode.h"
-#include <string>
-#include <vector>
+ Edited:
+    cstong (Caleb) 10/12/2023 
+*/
+
+
+#include "ruleNode.h"
+
+/*
+-------------------------------------------
+NODE TRIAT CLASSES
+-------------------------------------------
+*/
 
 // define a trait for Node behaviour
 template <typename T>
-struct RuleTrait {
-    static void execute(const T& node) {
-        // Default behavior (do nothing)
-    }
-
-    static T parse(const std::string& data) {
-        // Default behavior (return an empty node)
-        return T();
-    }
-};
+void NodeTrait<T>::execute(const T& node) {
+    // Default behavior (do nothing)
+}
+template <typename T>
+T NodeTrait<T>::parse(const std::string& data) {
+    // Default behavior (return an empty node)
+    return T();
+}
 
 template <typename T>
-class RuleNode {
-public:
-    TreeNode(const std::string& value) : value(value) {};
-
-    void addChild(const TreeNode& child) {
-        children.push_back(child);
+void TreeNode<T>::printTree(int depth) const {
+    for (int i = 0; i < depth; i++) {
+        std::cout << "  ";
     }
+    std::cout << value << std::endl;
 
-    void printTree(int depth = 0) const {
-        for (int i = 0; i < depth; i++) {
-            std::cout << "  ";
-        }
-        std::cout << value << std::endl;
-
-        for (const TreeNode& child : children) {
-            child.printTree(depth + 1);
-        }
+    for (const TreeNode& child : children) {
+        child.printTree(depth + 1);
     }
+}
 
-    void execute() {
-        NodeTrait<T>::execute(static_cast<const T&>(*this));
-    }
 
-    // Parse data to create a node
-    static T parse(const std::string& data) {
-        return NodeTrait<T>::parse(data);
-    }
 
-private:
-    std::string type;
-    std::string rule;
-    std::vector<RuleNode> children;
-};
+/*
+-------------------------------------------
+TREE BASE CLASS 
+-------------------------------------------
+*/
 
+template <typename T>
+void TreeNode<T>::execute() {
+    NodeTrait<T>::execute(static_cast<const T&>(*this));
+}
+
+// Parse data to create a node
+template <typename T>
+T TreeNode<T>::parse(const std::string& data) {
+    return NodeTrait<T>::parse(data);
+}
+
+template <typename T>
+void TreeNode<T>::addChild(const TreeNode<T>& child) {
+    children.push_back(child);
+}
+
+
+
+/*
+-------------------------------------------
+RULE NODE CLASSES
+-------------------------------------------
+*/
+
+// Needs to call base class constructor to populate and use the value field
+template <typename T>
+RuleNode<T>::RuleNode(const std::string& value) : TreeNode<T>(value) {};
+
+
+
+// (cstong) TEMP COMMENTED OUT
+
+/*
 // templatization; inserting the implementations
 template <>
 struct NodeTrait<forNode> {
@@ -102,3 +125,5 @@ struct NodeTrait<discardNode> {
 //          "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
 //          "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
 //          "input_range", "message", "scores"
+
+*/
