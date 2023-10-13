@@ -54,7 +54,6 @@ class TreeNodeTraverser{
         // Functions that every tree node should have
         // Template classes need to have their functions implemented in the .h files
         void execute() {
-            printf("executing\n");
             NodeTrait<T>::execute(static_cast<const T&>(node));
         }
 
@@ -81,9 +80,9 @@ class TreeNode {
 
         // Unique pointers now
         // Should help to not have to keep track of memory
-        void addChild(std::unique_ptr<TreeNode> child);
+        void addChild(const TreeNode* child);
     private:
-        std::vector<std::unique_ptr<TreeNode>> children;
+        std::vector<TreeNode*> children;
         std::string value;
         
         // Gtest to test private fields

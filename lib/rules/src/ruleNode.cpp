@@ -33,8 +33,8 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-void TreeNode::addChild(std::unique_ptr<TreeNode> child) {
-    children.push_back(std::move(child));
+void TreeNode::addChild(const TreeNode* child) {
+    children.push_back(const_cast<TreeNode*>(child));
 }
 
 void TreeNode::printTree(int depth) const {

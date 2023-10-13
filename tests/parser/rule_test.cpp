@@ -35,14 +35,17 @@ TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
 TEST (RuleTests, TREE_NODE_CHILDREN) {
     TreeNode parent;
     ASSERT_EQ(parent.children.size(), 0);
-    auto child = std::make_unique<RuleNode>();
-    child->value = "childString";
-    parent.addChild(std::move(child));
+    RuleNode child;
+    child.value = "childString";
+    parent.addChild(&child);
 
     ASSERT_EQ(parent.children.size(), 1);
     ASSERT_EQ(parent.children[0]->value, "childString");
-    if(dynamic_cast<RuleNode*>((parent.children[0].get()))){
-        auto ptr = dynamic_cast<RuleNode*>((parent.children[0].get()));
+
+    // Dynamic testing
+    // Will probably create a convert function 
+    auto ptr = dynamic_cast<RuleNode*>((parent.children[0]));
+    if(ptr){
         TreeNodeTraverser t(*ptr);
         t.execute();
     }
