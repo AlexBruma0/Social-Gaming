@@ -1,11 +1,9 @@
-#include "Config.h"
+#include <string>
 class Game{
+    private:
+    std::string gameString;
     public:
-    Config config;
-    map<std::string,map<std::string,std::string>> constants;
-    map<std::string,std::string> variables;
-    map<std::string,int> per_player;
-    map<std::string,int> per_audience;
-    //Structure of Rules TBD
-    Game();
+    Game(std::string gamestring);
+    std::string getString() const;
+    void setString(std::string s);
 };
