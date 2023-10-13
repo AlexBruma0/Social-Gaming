@@ -33,8 +33,8 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-void TreeNode::addChild(const TreeNode* child) {
-    children.push_back(child);
+void TreeNode::addChild(std::unique_ptr<TreeNode> child) {
+    children.push_back(std::move(child));
 }
 
 void TreeNode::printTree(int depth) const {
@@ -43,7 +43,7 @@ void TreeNode::printTree(int depth) const {
     }
     std::cout << value << std::endl;
 
-    for (const auto child : children) {
+    for (const auto& child : children) {
         child->printTree(depth + 1);
     }
 }
@@ -52,14 +52,20 @@ void TreeNode::printTree(int depth) const {
 
 /*
 -------------------------------------------
-RULE NODE CLASSES
+NODE CLASSES
 -------------------------------------------
 */
 
 // Needs to call base class constructor to populate and use the value field
-RuleNode::RuleNode(const std::string& value) : TreeNode(value) {};
+RuleNode::RuleNode() : TreeNode() {};
 
 RuleNode::~RuleNode(){}
+
+
+// Needs to call base class constructor to populate and use the value field
+ForNode::ForNode() : TreeNode() {};
+
+ForNode::~ForNode(){}
 
 
 

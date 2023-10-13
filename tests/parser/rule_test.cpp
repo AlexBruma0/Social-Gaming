@@ -27,13 +27,25 @@ extern "C" {
 }
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
-    TreeNode t("test");
-    ASSERT_EQ(t.value, "test");
+    TreeNode t;
+    ASSERT_EQ(t.value, "");
     ASSERT_EQ(t.children.size(), 0);
 }
 
-TEST (RuleTests, RULE_NODE_INSTANTIATE) {
-    RuleNode r("test");
-    TreeNodeTraverser t(r);
-    t.execute();
+TEST (RuleTests, TREE_NODE_CHILDREN) {
+    TreeNode parent;
+    ASSERT_EQ(parent.children.size(), 0);
+    auto child = std::make_unique<RuleNode>();
+    child->value = "childString";
+    parent.addChild(std::move(child));
+
+    ASSERT_EQ(parent.children.size(), 1);
+    ASSERT_EQ(parent.children[0]->value, "childString");
+    if(dynamic_cast<RuleNode*>((parent.children[0].get()))){
+        auto ptr = dynamic_cast<RuleNode*>((parent.children[0].get()));
+        TreeNodeTraverser t(*ptr);
+        t.execute();
+    }
+    
 }
+
