@@ -25,150 +25,63 @@ extern "C" {
 //TSLanguage *tree_sitter_json();
     TSLanguage *tree_sitter_socialgaming();
 }
-void printCursor(const ts::Cursor& c) {
-    ts::Node node = c.getCurrentNode();
-    std::cout << node.getType() << " Children: " << node.getNumChildren() << std::endl;
-}
-json generateNumbersList(int start, int end) {
-    json numbers;
-    for (int i = start; i <= end; ++i) {
-        numbers.push_back(i);
-    }
-    return numbers;
-}
+TEST (ParserTests, NO_SOURCECODE_TEST) {
+    std::string sourcecode = "";
+    ts::Tree tree = string_to_tree(sourcecode);
 
-json findObjectWithStringArray(std::vector<std::string> strings, json jsonObj){
-
-    // check if data is in constants
-    if(!jsonObj["constants"][strings[0]].is_null()){
-        jsonObj = jsonObj["constants"];
-    }
-
-    // check if data is in variables
-    if(!jsonObj["variables"][strings[0]].is_null()){
-        jsonObj = jsonObj["variables"];
-    }
-
-    json* currentObject = &jsonObj;
-
-    for (const std::string& key : strings) {
-    // Check if the key exists in the current JSON object
-    auto it = currentObject->find(key);
-    if (it != currentObject->end()) {
-        // Key exists, update the current JSON object
-        currentObject = &(*it);
-    } else {
-            json empty_object;
-            std::cout << "Key '" << key << "' not found." << std::endl;
-            return empty_object;
-        }
-    }
-    return *currentObject;
-}
-
-// transforms expression into JSON array
-json extractListExpression(const ts::Node &listExpressionNode, const std::string& source_code, json jsonObj) {
-
-    
-    bool upfromPresent = false;
-    json output;
-
-    for (size_t i = 0; i < listExpressionNode.getNumChildren(); ++i) {
-        const ts::Node childNode = listExpressionNode.getChild(i);
-
-        // Check for "upfrom"
-        if (childNode.getType() == "builtin") {
-            upfromPresent = true;
-
-            // Assume that the value is a direct child of "upfrom"
-            ts::Node valueNode = childNode.getChild(0);
-            break;  // We found "upfrom", no need to search further
-        }
-    }
-
-    const ts::Node listExpressionFirstNode = listExpressionNode.getChild(0);
-    std::vector<std::string> strings{};
-
-    if(listExpressionFirstNode.getNumChildren() == 0){
-        strings.emplace_back(get_node_value(listExpressionFirstNode, source_code));
-    }
-
-    for (size_t i = 0; i < listExpressionFirstNode.getNumChildren(); ++i){
-        const ts::Node childNode = listExpressionFirstNode.getChild(i);
-        if(childNode.getType() == "identifier"){
-            std::string s = getSubstringByByteRange(source_code, childNode.getByteRange().start, childNode.getByteRange().end );
-            strings.emplace_back(s);
-        }else if(childNode.getType() == "expression"){
-            const ts::Node childChildNode = childNode.getChild(0);
-            std::string s = getSubstringByByteRange(source_code, childChildNode.getByteRange().start, childChildNode.getByteRange().end );
-            strings.emplace_back(s);
-        }
-    }
-    
-    if(upfromPresent){
-        json json_return = findObjectWithStringArray(strings, jsonObj);
-        output = generateNumbersList(1, json_return);
-
-    } else{
-        json json_return = findObjectWithStringArray(strings, jsonObj);
-        output = json_return;
-    }
-
-    return output;
-}
-
-
-// executes a list of statements one at a time
-
-void dfs(const ts::Node& node, const std::string& source_code, json& jsonData, std::vector<json>& array_lists, std::vector<int>& indexes ) {
-    
-
-    ts::Node node_to_execute = node;
-    // if we see a forEach loop 
-    if(node_to_execute.getType() == "rule"){
-        ts::Node exeuctable_node = node_to_execute.getChild(0);
-        if(exeuctable_node.getType() == "for" || exeuctable_node.getType() == "parallel_for"){
-            printNode(exeuctable_node);
-            const ts::Node list_node = exeuctable_node.getChild(3);
-            json array_list = extractListExpression(list_node, source_code, jsonData);
-            // push to array_list stack
-            indexes.emplace_back(0);
-            // push index = 0 to stack
-            array_lists.emplace_back(array_list);
-        }
-    }
-    // Recursively visit children nodes
-    for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        dfs(node.getChild(i), source_code, jsonData, array_lists, indexes);
-    }
-    // Revisit the node forEach loop nodes 
-    if(node_to_execute.getType() == "rule"){
-        ts::Node exeuctable_node = node_to_execute.getChild(0);
-
-        if((exeuctable_node.getType() == "for" || exeuctable_node.getType() == "parallel_for") ){
-           
-            // check if index is greater than the size of the list
-            indexes.back()++;
-            std::cout<<"\nlist size: " <<array_lists.back().size()<< "\n";
-            std::cout<<"\nindex: " << indexes.back()<< "\n";
-            if(indexes.back() >= array_lists.back().size()){
-                std::cout <<"\nfor loop over\n";
-                // pop from the stack 
-                array_lists.pop_back();
-                indexes.pop_back();
-
-            } else {
-                
-                dfs(node,source_code, jsonData, array_lists, indexes);
-            }
-        }
-    }
+    ts::Node root = tree.getRootNode();
+    ASSERT_FALSE(root.isNull());
+    ASSERT_EQ(root.getNumChildren(), 0);
+    ASSERT_EQ(root.getType(), "ERROR");
 
 }
 
+TEST(ParserTests, EMPTY_TEST) {
+    // Read file as SocialGaming code and parse into a syntax tree
+    std::string sourcecode = file_to_string(EMPTY_GAME_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
 
+    // Access the root node of the AST
+    ts::Node root = tree.getRootNode();
+
+    // GTest to see if correct number of children are read
+    ASSERT_EQ(root.getNumChildren(), 7);
+    std::cout << root.getNumChildren() << "\n";
+
+    ASSERT_EQ(root.getType(), "game");
+    ASSERT_EQ(root.getChild(0).getType(), "configuration");
+    ASSERT_EQ(root.getChild(1).getType(), "constants");
+    ASSERT_EQ(root.getChild(2).getType(), "variables");
+    ASSERT_EQ(root.getChild(3).getType(), "per_player");
+    ASSERT_EQ(root.getChild(4).getType(), "per_audience");
+    ASSERT_EQ(root.getChild(5).getType(), "rules");
+
+    // Printing the tree; leave commented out unless you want to see it
+    //std::cout << root.getSExpr().get() << "\n";
+    dfs(root, sourcecode);
+}
 
 TEST(ParserTests, RPS_TEST) {
+    // Read file as SocialGaming code and parse into a syntax tree
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    // Access the root node of the AST
+    ts::Node root = tree.getRootNode();
+
+    // GTest to see if correct number of children are read
+    ASSERT_EQ(root.getNumChildren(), 19);
+    std::cout << root.getNumChildren() << "\n";
+
+    // Printing the tree; leave commented out unless you want to see it
+    //std::cout << root.getSExpr().get() << "\n";
+    dfs(root, sourcecode);
+}
+
+
+
+
+TEST(ParserTests, RPS_TEST_JSON) {
     const int num_players = 3;
     const int num_rounds = 2;
 
@@ -184,14 +97,7 @@ TEST(ParserTests, RPS_TEST) {
     for(int i = 0; i < num_players; i++){
         jsonData["players"][i] = jsonData["per-player"];
     }
-    //std::cout << jsonData.dump() << "\n";
+
     std::cout << jsonData.dump() << "\n";
-    ts::Node rules_node = root.getChildByFieldName("rules");
-    ts::Node rules_node_body = rules_node.getChildByFieldName("body");
-    ts::Cursor c = rules_node_body.getCursor();
-    // initialize empty array_lists and indexes array
-    std::vector<json> array_lists{};
-    std::vector<int> indexes{};
-    //dfs(rules_node_body, sourcecode, jsonData, array_lists, indexes);
 
 }

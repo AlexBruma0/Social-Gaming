@@ -220,3 +220,95 @@ json create_json_data(ts::Node root, const std::string& sourcecode) {
 
     return json_data;
 }
+
+void printCursor(const ts::Cursor& c) {
+    ts::Node node = c.getCurrentNode();
+    std::cout << node.getType() << " Children: " << node.getNumChildren() << std::endl;
+}
+json generateNumbersList(int start, int end) {
+    json numbers;
+    for (int i = start; i <= end; ++i) {
+        numbers.push_back(i);
+    }
+    return numbers;
+}
+// looks for a json variable in a json object given an array of strings
+json findObjectWithStringArray(std::vector<std::string> strings, json jsonObj){
+
+    // check if data is in constants
+    if(!jsonObj["constants"][strings[0]].is_null()){
+        jsonObj = jsonObj["constants"];
+    }
+
+    // check if data is in variables
+    if(!jsonObj["variables"][strings[0]].is_null()){
+        jsonObj = jsonObj["variables"];
+    }
+
+    json* currentObject = &jsonObj;
+
+    for (const std::string& key : strings) {
+    // Check if the key exists in the current JSON object
+    auto it = currentObject->find(key);
+    if (it != currentObject->end()) {
+        // Key exists, update the current JSON object
+        currentObject = &(*it);
+    } else {
+            json empty_object;
+            std::cout << "Key '" << key << "' not found." << std::endl;
+            return empty_object;
+        }
+    }
+    return *currentObject;
+}
+
+// transforms expression into JSON array
+json extractListExpression(const ts::Node &listExpressionNode, const std::string& source_code, json jsonObj) {
+
+    
+    bool upfromPresent = false;
+    json output;
+
+    for (size_t i = 0; i < listExpressionNode.getNumChildren(); ++i) {
+        const ts::Node childNode = listExpressionNode.getChild(i);
+
+        // Check for "upfrom"
+        if (childNode.getType() == "builtin") {
+            upfromPresent = true;
+
+            // Assume that the value is a direct child of "upfrom"
+            ts::Node valueNode = childNode.getChild(0);
+            break;  // We found "upfrom", no need to search further
+        }
+    }
+
+    const ts::Node listExpressionFirstNode = listExpressionNode.getChild(0);
+    std::vector<std::string> strings{};
+
+    if(listExpressionFirstNode.getNumChildren() == 0){
+        strings.emplace_back(get_node_value(listExpressionFirstNode, source_code));
+    }
+
+    for (size_t i = 0; i < listExpressionFirstNode.getNumChildren(); ++i){
+        const ts::Node childNode = listExpressionFirstNode.getChild(i);
+        if(childNode.getType() == "identifier"){
+            std::string s = getSubstringByByteRange(source_code, childNode.getByteRange().start, childNode.getByteRange().end );
+            strings.emplace_back(s);
+        }else if(childNode.getType() == "expression"){
+            const ts::Node childChildNode = childNode.getChild(0);
+            std::string s = getSubstringByByteRange(source_code, childChildNode.getByteRange().start, childChildNode.getByteRange().end );
+            strings.emplace_back(s);
+        }
+    }
+    
+    if(upfromPresent){
+        json json_return = findObjectWithStringArray(strings, jsonObj);
+        output = generateNumbersList(1, json_return);
+
+    } else{
+        json json_return = findObjectWithStringArray(strings, jsonObj);
+        output = json_return;
+    }
+
+    return output;
+}

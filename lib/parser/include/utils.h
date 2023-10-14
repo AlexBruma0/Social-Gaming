@@ -19,5 +19,8 @@ std::string formatString(std::string& input);
 json create_json_data(ts::Node root, const std::string& sourcecode);
 // gets the value for the substring given by the byte range
 std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte);
+void printCursor(const ts::Cursor& c);
+json findObjectWithStringArray(std::vector<std::string> strings, json jsonObj);
+json extractListExpression(const ts::Node &listExpressionNode, const std::string& source_code, json jsonObj);
 
 #endif // UTILS_H
