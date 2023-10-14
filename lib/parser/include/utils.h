@@ -16,7 +16,7 @@ std::string RemoveLastNonSpaceBeforeClosingBracket(const std::string& str);
 void replaceSubstring(std::string& str, const std::string& substr, const std::string& replacement);
 void deleteCommaInRegularExpression(std::string& str);
 std::string formatString(std::string& input);
-json get_json_data(ts::Node root, const std::string& sourcecode);
+json create_json_data(ts::Node root, const std::string& sourcecode);
 // gets the value for the substring given by the byte range
 std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte);
 

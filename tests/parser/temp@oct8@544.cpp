@@ -27,7 +27,7 @@ extern "C" {
 }
 void printCursor(const ts::Cursor& c) {
     ts::Node node = c.getCurrentNode();
-    std::cout << node.getType() << " Children: " << node.getNumChildren() << std::endl;
+    std::cout << "Node Type: " << node.getType() << " Children: " << node.getNumChildren() << std::endl;
 }
 json generateNumbersList(int start, int end) {
     json numbers;
@@ -117,51 +117,47 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
     return output;
 }
 
+void executeListOfStatements(ts::Cursor& c, const std::string& source_code,const json jsonObj);
+
+void executeForEachLoop(const std::string &variable, json list,ts::Cursor& c, const std::string& source_code,const json jsonObj ) {
+    // Traverse the list of elements and execute the statement list for each element
+    std::cout << "\n";
+    for (const auto &element : list) {
+        std::cout << "Executing for " << variable << " = " << element << ":\n";
+        c.gotoFirstChild();
+        c.gotoFirstChild();
+        c.gotoNextSibling();
+        c.gotoNextSibling();
+        c.gotoNextSibling();
+        c.gotoNextSibling();
+        c.gotoNextSibling();
+        c.gotoFirstChild();
+        executeListOfStatements(c,source_code, jsonObj);
+        std::cout << "Statement executed for " << variable << " = " << element << "\n";
+    }
+}
 
 // executes a list of statements one at a time
-
-void dfs(const ts::Node& node, const std::string& source_code, json& jsonData, std::vector<json>& array_lists, std::vector<int>& indexes ) {
+void executeListOfStatements(ts::Cursor& c, const std::string& source_code,const json jsonObj) {
     
-
-    ts::Node node_to_execute = node;
-    // if we see a forEach loop 
+    ts::Node node_to_execute = c.getCurrentNode();
     if(node_to_execute.getType() == "rule"){
+
         ts::Node exeuctable_node = node_to_execute.getChild(0);
         if(exeuctable_node.getType() == "for" || exeuctable_node.getType() == "parallel_for"){
-            printNode(exeuctable_node);
+            std::cout << "\n executing for each loop...\n";
+            ts::Node variable_node = exeuctable_node.getChild(1);
+            std::string variable = get_node_value(variable_node, source_code);
             const ts::Node list_node = exeuctable_node.getChild(3);
-            json array_list = extractListExpression(list_node, source_code, jsonData);
-            // push to array_list stack
-            indexes.emplace_back(0);
-            // push index = 0 to stack
-            array_lists.emplace_back(array_list);
+
+            json list_array = extractListExpression(list_node, source_code, jsonObj);
+            executeForEachLoop(variable, list_array, c,source_code, jsonObj);
         }
     }
-    // Recursively visit children nodes
-    for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        dfs(node.getChild(i), source_code, jsonData, array_lists, indexes);
-    }
-    // Revisit the node forEach loop nodes 
-    if(node_to_execute.getType() == "rule"){
-        ts::Node exeuctable_node = node_to_execute.getChild(0);
 
-        if((exeuctable_node.getType() == "for" || exeuctable_node.getType() == "parallel_for") ){
-           
-            // check if index is greater than the size of the list
-            indexes.back()++;
-            std::cout<<"\nlist size: " <<array_lists.back().size()<< "\n";
-            std::cout<<"\nindex: " << indexes.back()<< "\n";
-            if(indexes.back() >= array_lists.back().size()){
-                std::cout <<"\nfor loop over\n";
-                // pop from the stack 
-                array_lists.pop_back();
-                indexes.pop_back();
-
-            } else {
-                
-                dfs(node,source_code, jsonData, array_lists, indexes);
-            }
-        }
+    while(c.gotoNextSibling()){
+        std::cout << "\n going to next node \n";
+        executeListOfStatements(c,source_code, jsonObj);
     }
 
 }
@@ -177,21 +173,39 @@ TEST(ParserTests, RPS_TEST) {
 
     // Access the root node of the AST
     ts::Node root = tree.getRootNode();
+    //ts::Cursor c = root.getCursor();
+    // printCursor(c);
+    // std::cout << c.gotoFirstChild();
+    // printCursor(c);
+    // std::cout << c.gotoNextSibling();
+    // printCursor(c);
+    // std::cout << c.gotoFirstChild();
+    // printCursor(c);
+    // std::cout << c.gotoNextSibling();
+    // printCursor(c);
+    // std::cout << c.gotoFirstChild();
+    // std::cout << c.gotoNextSibling();
 
     json jsonData = create_json_data(root, sourcecode);
+    //std::cout << jsonData.dump() << "\n";
+    // Initialize the data for each player
+    //std::cout << jsonData["constants"]["weapons"][0]["name"]; //"rock"
 
     jsonData["configuration"]["rounds"] = num_rounds;
     for(int i = 0; i < num_players; i++){
         jsonData["players"][i] = jsonData["per-player"];
     }
     //std::cout << jsonData.dump() << "\n";
-    std::cout << jsonData.dump() << "\n";
+
     ts::Node rules_node = root.getChildByFieldName("rules");
     ts::Node rules_node_body = rules_node.getChildByFieldName("body");
     ts::Cursor c = rules_node_body.getCursor();
-    // initialize empty array_lists and indexes array
-    std::vector<json> array_lists{};
-    std::vector<int> indexes{};
-    //dfs(rules_node_body, sourcecode, jsonData, array_lists, indexes);
+    c.gotoFirstChild();
+    executeListOfStatements(c, sourcecode, jsonData);
+    // // Access and print the JSON data
+    // for (const auto& weapon : jsonData["weapons"]) {
+    //     std::cout << "Weapon: " << weapon["name"] << ", Beats: " << weapon["beats"] << "\n";
+    // }
+
 
 }
