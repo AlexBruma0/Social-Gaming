@@ -10,7 +10,7 @@
 
 /*
 -------------------------------------------
-NODE TRIAT CLASSES
+NODE TRAIT CLASSES
 -------------------------------------------
 */
 
@@ -33,8 +33,8 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-void TreeNode::addChild(const TreeNode* child) {
-    children.push_back(const_cast<TreeNode*>(child));
+void TreeNode::addChild(std::shared_ptr<TreeNode> child) {
+    children.push_back(child);
 }
 
 void TreeNode::printTree(int depth) const {

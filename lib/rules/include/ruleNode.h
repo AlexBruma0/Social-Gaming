@@ -46,7 +46,7 @@ struct NodeTrait {
 template <typename T>
 class TreeNodeTraverser{
     public: 
-        TreeNodeTraverser(const T& node)
+        TreeNodeTraverser(const std::shared_ptr<T>& node)
             : node(node){};
 
         ~TreeNodeTraverser(){};
@@ -54,11 +54,12 @@ class TreeNodeTraverser{
         // Functions that every tree node should have
         // Template classes need to have their functions implemented in the .h files
         void execute() {
-            NodeTrait<T>::execute(static_cast<const T&>(node));
+            //NodeTrait<T>::execute(static_cast<const T&>(node));
+            NodeTrait<T>::execute(node);
         }
 
         // Parse data to create a node
-        T parse(const std::string& data) {
+        std::shared_ptr<T> parse(const std::string& data) {
             return NodeTrait<T>::parse(data);
         }
         private:
@@ -80,9 +81,9 @@ class TreeNode {
 
         // Unique pointers now
         // Should help to not have to keep track of memory
-        void addChild(const TreeNode* child);
+        void addChild(std::shared_ptr<TreeNode> child);
     private:
-        std::vector<TreeNode*> children;
+        std::vector<std::shared_ptr<TreeNode>> children;
         std::string value;
         
         // Gtest to test private fields
@@ -94,11 +95,14 @@ class TreeNode {
 class RuleNode: public TreeNode {
 public:
     RuleNode();
+    RuleNode(const std::shared_ptr<RuleNode>& sharedPtr)
+            : TreeNode(), type(""), rule(""), sharedPtr_(sharedPtr) {}
     ~RuleNode();
 
 private:
     std::string type;
     std::string rule;
+    std::shared_ptr<RuleNode> sharedPtr_;
 };
 
 template <>
