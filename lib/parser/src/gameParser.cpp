@@ -62,9 +62,9 @@ void dfs(const ts::Node& node, const std::string& source_code) {
     std::cout << "Node Type: " << node.getType() << std::endl;
     std::cout << "byte range: " << node.getByteRange().start << ", " << node.getByteRange().end << std::endl;
     // Pring substring if type is quoted_string or number
-    if(node.getType() == "quoted_string" || node.getType() == "number"){
+    //if(node.getType() == "quoted_string" || node.getType() == "number"){
         std::cout << "substring: " << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end ) << std::endl;
-    }
+    //}
     std::cout << "num of children: " << node.getNumChildren() << std::endl << std::endl;
 
     // Recursively visit children nodes
