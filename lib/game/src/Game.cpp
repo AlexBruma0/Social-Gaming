@@ -8,7 +8,7 @@ std::string Game::getString() const{
     return this->gameString;
 }
 
-void Game::setString(std::string s){
-    this->gameString = s;
+void Game::setString(std::string gameString){
+    this->gameString = gameString;
 }
 
