@@ -145,6 +145,7 @@ TEST(ClientTest, HandlesNonResponsiveServer) {
     EXPECT_TRUE(client.serverDidNotRespond());
 }
 
+// This is not testable yet, you can comment this test if need be!
 TEST(ClientTest, HandlesNetworkLatency) {
     networking::Client client("localhost", "8000");
 
