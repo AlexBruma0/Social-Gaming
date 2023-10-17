@@ -6,7 +6,7 @@
 #include <vector>
 #include <exception>
 #include <algorithm>
-#include "../../rules/include/ruleNode.h"
+#include "ruleNode.h"
 
 extern "C" {
     //TSLanguage *tree_sitter_json();

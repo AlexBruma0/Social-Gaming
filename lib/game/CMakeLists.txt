@@ -3,7 +3,6 @@ add_library(lib_game
         src/Game.cpp
 )
 
-target_include_directories(lib_game PUBLIC "../constants/")
 target_include_directories(lib_game
   PUBLIC
     $<INSTALL_INTERFACE:include>

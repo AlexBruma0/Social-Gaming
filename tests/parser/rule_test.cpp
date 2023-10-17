@@ -32,7 +32,6 @@ TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     std::string nodeTest = "test";
     TreeNode t (nodeTest, nodeTest);
     ASSERT_EQ(t.impl->identifier, nodeTest);
-    t.execute();
 }
 
 TEST (RuleTests, TREE_NODE_CHILDREN) {

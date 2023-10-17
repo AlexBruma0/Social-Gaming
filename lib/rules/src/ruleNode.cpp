@@ -6,8 +6,8 @@
 */
 
 
-#include "../include/ruleNode.h"
-#include "../include/ruleNodeSupport.h"
+#include "ruleNode.h"
+#include "ruleNodeSupport.h"
 
 
 

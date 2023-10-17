@@ -1,7 +1,6 @@
 
 add_library(parser
         src/gameParser.cpp
-        ../rules/src/ruleNode.cpp
 )
 
 target_include_directories(parser
@@ -20,7 +19,8 @@ set_target_properties(parser
 )
 target_link_libraries( parser
     tree-sitter-socialgaming
-    cpp-tree-sitter)
+    cpp-tree-sitter
+    rules)
 install(TARGETS parser
   ARCHIVE DESTINATION lib
 )
