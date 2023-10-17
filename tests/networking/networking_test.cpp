@@ -64,6 +64,27 @@ TEST(ClientTest, SendAndReceiveMultipleMessages) {
     EXPECT_EQ(client.receive(), expected_message);
 }
 
+TEST(ClientTest, HandlesEmptyMessage) {
+    networking::Client client("localhost", "8000");
+    client.send("");  // Attempt to send an empty message.
+    client.update();
+
+    // Assuming the client shouldn't send empty messages and the receive buffer should be empty.
+    EXPECT_TRUE(client.receive().empty());
+}
+
+TEST(ClientTest, HandlesLargeMessage) {
+    networking::Client client("localhost", "8000");
+    
+    // Create a large message.
+    std::string large_message(1024 * 1024, 'a');  // 1 MB of 'a's.
+
+    client.send(large_message);
+    client.update();
+
+    // Check if the entire message was received correctly.
+    EXPECT_EQ(client.receive(), large_message);
+}
 
 TEST(ServerTest, ServerReceivesMessagesCorrectly) {
     networking::Server server(8000, "SomeHTTPMessage");  // Instantiate server with necessary arguments.
@@ -121,4 +142,49 @@ TEST(ServerTest, BroadcastsToAllClients) {
     // Here, you would need a way to verify that all connected clients received the message.
     // This might involve mocking the clients or having a method on the server that confirms delivery.
     EXPECT_TRUE(server.allClientsReceivedMessages());
+}
+
+TEST(ServerTest, HandlesInvalidMessage) {
+    networking::Server server(8000, "SomeHTTPMessage");
+
+    // This might need to simulate a client sending an invalid message, depending on your implementation.
+    std::deque<Message> messagesToSend = { "Invalid\xFFMessage" };  // Invalid UTF-8 sequence.
+    server.send(messagesToSend);
+    server.update();
+
+    // Expecting the server to maybe clean the message or handle it appropriately.
+    // This depends on your server's behavior with invalid messages.
+    EXPECT_TRUE(server.handledInvalidMessage());
+}
+
+TEST(ServerTest, HandlesSafeShutdown) {
+    networking::Server server(8000, "SomeHTTPMessage");
+
+    // Simulate some server activity.
+    server.update();
+
+    // Method to safely shut down the server. This might be an actual method or a simulated condition.
+    server.shutdown();
+
+    // You might check if all resources were released, no clients are connected, etc.
+    EXPECT_TRUE(server.isSafelyShutDown());
+}
+
+
+TEST(StressTest, HighFrequencyMessages) {
+    networking::Client client("localhost", "8000");
+    networking::Server server(8000, "SomeHTTPMessage");
+
+    // Send a large number of messages in a short time.
+    for (int i = 0; i < 10000; ++i) {  // Just an example number.
+        client.send("TestMessage" + std::to_string(i));
+    }
+
+    // Update the client and server to process the messages.
+    client.update();
+    server.update();
+
+    // Check some aspect of the system to ensure it's handling the load.
+    // This could be checking that all messages were received, no messages were lost, etc.
+    EXPECT_TRUE(server.handledHighLoad());
 }
