@@ -40,10 +40,14 @@ void print_bfs(const ts::Node& node) {
 }
 
 void print_node_value(const ts::Node& node, const std::string& source_code) {
-    std::cout << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end) << "\n";
+    //std::cout << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end) << "\n";
+    std::cout<<get_node_value(node, source_code)<<"\n";
 }
 
 std::string get_node_value(const ts::Node& node, const std::string& source_code) {
+    if (source_code.empty()){
+        std::cerr << "Source code is empty\n";
+    }
     return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
 }
 
@@ -85,6 +89,7 @@ std::string RemoveLastNonSpaceBeforeClosingBracket(const std::string& str) {
 }
 
 void replaceSubstring(std::string& str, const std::string& substr, const std::string& replacement) {
+    if(str.size() == 0) return;
     std::vector<size_t> indices;
     size_t pos = str.find(substr, 0);
 
