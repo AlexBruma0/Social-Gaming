@@ -10,20 +10,13 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <algorithm>
 #include <gtest/gtest_prod.h>
 
 // Forward declarations for classes used in RuleTrait and RuleNode
-class ForNode;
-class discardNode;
-class TreeNode;
-template <typename T> class TreeNodeImpl;
 
-// Define a trait for Node behavior
-template <typename T>
-struct NodeTrait {
-    static void execute(const T& node);
-    static T parse(const std::string& data);
-};
+class TreeNode;
+class TreeNodeImpl;
 
 /*
     Overall Format 
@@ -40,69 +33,73 @@ struct NodeTrait {
 */
 
 // Base class to implement all other node types
-// Changed to no template so that the children nodes can be put in one list
-// Coulnd't iterate over a Treenode<T> vector because the t could be different types
+// Abstraction so that the parser doesn't have to deal with the underlying node stuff
+// Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(){}
+        TreeNode(std::string node);
 
-        // Destructor needed if we cast a derrived class into a treenode pointer then destruct it
-        // Might not need but I'll leave just in case
-        virtual ~TreeNode(){};
+        ~TreeNode(){};
+
         void printTree(int depth = 0) const;
 
-        // Unique pointers now
-        // Should help to not have to keep track of memory
-        void addChild(TreeNode* child);
+
+        void addChild(const TreeNode* child) const;
 
         // Function to update the identifier value if something changes
         // Might be needed for for loop nodes 
-        void updateIdentifier(TreeNode* child);
-    private:
+        void updateIdentifier(const std::string& identifier);
 
-        // Underlying Implmentation
-        // Not sure if we should have this format
-        // Might be better to have just the treenode, but this will add flexibility 
+        void execute() const;
+
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
+    private:
         std::unique_ptr<TreeNodeImpl> impl;
-        
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
-class TreeNodeImpl: public TreeNode { 
+class TreeNodeImpl { 
     public:
+        TreeNodeImpl(std::string id);
+        ~TreeNodeImpl();
+
         void printTree(int depth = 0) const;
 
-        // Unique pointers now
-        // Should help to not have to keep track of memory
-        void addChild(TreeNode* child);
+        void addChild(const TreeNode* child);
 
-        void updateIdentifier(TreeNode* child);
+        void updateIdentifier(const std::string& identifier);
+
+        void execute();
 
     private:
 
         // Node list of children 
-        std::vector<TreeNode*> children;
+        std::vector<const TreeNode*> children;
 
         // Identifier to for the json object
         std::string identifier;
 
-        // Underlying Implmentation
-        // Not sure if we should have this format
-        // Might be better to have just the treenode, but this will add flexibility 
-        std::unique_ptr<TreeNodeImpl> impl;
-}
+        // Gtest to test private fields
+        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
+};
 
 
 /*
 
 TEMPORARILY COMMENTED OUT
 
-*/
 
 
-/*
+
+// Define a trait for Node behavior
+template <typename T>
+struct NodeTrait {
+    static void execute(const T& node);
+    static T parse(const std::string& data);
+};
+
+
 // Traversere class to do execute and parse on each node
 // Like a wrapper class that will of form TreeNodeTraverse<RuleNode> 
 // Unsure if it should be a has or not 

@@ -8,11 +8,109 @@
 
 #include "ruleNode.h"
 
+
+
+
 /*
 -------------------------------------------
-NODE TRAIT CLASSES
+TREE NODE CLASS 
 -------------------------------------------
 */
+
+TreeNode::TreeNode(std::string node){
+    impl = std::move(this->parseNode(node));
+}
+
+void TreeNode::addChild(const TreeNode* child) const {
+    impl->addChild(child);
+}
+
+void TreeNode::printTree(int depth) const {
+    impl->printTree(depth);
+}
+
+void TreeNode::updateIdentifier(const std::string& identifier){
+    impl->updateIdentifier(identifier);
+}
+
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
+    //Temp 
+    /*
+        Might look something like
+
+        if node is a for node
+            return make_unique forNode
+        else if node is a discard node
+            return make_unique discardNode
+    */
+    return std::make_unique<TreeNodeImpl>(node);
+}
+
+void TreeNode::execute() const{
+    //std::cout<< "executing" <<std::endl;
+    impl->execute();
+}
+
+/*
+-------------------------------------------
+NODE CLASSES
+-------------------------------------------
+*/
+
+
+TreeNodeImpl::TreeNodeImpl(std::string id)
+: identifier(id) {
+}
+
+TreeNodeImpl::~TreeNodeImpl(){
+
+}
+
+void TreeNodeImpl::addChild(const TreeNode* child){
+    children.push_back(child);
+}
+
+void TreeNodeImpl::updateIdentifier(const std::string& identifier){
+    this->identifier = identifier;
+}
+
+void TreeNodeImpl::printTree(int depth) const{
+    for (int i = 0; i < depth; i++) {
+        std::cout << "  ";
+    }
+    std::cout << identifier << std::endl;
+
+    for (const auto& child : children) {
+        child->printTree(depth + 1);
+    }
+
+}
+
+// execute will differ depending on what type of node is implemented 
+// Test implementation for now
+void TreeNodeImpl::execute(){
+    //std::cout<< "impl executing" <<std::endl;
+    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+        child->execute();
+    });
+}
+
+
+
+// (cstong) TEMP COMMENTED OUT
+
+/*
+
+// Needs to call base class constructor to populate and use the value field
+RuleNode::RuleNode() : TreeNode() {};
+
+RuleNode::~RuleNode(){}
+
+
+// Needs to call base class constructor to populate and use the value field
+ForNode::ForNode() : TreeNode() {};
+
+ForNode::~ForNode(){}
 
 // define a trait for Node behaviour
 template <typename T>
@@ -27,51 +125,6 @@ T NodeTrait<T>::parse(const std::string& data) {
 }
 
 
-/*
--------------------------------------------
-TREE NODE CLASS 
--------------------------------------------
-*/
-
-void TreeNode::addChild(std::shared_ptr<TreeNode> child) {
-    children.push_back(child);
-}
-
-void TreeNode::printTree(int depth) const {
-    for (int i = 0; i < depth; i++) {
-        std::cout << "  ";
-    }
-    std::cout << value << std::endl;
-
-    for (const auto& child : children) {
-        child->printTree(depth + 1);
-    }
-}
-
-
-
-/*
--------------------------------------------
-NODE CLASSES
--------------------------------------------
-*/
-
-// Needs to call base class constructor to populate and use the value field
-RuleNode::RuleNode() : TreeNode() {};
-
-RuleNode::~RuleNode(){}
-
-
-// Needs to call base class constructor to populate and use the value field
-ForNode::ForNode() : TreeNode() {};
-
-ForNode::~ForNode(){}
-
-
-
-// (cstong) TEMP COMMENTED OUT
-
-/*
 // templatization; inserting the implementations
 template <>
 struct NodeTrait<forNode> {

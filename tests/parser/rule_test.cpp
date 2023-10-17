@@ -27,36 +27,9 @@ extern "C" {
 }
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
-    TreeNode t;
-    ASSERT_EQ(t.value, "");
-    ASSERT_EQ(t.children.size(), 0);
-}
-
-TEST (RuleTests, TREE_NODE_CHILDREN) {
-    TreeNode parent;
-    ASSERT_EQ(parent.children.size(), 0);
-    std::shared_ptr<RuleNode> child = std::make_shared<RuleNode>();
-    child->value = "childString";
-    parent.addChild(child);
-
-    std::shared_ptr<ForNode> child2 = std::make_shared<ForNode>();
-    child2->value = "childString2";
-    parent.addChild(child2);
-
-    ASSERT_EQ(parent.children.size(), 2);
-    ASSERT_EQ(parent.children[0]->value, "childString");
-    ASSERT_EQ(parent.children[1]->value, "childString2");
-
-    // Dynamic testing
-    // Will probably create a convert function
-    // dynamic casting does not appear to work with other types of nodes yet.
-    std::shared_ptr<RuleNode> ruleNodePtr = std::dynamic_pointer_cast<RuleNode>(parent.children[0]);
-
-    if (ruleNodePtr) {
-        TreeNodeTraverser<RuleNode> t(ruleNodePtr);
-        t.execute();
-    }
-
-    
+    std::string nodeTest = "test";
+    TreeNode t (nodeTest);
+    ASSERT_EQ(t.impl->identifier, nodeTest);
+    t.execute();
 }
 
