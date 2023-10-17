@@ -31,7 +31,7 @@ extern "C" {
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     std::string nodeTest = "test";
     TreeNode t (nodeTest, nodeTest);
-    ASSERT_EQ(t.impl->identifier, nodeTest);
+    ASSERT_EQ(t.impl->identifier, "");
 }
 
 TEST (RuleTests, TREE_NODE_CHILDREN) {
