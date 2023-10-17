@@ -1,7 +1,6 @@
 
 add_library(lib_game 
         src/Game.cpp
-        src/Config.cpp
 )
 
 target_include_directories(lib_game PUBLIC "../constants/")
