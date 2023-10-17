@@ -19,17 +19,17 @@ class TreeNode;
 class TreeNodeImpl;
 
 /*
-    Overall Format 
+    Overall Format
     Treenodes will be the node class
-        Needed to be a general class so that the children vector can have a poly type 
-    Each tree node will have a children list pointing to other nodes 
+        Needed to be a general class so that the children vector can have a poly type
+    Each tree node will have a children list pointing to other nodes
         Needs to be pointers because they could be a different type
-        Can possibly change to a has a realtion 
+        Can possibly change to a has a realtion
             Was thinking about using an enum field in the tree node class instead of poly
-            Kept it as a type because I'm not sure if you need it as a type 
+            Kept it as a type because I'm not sure if you need it as a type
     When traversing first wrap the treenode with the traverser so its TreeNodeTraverser<NodeType>
     The traverser has a node field that will have the actual node data
-        Execute and parse will now manipulate that node field 
+        Execute and parse will now manipulate that node field
 */
 
 // Base class to implement all other node types
@@ -47,6 +47,7 @@ class TreeNode {
         void addChild(const TreeNode* child) const;
 
         // Function to update the identifier value if something changes
+
         // Might be needed for for loop nodes 
         void updateIdentifier(const std::string& identifier);
 
@@ -55,11 +56,14 @@ class TreeNode {
         std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
     private:
         std::unique_ptr<TreeNodeImpl> impl;
+        
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
+        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
 class TreeNodeImpl { 
+
     public:
         TreeNodeImpl(std::string id);
         ~TreeNodeImpl();
@@ -82,8 +86,12 @@ class TreeNodeImpl {
 
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
+        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
+class ForNode: public TreeNodeImpl{
+
+}
 
 /*
 
@@ -101,12 +109,12 @@ struct NodeTrait {
 
 
 // Traversere class to do execute and parse on each node
-// Like a wrapper class that will of form TreeNodeTraverse<RuleNode> 
-// Unsure if it should be a has or not 
+// Like a wrapper class that will of form TreeNodeTraverse<RuleNode>
+// Unsure if it should be a has or not
 // Will experiment more
 template <typename T>
 class TreeNodeTraverser{
-    public: 
+    public:
         TreeNodeTraverser(const std::shared_ptr<T>& node)
             : node(node){};
 
@@ -148,7 +156,7 @@ struct NodeTrait<RuleNode> {
         printf("I'm a ruleNode!\n");
     };
     static RuleNode parse(const std::string& data){
-        
+
     };
 };
 
