@@ -88,7 +88,16 @@ void TreeNodeImpl::printTree(int depth) const{
 
 // execute will differ depending on what type of node is implemented 
 // Test implementation for now
-void TreeNodeImpl::execute(){
+void RuleNode::execute(){
+    //std::cout<< "impl executing" <<std::endl;
+    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+        child->execute();
+    });
+}
+
+
+// Same as RuleNode Temp for testing
+void ForNode::execute(){
     //std::cout<< "impl executing" <<std::endl;
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();

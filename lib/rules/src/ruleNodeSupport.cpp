@@ -5,6 +5,22 @@
 #include <string>
 #include <sstream>
 
+// doesn't work cause it thinks we're on C++11 somehow
+// if we can fix the version problem please use this one, it's much better.
+//std::vector<std::string> splitStringBySpace(const std::string& input) {
+//    std::vector<std::string> result;
+//    std::istringstream iss(input);
+//    std::string token;
+//
+//    while (iss >> std::quoted(token)) {
+//        result.push_back(token);
+//    }
+//
+//    return result;
+//}
+
+// use something like this for for loops (untested, but it looks like it should work)
+/*
 std::vector<std::string> splitStringBySpace(const std::string& input) {
     std::vector<std::string> tokens;
     bool insideQuotes = false;
@@ -31,21 +47,7 @@ std::vector<std::string> splitStringBySpace(const std::string& input) {
     return tokens;
 }
 
-// doesn't work cause it thinks we're on C++11 somehow
-// if we can fix the version problem please use this one, it's much better.
-//std::vector<std::string> splitStringBySpace(const std::string& input) {
-//    std::vector<std::string> result;
-//    std::istringstream iss(input);
-//    std::string token;
-//
-//    while (iss >> std::quoted(token)) {
-//        result.push_back(token);
-//    }
-//
-//    return result;
-//}
 
-// use something like this for for loops (untested, but it looks like it should work)
 std::string getFirstLine(const std::string& input) {
     std::size_t newlinePos = input.find('\n');
 
@@ -57,3 +59,5 @@ std::string getFirstLine(const std::string& input) {
         return input;
     }
 }
+*/
+

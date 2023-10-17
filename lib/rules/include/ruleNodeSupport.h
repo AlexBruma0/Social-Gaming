@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> splitStringBySpace(const std::string& input);
-std::string getFirstLine(const std::string& input);
+//std::vector<std::string> splitStringBySpace(const std::string& input);
+//std::string getFirstLine(const std::string& input);
 
 
 #endif //SOCIAL_GAMING_RULENODESUPPORT_H

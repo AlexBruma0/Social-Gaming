@@ -35,28 +35,31 @@ TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
 
 TEST (RuleTests, TREE_NODE_CHILDREN) {
     TreeNode parent("parent");
-    ASSERT_EQ(parent.children.size(), 0);
-    std::shared_ptr<RuleNode> child = std::make_shared<RuleNode>();
-    child->value = "childString";
-    parent.addChild(child);
+    ASSERT_EQ(parent.impl->children.size(), 0);
 
-    std::shared_ptr<ForNode> child2 = std::make_shared<ForNode>();
-    child2->value = "childString2";
-    parent.addChild(child2);
+    std::string childS = "childString";
+    TreeNode c1 ("parent2");
+    auto child = std::make_unique<RuleNode>(childS);
+    c1.impl = std::move(child);
+    parent.addChild(&c1);
 
-    ASSERT_EQ(parent.children.size(), 2);
-    ASSERT_EQ(parent.children[0]->value, "childString");
-    ASSERT_EQ(parent.children[1]->value, "childString2");
+    std::string childS2 = "childString2";
+    TreeNode c2 ("parent3");
+    auto child2 = std::make_unique<ForNode>(childS2);
+    c2.impl = std::move(child2);
+    parent.addChild(&c2);
+
+
+    ASSERT_EQ(parent.impl->children.size(), 2);
+
+    ASSERT_EQ(parent.impl->children[0]->impl->identifier, childS);
+    ASSERT_EQ(parent.impl->children[1]->impl->identifier, childS2);
 
     // Dynamic testing
     // Will probably create a convert function
     // dynamic casting does not appear to work with other types of nodes yet.
-    std::shared_ptr<RuleNode> ruleNodePtr = std::dynamic_pointer_cast<RuleNode>(parent.children[0]);
-
-    if (ruleNodePtr) {
-        TreeNodeTraverser<RuleNode> t(ruleNodePtr);
-        t.execute();
-    }
+    auto ruleNodePtr = dynamic_cast<RuleNode*>(parent.impl->children[0]->impl.get());
+    ASSERT_NE(ruleNodePtr, nullptr);
 
 
 }

@@ -17,6 +17,8 @@
 
 class TreeNode;
 class TreeNodeImpl;
+class ForNode;
+class RuleNode;
 
 /*
     Overall Format
@@ -74,24 +76,33 @@ class TreeNodeImpl {
 
         void updateIdentifier(const std::string& identifier);
 
-        void execute();
+        virtual void execute(){};
 
     private:
-
-        // Node list of children 
-        std::vector<const TreeNode*> children;
-
         // Identifier to for the json object
         std::string identifier;
 
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
         FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
+    protected:
+        // Node list of children 
+        std::vector<const TreeNode*> children;
+};
+
+class RuleNode: public TreeNodeImpl{
+    public:
+        RuleNode(std::string id): TreeNodeImpl(id){};
+        ~RuleNode(){}
+        void execute();
 };
 
 class ForNode: public TreeNodeImpl{
-
-}
+    public:
+        ForNode(std::string id): TreeNodeImpl(id){};
+        ~ForNode(){}
+        void execute();
+};
 
 /*
 
