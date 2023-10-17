@@ -39,6 +39,70 @@ struct NodeTrait {
         Execute and parse will now manipulate that node field 
 */
 
+// Base class to implement all other node types
+// Changed to no template so that the children nodes can be put in one list
+// Coulnd't iterate over a Treenode<T> vector because the t could be different types
+class TreeNode {
+    public:
+        TreeNode(){}
+
+        // Destructor needed if we cast a derrived class into a treenode pointer then destruct it
+        // Might not need but I'll leave just in case
+        virtual ~TreeNode(){};
+        void printTree(int depth = 0) const;
+
+        // Unique pointers now
+        // Should help to not have to keep track of memory
+        void addChild(TreeNode* child);
+
+        // Function to update the identifier value if something changes
+        // Might be needed for for loop nodes 
+        void updateIdentifier(TreeNode* child);
+    private:
+
+        // Underlying Implmentation
+        // Not sure if we should have this format
+        // Might be better to have just the treenode, but this will add flexibility 
+        std::unique_ptr<TreeNodeImpl> impl;
+        
+        // Gtest to test private fields
+        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
+        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
+};
+
+class TreeNodeImpl: public TreeNode { 
+    public:
+        void printTree(int depth = 0) const;
+
+        // Unique pointers now
+        // Should help to not have to keep track of memory
+        void addChild(TreeNode* child);
+
+        void updateIdentifier(TreeNode* child);
+
+    private:
+
+        // Node list of children 
+        std::vector<TreeNode*> children;
+
+        // Identifier to for the json object
+        std::string identifier;
+
+        // Underlying Implmentation
+        // Not sure if we should have this format
+        // Might be better to have just the treenode, but this will add flexibility 
+        std::unique_ptr<TreeNodeImpl> impl;
+}
+
+
+/*
+
+TEMPORARILY COMMENTED OUT
+
+*/
+
+
+/*
 // Traversere class to do execute and parse on each node
 // Like a wrapper class that will of form TreeNodeTraverse<RuleNode> 
 // Unsure if it should be a has or not 
@@ -64,31 +128,6 @@ class TreeNodeTraverser{
         }
         private:
             T node;
-};
-
-// Base class to implement all other node types
-// Changed to no template so that the children nodes can be put in one list
-// Coulnd't iterate over a Treenode<T> vector because the t could be different types
-class TreeNode {
-    public:
-        TreeNode()
-            : value(""){}
-
-        // Destructor needed if we cast a derrived class into a treenode pointer then destruct it
-        // Might not need but I'll leave just in case
-        virtual ~TreeNode(){};
-        void printTree(int depth = 0) const;
-
-        // Unique pointers now
-        // Should help to not have to keep track of memory
-        void addChild(std::shared_ptr<TreeNode> child);
-    private:
-        std::vector<std::shared_ptr<TreeNode>> children;
-        std::string value;
-        
-        // Gtest to test private fields
-        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
 
@@ -141,5 +180,6 @@ struct NodeTrait<discardNode> {
     static void execute(const discardNode& node);
     static discardNode parse(const std::string& data);
 };
+*/
 
 #endif //SOCIAL_GAMING_RULENODE_H
