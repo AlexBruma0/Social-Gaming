@@ -200,6 +200,8 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, in
         //std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent " << parentNode << std::endl;
         std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent type " << parentNode << std::endl;
         std::cout << result << std::endl << std::endl;
+
+        // todo: make the node here and pass it along as a parent
     }
 
     // Recursively visit children nodes
