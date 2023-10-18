@@ -7,6 +7,7 @@
 #include <exception>
 #include <algorithm>
 #include "ruleNode.h"
+#include <fstream>
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -14,21 +15,12 @@ extern "C" {
 }
 
 std::string file_to_string(const std::string path) {
-    FILE* f = fopen(path.c_str(), "r");
-    if(!f){
-        printf("Could not find file\n");
-        return std::string();
+    std::ifstream infile{path};
+    if (!infile) {
+        printf("Could not open file\n");
+        return {};
     }
-
-    fseek(f, 0, SEEK_END);
-    size_t size = ftell(f);
-
-    char game_string[size];
-    rewind(f);
-    fread(game_string, sizeof(char), size, f);
-
-    fclose(f);
-    return game_string;
+    return std::string{std::istreambuf_iterator<char>(infile), {}};
 }
 
 ts::Tree string_to_tree(const std::string tree_string) {
