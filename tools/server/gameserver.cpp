@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-//                         Single Threaded Networking
-//
-// This file is distributed under the MIT License. See the LICENSE file
-// for details.
-/////////////////////////////////////////////////////////////////////////////
-
-
 #include "Server.h"
 
 #include <fstream>
@@ -21,9 +13,9 @@ using networking::Connection;
 using networking::Message;
 
 
-// std::vector<Connection> clients;
+std::vector<Connection> clients;
 //for multiple sessions
-std::vector<Server> gameServers;
+// std::vector<Server> gameServers;
 
 void
 onConnect(Connection c) {
@@ -87,12 +79,10 @@ getHTTPMessage(const char* htmlLocation) {
             << htmlLocation << "\n";
   std::exit(-1);
 }
-
 void StartGameServer(unsigned short port, const char* htmlLocation) {
   Server server{port, getHTTPMessage(htmlLocation), onConnect, onDisconnect};
-  gameServers.push_back(server);
+  // gameServers.push_back(server);
 }
-
 
 int
 main(int argc, char* argv[]) {
@@ -102,8 +92,8 @@ main(int argc, char* argv[]) {
     return 1;
   }
 
-  // const unsigned short port = std::stoi(argv[1]);
-  // Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
+  const unsigned short port = std::stoi(argv[1]);
+  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
 
   //parse with for loop, create new
   for (int i = 1; i < argc; i += 2) {

@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-//                         Single Threaded Networking
-//
-// This file is distributed under the MIT License. See the LICENSE file
-// for details.
-/////////////////////////////////////////////////////////////////////////////
-
-
 #include <iostream>
 #include <memory>
 #include <string>
@@ -17,26 +9,41 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-int
-main(int argc, char* argv[]) {
+
+struct ButtonHandler {
+    bool& done;
+    networking::Client& client;
+    std::string& entry;
+
+    void operator()() {}
+};
+
+
+void RunChatClient(networking::Client& client);
+
+void HandleButtonClick(int& page, networking::Client& client, const std::string& buttonLabel);
+
+int main(int argc, char* argv[]) {
   if (argc < 3) {
-    std::cerr << "Usage: \n  " << argv[0] << " <ip address> <port>\n"
+      std::cerr << "Usage: \n  " << argv[0] << " <ip address> <port>\n"
               << "  e.g. " << argv[0] << " localhost 4002\n";
-    return 1;
+  return 1;
   }
-  
+
+  try {
+    networking::Client client{argv[1], argv[2]};
+    RunChatClient(client);
+  } catch (const std::exception& e) {
+      std::cerr << "Error initializing the client: " << e.what() << std::endl;
+  }
+
   return 0;
 }
 
 
-void RunChatClient(const std::string& ipAddress, const std::string& port) {
-  try {
-    networking::Client client{argv[1], argv[2]};
-    } catch (const std::exception& e) {
-      std::cerr << "Error initializing the client: " << e.what() << std::endl;
-      return;
-  }
+void RunChatClient(networking::Client& client) {
 
+  int page = 0;  
   bool done = false;
 
   auto onTextEntry = [&done, &client] (std::string text) {
@@ -51,28 +58,44 @@ void RunChatClient(const std::string& ipAddress, const std::string& port) {
 
   std::string entry;
   std::vector<Element> history;
-  Component entryField = Input(&entry, "Enter messages here.");
+  Component entryField = Input(&entry, "Type Here.");
 
-  std::function<void(const std::string&)> messageHandler = [&history](const std::string& message) {
-    history.push_back(paragraphAlignLeft(message));
-  };
+  std::vector<std::string> menuItems = {"Help", "Join Game", "Make Game"};
 
-  client.addMessageHandler(messageHandler);
+
+  auto helpHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component helpBtn = Button("Help Me!!", [helpHandler] { (*helpHandler)(); });
+
+  auto joinHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component joinBtn = Button("Join Game", [joinHandler] { (*joinHandler)(); });
+
+  auto makeHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component makeBtn = Button("Make Game", [makeHandler] { (*makeHandler)(); });
 
   // Define the core appearance with a renderer for the components.
   // A `Renderer` takes input consuming components like `Input` and
   // produces a DOM to visually represent their current state.
-  auto renderer = Renderer(entryField, [&history,&entryField] {
+  auto renderer = Renderer(entryField, [&history,&entryField,&makeBtn, &joinBtn, &helpBtn] {
     return vbox({
-      window(text("Chat"),
+      window(text("Main Menu"),
         yframe(
           vbox(history) | focusPositionRelative(0, 1)
         )
       ) | yflex,
 
-      window(text("Next Message"),
+      window(text("Welcome"),
         entryField->Render()
-      ) | size(HEIGHT, EQUAL, 3)
+      ) | size(HEIGHT, EQUAL, 3),
+
+      window(text("Options"),
+        hbox(
+          hflow(0.4, makeBtn->Render()), // Add spacing between buttons.
+          hflow(0.4, joinBtn->Render()), // Add spacing between buttons.
+          hflow(0.4, helpBtn->Render())
+          
+        ) | size(HEIGHT, EQUAL, 3)
+      ) | size(HEIGHT, EQUAL, 5),
+
     }) | color(Color::GreenLight);
   });
 
@@ -89,6 +112,7 @@ void RunChatClient(const std::string& ipAddress, const std::string& port) {
     return false;
   });
 
+//MAIN LOOP
   const int UPDATE_INTERVAL_IN_MS = 50;
   Loop loop(&screen, handler);
   while (!done && !client.isDisconnected() && !loop.HasQuitted()) {
@@ -102,7 +126,7 @@ void RunChatClient(const std::string& ipAddress, const std::string& port) {
 
     auto response = client.receive();
     if (!response.empty()) {
-      messageHandler(response);
+     
       history.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();
     }
