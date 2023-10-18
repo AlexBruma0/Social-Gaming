@@ -61,12 +61,13 @@ void RunChatClient(networking::Client& client) {
 
   std::vector<std::string> menuItems = {"Help", "Join Game", "Make Game"};
 
+  //https://github.com/ArthurSonzogni/FTXUI/discussions/323
   //buttons that won't click through
   auto helpHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component helpBtn = Button("Help Me!! [h]", [helpHandler] { (*helpHandler)(); });
 
   auto joinHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component joinBtn = Button("Join Game [j]", [joinHandler] { (*joinHandler)(); });
+  Component joinBtn = Button("Join Game [j]", [joinHandler] { (*joinHandler)();});
 
   auto makeHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component makeBtn = Button("Make Game [m]", [makeHandler] { (*makeHandler)(); });
@@ -74,8 +75,15 @@ void RunChatClient(networking::Client& client) {
   auto backHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component backBtn = Button("Back [b]", [backHandler] { (*backHandler)(); });
 
+  auto createGameHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component createGameBtn = Button("Create Game [c]", [createGameHandler] { 
+      (*createGameHandler)(); 
+      std::string gameRequest = "gamerequest";
+      client.send(gameRequest);
+  });
+
  
-  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &page] {
+  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &page] {
     //if page == 0 this is the main menu
     if (page == 0) {
       return vbox({
@@ -106,7 +114,7 @@ void RunChatClient(networking::Client& client) {
     } else if (page == 3) {
       return vbox({
           window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-          window(text("Make Game Content"), text("This is the Make Game content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+          window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
       }) | color(Color::YellowLight);
     }
@@ -115,29 +123,40 @@ void RunChatClient(networking::Client& client) {
   auto screen = ScreenInteractive::Fullscreen();
 
   //handler for specific events caught in the chat windows
-  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler](const Event& event) {
+  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler](const Event& event) {
     if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
       return true;
     } else if (event == Event::Character('h')) {
-      // Switch to the Help page when 'h' is pressed.
+      // Switch to help page when 'h' is pressed.
       page = 1;
       return true;
     } else if (event == Event::Character('j')) {
-      // Switch to the Join Game page when 'j' is pressed.
+      //  join game page when 'j' is pressed.
       page = 2;
       return true;
     } else if (event == Event::Character('m')) {
-      // Switch to the Make Game page when 'm' is pressed.
+      //  to the make game page when 'm' is pressed.
       page = 3;
       return true;
     } 
     else if (event == Event::Character('b')) {
-      // Switch to the Make Game page when 'm' is pressed.
+      // switch to the main page when 'b' is pressed.
       page = 0;
       return true;
     }
+    else if (event == Event::Character('c')) {
+      // send game request through
+      createGameHandler();
+      page = 0;
+      return true;
+    }
+    // else if (event == Event::Mouse) {
+    //     // Mouse mouse = event.mouse();
+    //     // int x = mouse.x;
+    //     // int y = mouse.y;
+    // }
     return false;
   });
 
