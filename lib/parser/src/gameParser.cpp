@@ -58,25 +58,29 @@ std::string getSubstringForNode(const ts::Node& node, const std::string& source_
     return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
 }
 
-// for debugging
-void printDfs(const ts::Node& node, const std::string& source_code) {
+void printIndents(int depth) {
+    for (int i = 0; i < depth; ++i) {
+        std::cout << " ";
+    }
+}
 
-    // Skip nodes with type "comment"
+// for debugging
+void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
+// Skip nodes with type "comment"
     if (node.getType() == "comment") {
         return;
     }
-    std::cout << "Node Type: " << node.getType() << std::endl;
-    std::cout << "byte range: " << node.getByteRange().start << ", " << node.getByteRange().end << std::endl;
-    // Print substring if type is quoted_string or number
-    if(node.getType() == "quoted_string" || node.getType() == "number") {
-        std::cout << "substring: "
-                  << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
-                  << std::endl;
-    }
 
-        // Recursively visit children nodes
+    printIndents(depth);
+    std::cout << "Depth: " << depth << ", Node Type: " << node.getType() << std::endl;
+    printIndents(depth);
+    std::cout << "substring: "
+        << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
+        << std::endl;
+
+    // Recursively visit children nodes for all nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        printDfs(node.getChild(i), source_code);
+        printDfs(node.getChild(i), source_code, depth + 1);
     }
 }
 
@@ -156,15 +160,9 @@ std::string processExtend(const std::string op_string) {
     return (splitStringBySpace(op_string).size() > 3) ? op_string : "";
 }
 
-void printIndents(int depth) {
-    for (int i = 0; i < depth; ++i) {
-        std::cout << " ";
-    }
-}
-
 // this will be used to fill in the nodes when they are ready
 // when we use it for real, we will pass in a parentNode as a parameter so we know what to attach to.
-void identifyOperations(const ts::Node& node, const std::string& source_code, int depth = 0) {
+void identifyOperations(const ts::Node& node, const std::string& source_code, int depth = 0, const std::string& parentNode = "root") {
     // list of stuff we need to implement, operation nodes defined by the language
 //    std::vector<std::string_view> allowedTypes = {
 //            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
@@ -200,12 +198,17 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, in
 
         printIndents(depth);
         //std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent " << parentNode << std::endl;
-        std::cout << "Node of type: " << nodeType << " at depth " << depth << std::endl;
+        std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent type " << parentNode << std::endl;
         std::cout << result << std::endl << std::endl;
     }
 
     // Recursively visit children nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        identifyOperations(node.getChild(i), source_code, depth+1);
+        if (typeToFunction.find(nodeType) != typeToFunction.end()) {
+            identifyOperations(node.getChild(i), source_code, depth+1, nodeType);
+        } else {
+            identifyOperations(node.getChild(i), source_code, depth+1, parentNode);
+        }
+
     }
 }

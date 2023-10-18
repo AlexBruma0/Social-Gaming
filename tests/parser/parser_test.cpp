@@ -73,7 +73,7 @@ TEST(ParserTests, RPS_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    //printDfs(root, sourcecode);
+    //printDfs(root, sourcecode, 0);
 }
 
 // this test will be DELETED soon. It's just to let me see output while I work on identifying nodes for the operation tree
@@ -83,5 +83,5 @@ TEST(ParserTests, OP_TREE_TEST) {
     ts::Tree tree = string_to_tree(sourcecode);
 
     ts::Node root = tree.getRootNode();
-    identifyOperations(root, sourcecode, 0);
+    identifyOperations(root, sourcecode, 0, "root");
 }
