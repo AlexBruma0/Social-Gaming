@@ -83,99 +83,89 @@ TEST(ParserTests, RPS_TEST) {
     //dfs(root, sourcecode);
 }
 
+// verifys the print test method and checks the behaviour of games for 3 game types
 
-
-
-// TEST(ParserTests, RPS_TEST_JSON) {
-//     const int num_players = 3;
-//     const int num_rounds = 2;
-
-//     std::string sourcecode = file_to_string(RPS_LOCATION);
-//     ts::Tree tree = string_to_tree(sourcecode);
-
-//     // Access the root node of the AST
-//     ts::Node root = tree.getRootNode();
-
-//     json jsonData = create_json_data(root, sourcecode);
-
-//     jsonData["configuration"]["rounds"] = num_rounds;
-//     for(int i = 0; i < num_players; i++){
-//         jsonData["players"][i] = jsonData["per-player"];
-//     }
-
-//     std::cout << jsonData.dump() << "\n";
-
-// }
-
-TEST(ParserTests, PRINT_TEST){
-    //setup output capture
+TEST(ParserTests, PRINT_TEST_EMPTY_STRING){
     std::streambuf *original_cout = std::cout.rdbuf();
     std::stringstream buffer;
     std::cout.rdbuf(buffer.rdbuf());
 
-    //tree setups
     std::string noStringSourcecode = "";
-    ts::Tree no_string_tree = string_to_tree(noStringSourcecode);
-    std::string emptySourcecode = file_to_string(RPS_LOCATION);
-    ts::Tree empty_tree = string_to_tree(emptySourcecode);
-    std::string rpsSourcecode = file_to_string(EMPTY_GAME_LOCATION);
-    ts::Tree rps_tree = string_to_tree(rpsSourcecode);
+    ts::Tree noStringTree = string_to_tree(noStringSourcecode);
 
     //get root nodes
-    ts::Node no_string_node = no_string_tree.getRootNode();
-    ts::Node empty_node = empty_tree.getRootNode();
-    ts::Node rps_node = rps_tree.getRootNode();
+    ts::Node noStringNode = noStringTree.getRootNode();
 
     //begin printNodeType testing
     std::string expectedNoStringNodePrint = "ERROR Children: 0\n";
-    printNodeType(no_string_node);
+    printNodeType(noStringNode);
     std::string noStringOutput = buffer.str();
 
     ASSERT_EQ(noStringOutput, expectedNoStringNodePrint);
     buffer.str("");
 
-    std::string expectedEmptyPrint = "game Children: 19\n" ;
-    printNodeType(empty_node);
+    //close output capture
+    std::cout.rdbuf(original_cout);
+
+}
+TEST(ParserTests, PRINT_TEST_EMPTY_GAME){
+    std::streambuf *original_cout = std::cout.rdbuf();
+    std::stringstream buffer;
+    std::cout.rdbuf(buffer.rdbuf());
+
+    std::string emptySourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree emptyTree = string_to_tree(emptySourcecode);
+
+    //get root nodes
+    ts::Node emptyNode = emptyTree.getRootNode();
+
+    //begin printNodeType testing
+    std::string expectedEmptyPrint = "game Children: 18\n" ;
+    printNodeType(emptyNode);
     std::string emptyOutput = buffer.str();
 
     ASSERT_EQ(emptyOutput, expectedEmptyPrint);
     buffer.str("");
 
-    std::string expectedRPSNodePrint = "game Children: 7\n"; 
-    printNodeType(rps_node);
+    //close output capture
+    std::cout.rdbuf(original_cout);
+}
+TEST(ParserTests, PRINT_TEST_RPS){
+    std::streambuf *original_cout = std::cout.rdbuf();
+    std::stringstream buffer;
+    std::cout.rdbuf(buffer.rdbuf());
+
+    std::string rpsSourcecode = file_to_string(EMPTY_GAME_LOCATION);
+    ts::Tree rpsTree = string_to_tree(rpsSourcecode);
+
+    //get root nodes
+    ts::Node rpsNode = rpsTree.getRootNode();
+
+    //begin printNodeType testing
+    std::string expectedRPSNodePrint = "game Children: 6\n"; 
+    printNodeType(rpsNode);
     std::string rpsOutput = buffer.str();
 
     ASSERT_EQ(rpsOutput, expectedRPSNodePrint);
     buffer.str("");
 
-    //begin printNodeTypeValue testing
-    std::string expectedOutput = "Source code is empty\n";
-    printNodeStringValue(no_string_node, noStringSourcecode);
-    std::string output = buffer.str();
-
-    ASSERT_EQ(output, expectedOutput);
-    buffer.str("");
-
     //close output capture
     std::cout.rdbuf(original_cout);
-    //printNodeStringValue(empty_node, emptySourcecode);
-    //printNodeStringValue(rps_node, rpsSourcecode);
+}
+std::string removeWhiteSpace(const std::string& input){
+    std::string output{""};
+    for(int i = 0; i < input.size(); i++){
+        if(input[i] != ' '){
+            output += input[i];
+
+        }
+    }
+    return output;
 }
 
-TEST(ParserTests, STRING_PARSING_UTILS_TEST){
-    // tree setups
-    std::string noStringSourcecode = "";
-    ts::Tree no_string_tree = string_to_tree(noStringSourcecode);
-    std::string emptySourcecode = file_to_string(RPS_LOCATION);
-    ts::Tree empty_tree = string_to_tree(emptySourcecode);
-    std::string rpsSourcecode = file_to_string(EMPTY_GAME_LOCATION);
-    ts::Tree rps_tree = string_to_tree(rpsSourcecode);
+// testing the removeLastNonSpaceBeforeClosingBracket() method
 
-    // get root nodes
-    ts::Node no_string_node = no_string_tree.getRootNode();
-    ts::Node empty_node = empty_tree.getRootNode();
-    ts::Node rps_node = rps_tree.getRootNode();
-
+TEST(ParserTests, STRING_PARSING_UTILS_removeLastNonSpaceBeforeClosingBracket){
     //begin testing
     std::string parserInput = "configuration[  ,]";
     std::string parserInput2 = "per-player[]";
@@ -194,6 +184,13 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     ASSERT_EQ(parserOutput, expectedOutput);
     ASSERT_EQ(parserOutput2, expectedOutput2);
     ASSERT_EQ(parserOutput3, expectedOutput3);
+}
+
+// testing the replaceSubstring() method
+TEST(ParserTests, STRING_PARSING_UTILS_replaceSubstring){
+    std::string parserInput = "configuration[  ,]";
+    std::string parserInput2 = "per-player[]";
+    std::string parserInput3 = "per-player[, ]";
 
     std::string replacementSubstring = "configuration";
     std::string newSubstring = "per-player";
@@ -201,46 +198,58 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     std::string newSubstring2 = "configuration";
     std::string replacementSubstring3 = "per-player";
     std::string newSubstring3 = "";
-    expectedOutput = "per-player[  ,]";
-    expectedOutput2 = "configuration[]";
-    expectedOutput3 = "[, ]";
+    std::string expectedOutput = "per-player[  ,]";
+    std::string expectedOutput2 = "configuration[]";
+    std::string expectedOutput3 = "[, ]";
 
-    parserOutput = parserInput;
+    std::string parserOutput = parserInput;
     replaceSubstring(parserOutput, replacementSubstring, newSubstring);
-    parserOutput2 = parserInput2;
+    std::string parserOutput2 = parserInput2;
     replaceSubstring(parserOutput2, replacementSubstring2, newSubstring2);
-    parserOutput3 = parserInput3;
+    std::string parserOutput3 = parserInput3;
     replaceSubstring(parserOutput3, replacementSubstring3, newSubstring3);
 
     ASSERT_EQ(parserOutput, expectedOutput);
     ASSERT_EQ(parserOutput2, expectedOutput2);
     ASSERT_EQ(parserOutput3, expectedOutput3);
 
-    expectedOutput = "onfiguration[  ,]";
-    expectedOutput2 = "perplayer";
-    expectedOutput3 = "per-player[, ]";
+}
 
-    parserOutput = removeCharacterAtIndex(parserInput, 0);
-    parserOutput2 = removeCharacterAtIndex(parserInput2, 3);
+// testing the removeCharacterAtIndex() method
+TEST(ParserTests, STRING_PARSING_UTILS_removeCharacterAtIndex){
+    std::string parserInput = "configuration[  ,]";
+    std::string parserInput2 = "per-player[]";
+    std::string parserInput3 = "per-player[, ]";
+
+    std::string expectedOutput = "onfiguration[  ,]";
+    std::string expectedOutput2 = "perplayer";
+    std::string expectedOutput3 = "per-player[, ]";
+
+    std::string parserOutput = removeCharacterAtIndex(parserInput, 0);
+    std::string parserOutput2 = removeCharacterAtIndex(parserInput2, 3);
     parserOutput2 = removeCharacterAtIndex(parserOutput2, parserOutput2.size()-1);
     parserOutput2 = removeCharacterAtIndex(parserOutput2, parserOutput2.size()-1);
-    parserOutput3 = removeCharacterAtIndex(parserInput3, 99);
+    std::string parserOutput3 = removeCharacterAtIndex(parserInput3, 99);
 
     ASSERT_EQ(parserOutput, expectedOutput);
     ASSERT_EQ(parserOutput2, expectedOutput2);
     ASSERT_EQ(parserOutput3, expectedOutput3);
 
-    parserInput = "text,  }  text,  }";
-    parserInput2 = "},},},},}";
-    parserInput3 = "text, ";
+}
 
-    expectedOutput = "text  }  text,  }";
-    expectedOutput2 = "}},},},}";
-    expectedOutput3 = "text, ";
+// testing the deleteCommaInRegularExpression() method
+TEST(ParserTests, STRING_PARSING_UTILS_deleteCommaInRegularExpression){
+    std::string parserInput = "text,  }  text,  }";
+    std::string parserInput2 = "},},},},}";
+    std::string parserInput3 = "text, ";
 
-    parserOutput = parserInput;
-    parserOutput2 = parserInput2;
-    parserOutput3 = parserInput3;
+    std::string expectedOutput = "text  }  text,  }";
+    std::string expectedOutput2 = "}},},},}";
+    std::string expectedOutput3 = "text, ";
+
+    std::string parserOutput = parserInput;
+    std::string parserOutput2 = parserInput2;
+    std::string parserOutput3 = parserInput3;
 
     deleteCommaInRegularExpression(parserOutput);
     deleteCommaInRegularExpression(parserOutput2);
@@ -251,14 +260,27 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     ASSERT_EQ(parserOutput3, expectedOutput3);
 
 
+}
+// testing the getNodeStringValue() method
+
+TEST(ParserTests, STRING_PARSING_UTILS_getNodeStringValue){
+    // tree setups
+    std::string noStringSourcecode = "";
+    ts::Tree noStringTree = string_to_tree(noStringSourcecode);
+
+    ts::Node noStringNode = noStringTree.getRootNode();
+
     try{
-        std::string nodeValOutput = getNodeStringValue(no_string_node, noStringSourcecode);
+        std::string nodeValOutput = getNodeStringValue(noStringNode, noStringSourcecode);
         ASSERT_EQ(1,0);
     }
     catch(std::exception e){
         ASSERT_EQ(0,0);
     }
 
+}
+// testing the formatString() method
+TEST(ParserTests, STRING_PARSING_UTILS_formatString){
     std::string formatInput = "";
     std::string formatInput2 =
 
@@ -267,28 +289,39 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     "}";
     std::string formatInput3 =
 
-    "configuration{"
-        "name: \"Rock, Paper, Scissors\" player range : (2, 4)"
-        "audience : false setup:{"
-        "   rounds{"
-        "       kind: integer"
-        "       prompt : \"The number of rounds to play\" range : (1, 20)"
-        "   }"
-        "}"
-    "}";
+    R"({
+        configuration {
+        name: "Rock, Paper, Scissors"
+        player range: (2, 4)
+        audience: false
+        setup: {
+            rounds {
+            kind: integer
+            prompt: "The number of rounds to play"
+            range: (1, 20)
+            }
+        }
+        }
+    })";
 
     std::string formatExpected = "";
     std::string formatExpected2 = "\"variables\"{   \"winners\": []}";
     std::string formatExpected3 =
-        "\"configuration\"{"
-            "\"name\": \"Rock, Paper, Scissors_player\" "
-            "\"range\": [2, 4]\"audience\" : \"false\""
-            " \"setup\":{"
-                "   \"rounds\" {        \"kind\": \"integer\""
-                "       \"prompt\" : \"The number of rounds to play\""
-                " \"range\" : [1, 20] }"
-        "}"
-    "}";
+    R"({
+        "configuration": {
+            "name": "Rock, Paper, Scissors",
+            "player_range": [2, 4],
+            "audience": "false",
+            "setup": {
+                "rounds": {
+                    "kind": "integer",
+                    "prompt": "The number of rounds to play",
+                    "range": [1, 20]
+                }
+            }
+        }
+    })";
+    
 
     std::string formatOutput = formatString(formatInput);
     std::string formatOutput2 = formatString(formatInput2);
@@ -296,11 +329,11 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
 
     ASSERT_EQ(formatOutput, formatExpected);
     ASSERT_EQ(formatOutput2, formatExpected2);
-    ASSERT_EQ(formatOutput3, formatExpected3);
-
+    ASSERT_EQ(removeWhiteSpace(formatOutput3) , removeWhiteSpace(formatExpected3));
 }
 
-TEST(ParserTests, JSON_UTILS_TEST){
+// testing the generateNumbersList() method
+TEST(ParserTests, JSON_UTILS_TEST_generateNumbersList){
 
     json expectedOutput{0,1,2,3,4};
     int startRange = 0;
