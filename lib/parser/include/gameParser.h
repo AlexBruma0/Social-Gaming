@@ -17,7 +17,10 @@ ts::Tree string_to_tree(const std::string tree_string);
 // gets the value for the substring given by the byte range
 std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte);
 
-// depth first search for a tree
-void dfs(const ts::Node& node, const std::string& source_code);
+// depth first search for a tree; debugging use to see contents
+void printDfs(const ts::Node& node, const std::string& source_code);
+
+// creates a cleaner tree with nodes that store type-specific information for easier use
+void identifyOperations(const ts::Node& node, const std::string& source_code, int depth);
 
 #endif //SOCIAL_GAMING_GAMEPARSER_H
