@@ -42,6 +42,7 @@ nlohmann_json
 cpp-tree-sitter)
 
 install(TARGETS networking
+install(TARGETS parser
   ARCHIVE DESTINATION lib
 )
 

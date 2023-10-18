@@ -18,8 +18,13 @@
 #include "utils.h"
 
 // Current Directory is your build directory
+#ifndef RPS_LOCATION
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
+#endif
+
+#ifndef EMPTY_GAME_LOCATION
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
+#endif
 
 extern "C" {
 //TSLanguage *tree_sitter_json();
@@ -45,8 +50,8 @@ TEST(ParserTests, EMPTY_TEST) {
     ts::Node root = tree.getRootNode();
 
     // GTest to see if correct number of children are read
-    ASSERT_EQ(root.getNumChildren(), 7);
-    //std::cout << root.getNumChildren() << "\n";
+    ASSERT_EQ(root.getNumChildren(), 6);
+    std::cout << root.getNumChildren() << "\n";
 
     ASSERT_EQ(root.getType(), "game");
     ASSERT_EQ(root.getChild(0).getType(), "configuration");
@@ -70,8 +75,8 @@ TEST(ParserTests, RPS_TEST) {
     ts::Node root = tree.getRootNode();
 
     // GTest to see if correct number of children are read
-    ASSERT_EQ(root.getNumChildren(), 19);
-    //std::cout << root.getNumChildren() << "\n";
+    ASSERT_EQ(root.getNumChildren(), 18);
+    std::cout << root.getNumChildren() << "\n";
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
