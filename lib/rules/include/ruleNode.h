@@ -57,9 +57,11 @@ class TreeNode {
 
         void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, const std::string type);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
+
     private:
         std::unique_ptr<TreeNodeImpl> impl;
+        std::string nodeType;
         
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
@@ -78,7 +80,7 @@ class TreeNodeImpl {
 
         void updateIdentifier(const std::string& identifier);
 
-        virtual void execute(){};
+        virtual void execute();
 
     private:
         // Identifier to for the json object
@@ -92,17 +94,17 @@ class TreeNodeImpl {
         std::vector<const TreeNode*> children;
 };
 
-class RuleNode: public TreeNodeImpl{
+class RuleNodeImpl: public TreeNodeImpl{
     public:
-        RuleNode(std::string id): TreeNodeImpl(id){};
-        ~RuleNode(){}
+        RuleNodeImpl(std::string id): TreeNodeImpl(id){};
+        ~RuleNodeImpl(){}
         void execute();
 };
 
-class ForNode: public TreeNodeImpl{
+class ForNodeImpl: public TreeNodeImpl{
     public:
-        ForNode(std::string id): TreeNodeImpl(id){};
-        ~ForNode(){}
+        ForNodeImpl(std::string id): TreeNodeImpl(id){};
+        ~ForNodeImpl(){}
         void execute();
 };
 

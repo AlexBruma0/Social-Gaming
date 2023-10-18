@@ -193,15 +193,17 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
     if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
+
         TreeNode child(input, nodeType);
-        std::cout << "\nnode made of type " << nodeType;
+        std::cout << "node created\n";
+        child.execute();
         //std::string result = typeToFunction[nodeType](input);
 
 //        if (result == "") {
 //            return;
 //        }
 
-        printIndents(depth);
+        //printIndents(depth);
         //std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent type " << parentNode << std::endl;
 //        std::cout << "Node of type: " << nodeType << " at depth " << depth << std::endl;
 //        std::cout << result << std::endl << std::endl;

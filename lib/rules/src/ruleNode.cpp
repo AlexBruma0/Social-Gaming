@@ -17,8 +17,9 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node, std::string type){
-    impl = std::move(this->parseNode(node, type));
+TreeNode::TreeNode(std::string node, std::string type) : nodeType(type) {
+    impl = std::move(this->parseNode(node));
+    std::cout << "address of impl " << impl.get() << std::endl;
 }
 
 TreeNode::TreeNode(TreeNode&& other) noexcept
@@ -38,20 +39,25 @@ void TreeNode::updateIdentifier(const std::string& identifier){
     impl->updateIdentifier(identifier);
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, const std::string type){
-    std::unordered_map<std::string, std::function<std::string(const std::string&)>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&)>> typeToFunction;
     typeToFunction["for"] = processFor;
-    typeToFunction["discard"] = processDiscard;
-    typeToFunction["message"] = processMessage;
-    typeToFunction["parallel_for"] = processParallelFor;
-    typeToFunction["input_choice"] = processInputChoice;
-    typeToFunction["match"] = processMatch;
-    typeToFunction["scores"] = processScores;
-    typeToFunction["extend"] = processExtend;
+//    typeToFunction["discard"] = processDiscard;
+//    typeToFunction["message"] = processMessage;
+//    typeToFunction["parallel_for"] = processParallelFor;
+//    typeToFunction["input_choice"] = processInputChoice;
+//    typeToFunction["match"] = processMatch;
+//    typeToFunction["scores"] = processScores;
+//    typeToFunction["extend"] = processExtend;
 
-    std::string result = "";
-    if (typeToFunction.find(type) != typeToFunction.end()) {
-        result = typeToFunction[type](node);
+    //std::string result = "";
+//    std::cout << "making node with string \"" << node << "\"\n";
+//    std::cout << "making node with type \"" << nodeType << "\"\n";
+//    std::cout << "map size " << typeToFunction.count("for") << std::endl;
+
+    if (typeToFunction.count(nodeType) > 0) {
+        std::cout << "\nnode made of type " << nodeType << std::endl;
+        return typeToFunction[nodeType](node);
     }
     /*
         Might look something like
@@ -61,7 +67,7 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, const
         else if node is a discard node
             return make_unique discardNode
     */
-    return std::make_unique<TreeNodeImpl>(result);
+    return std::make_unique<TreeNodeImpl>("bad");
 }
 
 void TreeNode::execute() const{
@@ -101,13 +107,19 @@ void TreeNodeImpl::printTree(int depth) const{
     for (const auto& child : children) {
         child->printTree(depth + 1);
     }
+}
 
+void TreeNodeImpl::execute(){
+    //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
+    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+        child->execute();
+    });
 }
 
 // execute will differ depending on what type of node is implemented 
 // Test implementation for now
-void RuleNode::execute(){
-    //std::cout<< "impl executing" <<std::endl;
+void RuleNodeImpl::execute(){
+    std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();
     });
@@ -115,8 +127,9 @@ void RuleNode::execute(){
 
 
 // Same as RuleNode Temp for testing
-void ForNode::execute(){
+void ForNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
+    std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();
     });
