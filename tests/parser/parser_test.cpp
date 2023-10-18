@@ -138,22 +138,26 @@ TEST(ParserTests, PRINT_TEST){
 
     std::string expectedRPSNodePrint = "game Children: 7\n"; 
     printNode(rps_node);
-    std::string output = buffer.str();
+    std::string rpsOutput = buffer.str();
 
-    ASSERT_EQ(output, expectedRPSNodePrint);
+    ASSERT_EQ(rpsOutput, expectedRPSNodePrint);
     buffer.str("");
 
     //begin printNodeValue testing
+    std::string expectedOutput = "Source code is empty\n";
+    print_node_value(no_string_node, noStringSourcecode);
+    std::string output = buffer.str();
 
+    ASSERT_EQ(output, expectedOutput);
+    buffer.str("");
 
     //close output capture
     std::cout.rdbuf(original_cout);
-    // print_node_value(no_string_node, noStringSourcecode);
     //print_node_value(empty_node, emptySourcecode);
     //print_node_value(rps_node, rpsSourcecode);
 }
 
-TEST(ParserTests, PARSING_UTILS_TEST){
+TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     // tree setups
     std::string noStringSourcecode = "";
     ts::Tree no_string_tree = string_to_tree(noStringSourcecode);
@@ -220,6 +224,102 @@ TEST(ParserTests, PARSING_UTILS_TEST){
     ASSERT_EQ(parserOutput, expectedOutput);
     ASSERT_EQ(parserOutput2, expectedOutput2);
     ASSERT_EQ(parserOutput3, expectedOutput3);
+
+    parserInput = "text,  }  text,  }";
+    parserInput2 = "},},},},}";
+    parserInput3 = "text, ";
+
+    expectedOutput = "text  }  text,  }";
+    expectedOutput2 = "}},},},}";
+    expectedOutput3 = "text, ";
+
+    parserOutput = parserInput;
+    parserOutput2 = parserInput2;
+    parserOutput3 = parserInput3;
+
+    deleteCommaInRegularExpression(parserOutput);
+    deleteCommaInRegularExpression(parserOutput2);
+    deleteCommaInRegularExpression(parserOutput3);
+
+    ASSERT_EQ(parserOutput, expectedOutput);
+    ASSERT_EQ(parserOutput2, expectedOutput2);
+    ASSERT_EQ(parserOutput3, expectedOutput3);
+
+
+    try{
+        std::string nodeValOutput = get_node_value(no_string_node, noStringSourcecode);
+        ASSERT_EQ(1,0);
+    }
+    catch(std::exception e){
+        ASSERT_EQ(0,0);
+    }
+
+    std::string formatInput = "";
+    std::string formatInput2 =
+
+    "variables{"
+    "   winners: []"
+    "}";
+    std::string formatInput3 =
+
+    "configuration{"
+        "name: \"Rock, Paper, Scissors\" player range : (2, 4)"
+        "audience : false setup:{"
+        "   rounds{"
+        "       kind: integer"
+        "       prompt : \"The number of rounds to play\" range : (1, 20)"
+        "   }"
+        "}"
+    "}";
+
+    std::string formatExpected = "";
+    std::string formatExpected2 = "\"variables\"{   \"winners\": []}";
+    std::string formatExpected3 =
+        "\"configuration\"{"
+            "\"name\": \"Rock, Paper, Scissors_player\" "
+            "\"range\": [2, 4]\"audience\" : \"false\""
+            " \"setup\":{"
+                "   \"rounds\" {        \"kind\": \"integer\""
+                "       \"prompt\" : \"The number of rounds to play\""
+                " \"range\" : [1, 20] }"
+        "}"
+    "}";
+
+    std::string formatOutput = formatString(formatInput);
+    std::string formatOutput2 = formatString(formatInput2);
+    std::string formatOutput3 = formatString(formatInput3);
+
+    ASSERT_EQ(formatOutput, formatExpected);
+    ASSERT_EQ(formatOutput2, formatExpected2);
+    ASSERT_EQ(formatOutput3, formatExpected3);
+
+}
+
+TEST(ParserTests, JSON_UTILS_TEST){
+
+    json expectedOutput{0,1,2,3,4};
+    int startRange = 0;
+    int endRange = 4;
+
+    json output = generateNumbersList(startRange, endRange);
+    ASSERT_EQ(output, expectedOutput);
+
+    json expectedOutput2{4};
+    startRange = 4;
+    endRange = 4;
+
+    output = generateNumbersList(startRange, endRange);
+    ASSERT_EQ(output, expectedOutput2);
+
+    json expectedOutput3{};
+    startRange = 99;
+    endRange = -1;
+
+    output = generateNumbersList(startRange, endRange);
+    ASSERT_EQ(output, expectedOutput3);
+
+
+
 }
 
 

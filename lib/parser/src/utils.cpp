@@ -40,7 +40,10 @@ void print_bfs(const ts::Node& node) {
 }
 
 void print_node_value(const ts::Node& node, const std::string& source_code) {
-    //std::cout << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end) << "\n";
+    if(source_code.empty()){
+        std::cout << "Source code is empty\n";
+        return;
+    }
     std::cout<<get_node_value(node, source_code)<<"\n";
 }
 
@@ -114,7 +117,12 @@ void deleteCommaInRegularExpression(std::string& str) {
     }
 }
 // used to transform string from SocialLanguage to JSON
+//shouldnt string be a copy? do we want to edit the original?
+//if so why not return void?
 std::string formatString(std::string& input) {
+    if(input.empty()){
+        return input;
+    }
     input = RemoveLastNonSpaceBeforeClosingBracket(input);
     std::istringstream iss(input);
     std::ostringstream oss;
@@ -230,6 +238,7 @@ void printCursor(const ts::Cursor& c) {
     ts::Node node = c.getCurrentNode();
     std::cout << node.getType() << " Children: " << node.getNumChildren() << std::endl;
 }
+
 json generateNumbersList(int start, int end) {
     json numbers;
     for (int i = start; i <= end; ++i) {
