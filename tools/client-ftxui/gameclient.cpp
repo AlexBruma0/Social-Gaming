@@ -24,28 +24,18 @@ main(int argc, char* argv[]) {
               << "  e.g. " << argv[0] << " localhost 4002\n";
     return 1;
   }
-   // Get the number of clients you want to run from command line arguments.
-  int numClients = std::stoi(argv[3]);
-
-  // Create and run each client in a separate thread.
-  std::vector<std::thread> threads;
-  for (int i = 0; i < numClients; ++i) {
-    threads.emplace_back([&argv, i] {
-      RunChatClient(argv[1], argv[2]);
-    });
-  }
-
-  // Wait for all threads to finish.
-  for (auto& thread : threads) {
-    thread.join();
-  }
   
   return 0;
 }
 
 
 void RunChatClient(const std::string& ipAddress, const std::string& port) {
-  networking::Client client{argv[1], argv[2]};
+  try {
+    networking::Client client{argv[1], argv[2]};
+    } catch (const std::exception& e) {
+      std::cerr << "Error initializing the client: " << e.what() << std::endl;
+      return;
+  }
 
   bool done = false;
 
@@ -62,6 +52,12 @@ void RunChatClient(const std::string& ipAddress, const std::string& port) {
   std::string entry;
   std::vector<Element> history;
   Component entryField = Input(&entry, "Enter messages here.");
+
+  std::function<void(const std::string&)> messageHandler = [&history](const std::string& message) {
+    history.push_back(paragraphAlignLeft(message));
+  };
+
+  client.addMessageHandler(messageHandler);
 
   // Define the core appearance with a renderer for the components.
   // A `Renderer` takes input consuming components like `Input` and
@@ -106,6 +102,7 @@ void RunChatClient(const std::string& ipAddress, const std::string& port) {
 
     auto response = client.receive();
     if (!response.empty()) {
+      messageHandler(response);
       history.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();
     }

@@ -25,54 +25,6 @@ using networking::Message;
 //for multiple sessions
 std::vector<Server> gameServers;
 
-//placeholder for game struct, will change to just invite code maybe
-struct GameInfo {
-    std::string owner;
-    // shared 4-digit invite code for the game
-    std::string sharedInviteCode; 
-};
-
-// vector for all game instances
-std::vector<GameInfo> gameDatabase;
-
-// generates new 4 digit code from 1000-9999
-std::string inviteGeneration() {
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist(1000, 9999);
-
-    int inviteCodeNumber = dist(mt);
-    return std::to_string(inviteCodeNumber);
-}
-
-//placeholder code for game class (I think LEx is working on that)
-std::string create(const std::string& owner) {
-    std::string inviteCode = inviteGeneration();
-
-    GameInfo newGame;
-    newGame.owner = owner;
-    newGame.inviteCode = inviteCode;
-    gameDatabase.push_back(newGame);
-    
-    return inviteCode;
-}
-
-// somewhat placeholder for when user joins after takiing in input, will call from MessageResult
-bool join(const std::string& inviteCode, const std::string& username) {
-    for (const auto& game : gameDatabase) {
-        if (game.inviteCode == inviteCode) {
-            std::string owner = game.owner;
-
-            std::cout << "User " << username << " joined the game owned by '" << owner << "'.\n";
-            return true;
-        }
-    }
-
-    std::cout << "Game with invite code '" << sharedInviteCode << "' not found.\n";
-    return false;
-}
-
-
 void
 onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
