@@ -1,9 +1,9 @@
 
-add_executable(chatserver
-  chatserver.cpp
+add_executable(gameserver
+gameserver.cpp
 )
 
-set_target_properties(chatserver
+set_target_properties(gameserver
                       PROPERTIES
                       LINKER_LANGUAGE CXX
                       CXX_STANDARD 17
@@ -12,12 +12,12 @@ set_target_properties(chatserver
 
 find_package(Threads REQUIRED)
 
-target_link_libraries(chatserver
+target_link_libraries(gameserver
   networking
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
 
-install(TARGETS chatserver
+install(TARGETS gameserver
   RUNTIME DESTINATION bin
 )
