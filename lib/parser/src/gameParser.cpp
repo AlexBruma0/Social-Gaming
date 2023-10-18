@@ -1,5 +1,6 @@
 
 #include "parser.h"
+#include "utils.h"
 #include <iostream>
 #include <cstdio>
 #include <cpp-tree-sitter.h>

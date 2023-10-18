@@ -37,12 +37,11 @@ tree-sitter-socialgaming
 cpp-tree-sitter)
 
 target_link_libraries( utils
-tree-sitter-socialgaming
 nlohmann_json
+tree-sitter-socialgaming
 cpp-tree-sitter)
 
 install(TARGETS networking
-install(TARGETS parser
   ARCHIVE DESTINATION lib
 )
 

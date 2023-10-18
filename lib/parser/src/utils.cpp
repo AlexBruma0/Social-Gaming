@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 extern "C" {
-    TSLanguage *tree_sitter_socialgaming();
+    TSLanguage *treeSitterSocialGaming();
 }
 
 std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte) {
@@ -28,36 +28,36 @@ std::string getSubstringByByteRange(const std::string& input, size_t startByte, 
 
     return input.substr(startIndex, length);
 }
-
-void printNode(const ts::Node& node) {
+// prints the type and number of children for a given node
+void printNodeType(const ts::Node& node) {
     std::cout << "" << node.getType() << " Children: " << node.getNumChildren() << std::endl;
 }
-
-void print_bfs(const ts::Node& node) {
+// prints the type and number of children for each child of a given node
+void printBfs(const ts::Node& node) {
     for (int i = 0; i < node.getNumChildren(); i++) {
-        printNode(node.getChild(i));
+        printNodeType(node.getChild(i));
     }
 }
-
-void print_node_value(const ts::Node& node, const std::string& source_code) {
-    if(source_code.empty()){
+// prints the string representation of a node
+void printNodeStringValue(const ts::Node& node, const std::string& sourceCode) {
+    if(sourceCode.empty()){
         std::cout << "Source code is empty\n";
         return;
     }
-    std::cout<<get_node_value(node, source_code)<<"\n";
+    std::cout << getNodeStringValue(node, sourceCode) << "\n";
 }
-
-std::string get_node_value(const ts::Node& node, const std::string& source_code) {
-    if (source_code.empty()){
+// returns a string representation of a node
+std::string getNodeStringValue(const ts::Node& node, const std::string& sourceCode) {
+    if (sourceCode.empty()){
         std::cerr << "Source code is empty\n";
     }
-    return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
+    return getSubstringByByteRange(sourceCode, node.getByteRange().start, node.getByteRange().end);
 }
 
 bool isPunctuation(char c) {
     return ispunct(c) && c != '"';
 }
-
+// removes character at index k in in a string
 std::string removeCharacterAtIndex(const std::string& str, size_t k) {
     if (k >= str.length()) {
         std::cerr << "Index out of range\n";
@@ -73,8 +73,8 @@ std::string removeCharacterAtIndex(const std::string& str, size_t k) {
 
     return result;
 }
-
-std::string RemoveLastNonSpaceBeforeClosingBracket(const std::string& str) {
+// used to format JSON string, removes any unneccesary character before closing bracket. 
+std::string removeLastNonSpaceBeforeClosingBracket(const std::string& str) {
     char lastNonSpace = '\0';  // Initialize to null character
 
     for (int i = str.length() - 1; i >= 0; --i) {
@@ -90,7 +90,7 @@ std::string RemoveLastNonSpaceBeforeClosingBracket(const std::string& str) {
 
     return str;
 }
-
+// replaces a substring in a string with a replacement string
 void replaceSubstring(std::string& str, const std::string& substr, const std::string& replacement) {
     if(str.size() == 0) return;
     std::vector<size_t> indices;
@@ -102,7 +102,7 @@ void replaceSubstring(std::string& str, const std::string& substr, const std::st
         pos = str.find(substr, pos + replacement.length());
     }
 }
-
+// used to format a JSON string, deletes the last comma in a list so the parser wont complain
 void deleteCommaInRegularExpression(std::string& str) {
     std::regex regExpr(R"(,[\s\n]*\})");
 
@@ -116,14 +116,12 @@ void deleteCommaInRegularExpression(std::string& str) {
         }
     }
 }
-// used to transform string from SocialLanguage to JSON
-//shouldnt string be a copy? do we want to edit the original?
-//if so why not return void?
+// transforms a SocialLanguge string into a valid JSON String
 std::string formatString(std::string& input) {
     if(input.empty()){
         return input;
     }
-    input = RemoveLastNonSpaceBeforeClosingBracket(input);
+    input = removeLastNonSpaceBeforeClosingBracket(input);
     std::istringstream iss(input);
     std::ostringstream oss;
 
@@ -157,9 +155,9 @@ std::string formatString(std::string& input) {
     size_t found = output.find(substring);
     if (found != std::string::npos) {
         output.erase(found, substring.length());
-        std::string to_insert = "_";
+        std::string toInsert = "_";
         int index = found;
-        output.insert(index, to_insert);
+        output.insert(index, toInsert);
     }
     std::string find = "\" {";
     std::string replace = "\": {";
@@ -197,8 +195,9 @@ std::string formatString(std::string& input) {
 
     return output;
 }
+
 // returns a JSON object for the constants and configuration
-json create_json_data(ts::Node root, const std::string& sourcecode) {
+json createJsonData(ts::Node root, const std::string& sourcecode) {
     std::string json_string{""};
 
     ts::Node config_node = root.getChildByFieldName("configuration");
@@ -206,10 +205,10 @@ json create_json_data(ts::Node root, const std::string& sourcecode) {
     ts::Node per_player_node = root.getChildByFieldName("per_player");
     ts::Node variables_node = root.getChildByFieldName("variables");
 
-    std::string constants_node_to_string = get_node_value(constants_node, sourcecode);
-    std::string config_node_to_string = get_node_value(config_node, sourcecode);
-    std::string per_player_node_to_string = get_node_value(per_player_node, sourcecode);
-    std::string variables_node_to_string = get_node_value(variables_node, sourcecode);
+    std::string constants_node_to_string = getNodeStringValue(constants_node, sourcecode);
+    std::string config_node_to_string = getNodeStringValue(config_node, sourcecode);
+    std::string per_player_node_to_string = getNodeStringValue(per_player_node, sourcecode);
+    std::string variables_node_to_string = getNodeStringValue(variables_node, sourcecode);
 
     std::string constants_node_to_string_json = formatString(constants_node_to_string);
     std::string config_node_to_string_json = formatString(config_node_to_string);
@@ -233,12 +232,12 @@ json create_json_data(ts::Node root, const std::string& sourcecode) {
 
     return json_data;
 }
-
+// prints the node type and number of children for the current node of a cursor
 void printCursor(const ts::Cursor& c) {
     ts::Node node = c.getCurrentNode();
     std::cout << node.getType() << " Children: " << node.getNumChildren() << std::endl;
 }
-
+// returns a JSON array of consecutive integers ranging from a given start int to a given end int inclusive
 json generateNumbersList(int start, int end) {
     json numbers;
     for (int i = start; i <= end; ++i) {
@@ -300,7 +299,7 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
     std::vector<std::string> strings{};
 
     if(listExpressionFirstNode.getNumChildren() == 0){
-        strings.emplace_back(get_node_value(listExpressionFirstNode, source_code));
+        strings.emplace_back(getNodeStringValue(listExpressionFirstNode, source_code));
     }
 
     for (size_t i = 0; i < listExpressionFirstNode.getNumChildren(); ++i){

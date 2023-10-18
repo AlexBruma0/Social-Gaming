@@ -126,31 +126,31 @@ TEST(ParserTests, PRINT_TEST){
     ts::Node empty_node = empty_tree.getRootNode();
     ts::Node rps_node = rps_tree.getRootNode();
 
-    //begin printNode testing
+    //begin printNodeType testing
     std::string expectedNoStringNodePrint = "ERROR Children: 0\n";
-    printNode(no_string_node);
+    printNodeType(no_string_node);
     std::string noStringOutput = buffer.str();
 
     ASSERT_EQ(noStringOutput, expectedNoStringNodePrint);
     buffer.str("");
 
     std::string expectedEmptyPrint = "game Children: 19\n" ;
-    printNode(empty_node);
+    printNodeType(empty_node);
     std::string emptyOutput = buffer.str();
 
     ASSERT_EQ(emptyOutput, expectedEmptyPrint);
     buffer.str("");
 
     std::string expectedRPSNodePrint = "game Children: 7\n"; 
-    printNode(rps_node);
+    printNodeType(rps_node);
     std::string rpsOutput = buffer.str();
 
     ASSERT_EQ(rpsOutput, expectedRPSNodePrint);
     buffer.str("");
 
-    //begin printNodeValue testing
+    //begin printNodeTypeValue testing
     std::string expectedOutput = "Source code is empty\n";
-    print_node_value(no_string_node, noStringSourcecode);
+    printNodeStringValue(no_string_node, noStringSourcecode);
     std::string output = buffer.str();
 
     ASSERT_EQ(output, expectedOutput);
@@ -158,8 +158,8 @@ TEST(ParserTests, PRINT_TEST){
 
     //close output capture
     std::cout.rdbuf(original_cout);
-    //print_node_value(empty_node, emptySourcecode);
-    //print_node_value(rps_node, rpsSourcecode);
+    //printNodeStringValue(empty_node, emptySourcecode);
+    //printNodeStringValue(rps_node, rpsSourcecode);
 }
 
 TEST(ParserTests, STRING_PARSING_UTILS_TEST){
@@ -252,7 +252,7 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
 
 
     try{
-        std::string nodeValOutput = get_node_value(no_string_node, noStringSourcecode);
+        std::string nodeValOutput = getNodeStringValue(no_string_node, noStringSourcecode);
         ASSERT_EQ(1,0);
     }
     catch(std::exception e){
