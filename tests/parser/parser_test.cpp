@@ -14,6 +14,9 @@
 // Game Parser functionality
 #include "gameParser.h"
 
+// Node classes
+#include "../../rules/include/ruleNode.h"
+
 // Current Directory is your build directory
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
@@ -83,5 +86,6 @@ TEST(ParserTests, OP_TREE_TEST) {
     ts::Tree tree = string_to_tree(sourcecode);
 
     ts::Node root = tree.getRootNode();
-    identifyOperations(root, sourcecode, 0, "root");
+
+    TreeNode ruleTree = buildRuleTree(root, sourcecode);
 }

@@ -8,8 +8,17 @@
 #include <string>
 #include <vector>
 
-//std::vector<std::string> splitStringBySpace(const std::string& input);
-//std::string getFirstLine(const std::string& input);
+std::vector<std::string> splitStringBySpace(const std::string& input);
+std::string getFirstLine(const std::string& input);
+
+std::string processFor(const std::string op_string);
+std::string processDiscard(const std::string op_string);
+std::string processMessage(const std::string op_string);
+std::string processParallelFor(const std::string op_string);
+std::string processInputChoice(const std::string op_string);
+std::string processMatch(const std::string op_string);
+std::string processScores(const std::string op_string);
+std::string processExtend(const std::string op_string);
 
 
 #endif //SOCIAL_GAMING_RULENODESUPPORT_H

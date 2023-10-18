@@ -6,8 +6,8 @@
 */
 
 
-#include "ruleNode.h"
-
+#include "../include/ruleNode.h"
+#include "../include/ruleNodeSupport.h"
 
 
 
@@ -17,8 +17,13 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node){
-    impl = std::move(this->parseNode(node));
+TreeNode::TreeNode(std::string node, std::string type){
+    impl = std::move(this->parseNode(node, type));
+}
+
+TreeNode::TreeNode(TreeNode&& other) noexcept
+    // transfer ownership to allow copying
+    : impl(std::move(other.impl)) {
 }
 
 void TreeNode::addChild(const TreeNode* child) const {
@@ -33,8 +38,21 @@ void TreeNode::updateIdentifier(const std::string& identifier){
     impl->updateIdentifier(identifier);
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
-    //Temp 
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, const std::string type){
+    std::unordered_map<std::string, std::function<std::string(const std::string&)>> typeToFunction;
+    typeToFunction["for"] = processFor;
+    typeToFunction["discard"] = processDiscard;
+    typeToFunction["message"] = processMessage;
+    typeToFunction["parallel_for"] = processParallelFor;
+    typeToFunction["input_choice"] = processInputChoice;
+    typeToFunction["match"] = processMatch;
+    typeToFunction["scores"] = processScores;
+    typeToFunction["extend"] = processExtend;
+
+    std::string result = "";
+    if (typeToFunction.find(type) != typeToFunction.end()) {
+        result = typeToFunction[type](node);
+    }
     /*
         Might look something like
 
@@ -43,7 +61,7 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
         else if node is a discard node
             return make_unique discardNode
     */
-    return std::make_unique<TreeNodeImpl>(node);
+    return std::make_unique<TreeNodeImpl>(result);
 }
 
 void TreeNode::execute() const{

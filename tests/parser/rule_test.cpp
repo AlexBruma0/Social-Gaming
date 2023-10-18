@@ -17,6 +17,8 @@
 // Rule Library
 #include "ruleNode.h"
 
+#include "ruleNodeSupport.h"
+
 // Current Directory is your build directory
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
@@ -28,23 +30,23 @@ extern "C" {
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     std::string nodeTest = "test";
-    TreeNode t (nodeTest);
+    TreeNode t (nodeTest, nodeTest);
     ASSERT_EQ(t.impl->identifier, nodeTest);
     t.execute();
 }
 
 TEST (RuleTests, TREE_NODE_CHILDREN) {
-    TreeNode parent("parent");
+    TreeNode parent("parent", "dummy");
     ASSERT_EQ(parent.impl->children.size(), 0);
 
     std::string childS = "childString";
-    TreeNode c1 ("parent2");
+    TreeNode c1 ("parent2", "dummy");
     auto child = std::make_unique<RuleNode>(childS);
     c1.impl = std::move(child);
     parent.addChild(&c1);
 
     std::string childS2 = "childString2";
-    TreeNode c2 ("parent3");
+    TreeNode c2 ("parent3", "dummy");
     auto child2 = std::make_unique<ForNode>(childS2);
     c2.impl = std::move(child2);
     parent.addChild(&c2);

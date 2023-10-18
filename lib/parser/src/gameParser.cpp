@@ -6,6 +6,7 @@
 #include <vector>
 #include <exception>
 #include <algorithm>
+#include "../../rules/include/ruleNode.h"
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -84,7 +85,8 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
     }
 }
 
-// everything below here is WIP and will be moved soon! It's just here while the node structure is not yet ready
+/*
+ everything below here is WIP and will be moved soon! It's just here while the node structure is not yet ready
 std::string getFirstLine(const std::string& input) {
     std::size_t newlinePos = input.find('\n');
 
@@ -159,26 +161,27 @@ std::string processScores(const std::string op_string) {
 std::string processExtend(const std::string op_string) {
     return (splitStringBySpace(op_string).size() > 3) ? op_string : "";
 }
+ */
 
 // this will be used to fill in the nodes when they are ready
 // when we use it for real, we will pass in a parentNode as a parameter so we know what to attach to.
-void identifyOperations(const ts::Node& node, const std::string& source_code, int depth = 0, const std::string& parentNode = "root") {
+void identifyOperations(const ts::Node& node, const std::string& source_code, const TreeNode& parentNode, int depth = 0) {
     // list of stuff we need to implement, operation nodes defined by the language
-//    std::vector<std::string_view> allowedTypes = {
-//            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
-//            "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
-//            "input_range", "message", "scores"
-//    };
+    std::vector<std::string_view> allowedTypes = {
+            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
+            "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
+            "input_range", "message", "scores"
+    };
 
-    std::unordered_map<std::string, std::function<std::string(const std::string&)>> typeToFunction;
-    typeToFunction["for"] = processFor;
-    typeToFunction["discard"] = processDiscard;
-    typeToFunction["message"] = processMessage;
-    typeToFunction["parallel_for"] = processParallelFor;
-    typeToFunction["input_choice"] = processInputChoice;
-    typeToFunction["match"] = processMatch;
-    typeToFunction["scores"] = processScores;
-    typeToFunction["extend"] = processExtend;
+//    std::unordered_map<std::string, std::function<std::string(const std::string&)>> typeToFunction;
+//    typeToFunction["for"] = processFor;
+//    typeToFunction["discard"] = processDiscard;
+//    typeToFunction["message"] = processMessage;
+//    typeToFunction["parallel_for"] = processParallelFor;
+//    typeToFunction["input_choice"] = processInputChoice;
+//    typeToFunction["match"] = processMatch;
+//    typeToFunction["scores"] = processScores;
+//    typeToFunction["extend"] = processExtend;
     // add more as we continue to see more node types
 
     std::string nodeType = std::string(node.getType());
@@ -187,30 +190,48 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, in
     if (nodeType == "comment") {
         return;
     }
-
-    if (typeToFunction.find(nodeType) != typeToFunction.end()) {
+    auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
+    if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
-        std::string result = typeToFunction[nodeType](input);
+        TreeNode child(input, nodeType);
+        std::cout << "\nnode made of type " << nodeType;
+        //std::string result = typeToFunction[nodeType](input);
 
-        if (result == "") {
-            return;
-        }
+//        if (result == "") {
+//            return;
+//        }
 
         printIndents(depth);
-        //std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent " << parentNode << std::endl;
-        std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent type " << parentNode << std::endl;
-        std::cout << result << std::endl << std::endl;
+        //std::cout << "Node of type: " << nodeType << " at depth " << depth << " with parent type " << parentNode << std::endl;
+//        std::cout << "Node of type: " << nodeType << " at depth " << depth << std::endl;
+//        std::cout << result << std::endl << std::endl;
 
-        // todo: make the node here and pass it along as a parent
+//        //TreeNode c1 ("parent2");
+//        auto child = std::make_unique<RuleNode>(result);
+//        rule.impl = std::move(child);
+//        parent.addChild(&rule);
+        for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
+            identifyOperations(node.getChild(i), source_code, child, depth+1);
+        }
+    } else {
+        for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
+            identifyOperations(node.getChild(i), source_code, parentNode, depth + 1);
+        }
     }
 
     // Recursively visit children nodes
-    for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        if (typeToFunction.find(nodeType) != typeToFunction.end()) {
-            identifyOperations(node.getChild(i), source_code, depth+1, nodeType);
-        } else {
-            identifyOperations(node.getChild(i), source_code, depth+1, parentNode);
-        }
+//    for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
+//        if (typeToFunction.find(nodeType) != typeToFunction.end()) {
+//            identifyOperations(node.getChild(i), source_code, c1, depth+1);
+//        } else {
+//            identifyOperations(node.getChild(i), source_code, parentNode, depth+1);
+//        }
+//    }
+}
 
-    }
+TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
+    TreeNode parent("root", "root");
+    identifyOperations(syntaxTree, source_code, parent, 0);
+
+    return std::move(parent);
 }

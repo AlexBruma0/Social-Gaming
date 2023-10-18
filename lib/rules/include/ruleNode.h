@@ -39,7 +39,9 @@ class RuleNode;
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node);
+        TreeNode(std::string node, std::string type);
+
+        TreeNode(TreeNode&& other) noexcept;
 
         ~TreeNode(){};
 
@@ -55,7 +57,7 @@ class TreeNode {
 
         void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, const std::string type);
     private:
         std::unique_ptr<TreeNodeImpl> impl;
         
