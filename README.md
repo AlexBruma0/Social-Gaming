@@ -7,6 +7,7 @@
   <li>Arjun Singh-Shokar</li>
   <li>Alex Bruma</li>
   <li>Lex Rohweder</li>
+  <li>Zelin Zhu</li>
 </ol>
 
 ## How to use
