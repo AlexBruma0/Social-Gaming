@@ -9,7 +9,7 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
-
+//callback struct to create actions for the buttons
 struct ButtonHandler {
     bool& done;
     networking::Client& client;
@@ -66,24 +66,39 @@ void RunChatClient(networking::Client& client) {
   auto helpHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component helpBtn = Button("Help Me!! [h]", [helpHandler] { (*helpHandler)(); });
 
+  //button on main menu to signify joining menu
   auto joinHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component joinBtn = Button("Join Game [j]", [joinHandler] { (*joinHandler)();});
 
+  //make button showcased on main menu to launch into make game menu
   auto makeHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component makeBtn = Button("Make Game [m]", [makeHandler] { (*makeHandler)(); });
 
+  //universal back button
   auto backHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component backBtn = Button("Back [b]", [backHandler] { (*backHandler)(); });
 
+
+  /*outer menu buttons*/
+
+  //located in create game menu, strike c to create a game request from the server
   auto createGameHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
   Component createGameBtn = Button("Create Game [c]", [createGameHandler] { 
       (*createGameHandler)(); 
-      std::string gameRequest = "gamerequest";
-      client.send(gameRequest);
+      // std::string gameRequest = "gamerequest";
+      // client.send(gameRequest);
+  });
+
+  //located in the join game menu, strike g to join a current game
+  auto joinRequestHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component joinGameBtn = Button("Join Game [r]", [joinRequestHandler] { 
+      (*joinRequestHandler)(); 
+      // std::string joinRequest = "joinrequest";
+      // client.send(joinRequest);
   });
 
  
-  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &page] {
+  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &page] {
     //if page == 0 this is the main menu
     if (page == 0) {
       return vbox({
@@ -107,7 +122,7 @@ void RunChatClient(networking::Client& client) {
     } else if (page == 2) {
       return vbox({
           window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-          window(text("Join Game Content"), text("This is the Join Game content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+          window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
       }) | color(Color::RedLight);
       //page 3 is the make game page
@@ -123,7 +138,7 @@ void RunChatClient(networking::Client& client) {
   auto screen = ScreenInteractive::Fullscreen();
 
   //handler for specific events caught in the chat windows
-  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler](const Event& event) {
+  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler](const Event& event) {
     if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
@@ -148,7 +163,13 @@ void RunChatClient(networking::Client& client) {
     }
     else if (event == Event::Character('c')) {
       // send game request through
-      createGameHandler();
+      (*createGameHandler)();
+      page = 0;
+      return true;
+    }
+    else if (event == Event::Character('g')) {
+      // send game request through
+      (*joinRequestHandler)();
       page = 0;
       return true;
     }

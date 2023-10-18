@@ -6,6 +6,7 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <random>
 
 
 using networking::Server;
@@ -60,9 +61,36 @@ using networking::Message;
 //     return false;
 // }
 
-std::vector<Connection> clients;
 //for multiple sessions
 // std::vector<Server> gameServers;
+
+std::vector<Connection> clients;
+//temporary until we fully get game logic object
+std::vector<int> codes;
+
+
+
+int createCode() {
+    int result = 1 + (std::rand() % (99999));
+    codes.push_back(result);
+    return result;
+}
+
+void handleGameRequest(Server& server, const Message& message) {
+  //create 4-character long code
+      std::deque<networking::Message> responseMessages;
+      int code = createCode();
+      std::string response = "Create Game Request received." + code;
+      responseMessages.push_back({message.connection, response});
+      server.send(responseMessages);
+}
+
+void handleJoinRequest(Server& server, const Message& message) {
+    std::deque<networking::Message> responseMessages;
+    std::string response = "Join game request received, enter your 4 letter code.";
+    responseMessages.push_back({message.connection, response});
+    server.send(responseMessages);
+}
 
 void
 onConnect(Connection c) {
@@ -89,13 +117,19 @@ MessageResult
 processMessages(Server& server, const std::deque<Message>& incoming) {
   std::ostringstream result;
   bool quit = false;
+  std::deque<networking::Message> responseMessages;
   for (const auto& message : incoming) {
     if (message.text == "quit") {
       server.disconnect(message.connection);
     } else if (message.text == "shutdown") {
       std::cout << "Shutting down.\n";
       quit = true;
-    } else {
+    } else if (message.text == "gamerequest") {
+        handleGameRequest(server, message);
+    } else if (message.text == "joinrequest") {
+        handleJoinRequest(server, message);
+    } 
+    else {
       result << message.connection.id << "> " << message.text << "\n";
     }
   }
