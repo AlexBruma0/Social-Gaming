@@ -79,8 +79,8 @@ TEST(ParserTests, RPS_TEST) {
     //printDfs(root, sourcecode, 0);
 }
 
-// this test will be DELETED soon. It's just to let me see output while I work on identifying nodes for the operation tree
-// the tree is not yet functional so I'm going to print it and pretend it is.
+// this test is for checking behaviour while building the rules tree
+// we'll add mocks soon
 TEST(ParserTests, OP_TREE_TEST) {
     std::string sourcecode = file_to_string(RPS_LOCATION);
     ts::Tree tree = string_to_tree(sourcecode);
@@ -88,6 +88,4 @@ TEST(ParserTests, OP_TREE_TEST) {
     ts::Node root = tree.getRootNode();
 
     TreeNode ruleTree = buildRuleTree(root, sourcecode);
-    std::cout << "printing tree";
-    ruleTree.printTree(1);
 }
