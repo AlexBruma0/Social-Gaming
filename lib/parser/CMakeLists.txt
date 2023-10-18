@@ -33,6 +33,7 @@ set_target_properties(utils
                       CXX_STANDARD 17
 )
 target_link_libraries( parser
+nlohmann_json
 tree-sitter-socialgaming
 cpp-tree-sitter)
 

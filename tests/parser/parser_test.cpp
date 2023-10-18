@@ -63,7 +63,7 @@ TEST(ParserTests, EMPTY_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    dfs(root, sourcecode);
+    //dfs(root, sourcecode);
 }
 
 TEST(ParserTests, RPS_TEST) {
@@ -80,7 +80,7 @@ TEST(ParserTests, RPS_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    dfs(root, sourcecode);
+    //dfs(root, sourcecode);
 }
 
 
@@ -185,11 +185,11 @@ TEST(ParserTests, STRING_PARSING_UTILS_TEST){
     std::string expectedOutput3 = "per-player[ ]";
 
     std::string parserOutput = 
-    RemoveLastNonSpaceBeforeClosingBracket(parserInput);
+    removeLastNonSpaceBeforeClosingBracket(parserInput);
     std::string parserOutput2 =
-    RemoveLastNonSpaceBeforeClosingBracket(parserInput2);
+    removeLastNonSpaceBeforeClosingBracket(parserInput2);
     std::string parserOutput3 = 
-    RemoveLastNonSpaceBeforeClosingBracket(parserInput3);
+    removeLastNonSpaceBeforeClosingBracket(parserInput3);
 
     ASSERT_EQ(parserOutput, expectedOutput);
     ASSERT_EQ(parserOutput2, expectedOutput2);
