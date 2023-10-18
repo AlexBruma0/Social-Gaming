@@ -42,11 +42,10 @@ int main(int argc, char* argv[]) {
 
 
 void RunChatClient(networking::Client& client) {
-
-  int page = 0;  
+  int page = 0;
   bool done = false;
 
-  auto onTextEntry = [&done, &client] (std::string text) {
+  auto onTextEntry = [&done, &client](std::string text) {
     if ("exit" == text || "quit" == text) {
       done = true;
     } else {
@@ -62,57 +61,86 @@ void RunChatClient(networking::Client& client) {
 
   std::vector<std::string> menuItems = {"Help", "Join Game", "Make Game"};
 
-
+  //buttons that won't click through
   auto helpHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component helpBtn = Button("Help Me!!", [helpHandler] { (*helpHandler)(); });
+  Component helpBtn = Button("Help Me!! [h]", [helpHandler] { (*helpHandler)(); });
 
   auto joinHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component joinBtn = Button("Join Game", [joinHandler] { (*joinHandler)(); });
+  Component joinBtn = Button("Join Game [j]", [joinHandler] { (*joinHandler)(); });
 
   auto makeHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component makeBtn = Button("Make Game", [makeHandler] { (*makeHandler)(); });
+  Component makeBtn = Button("Make Game [m]", [makeHandler] { (*makeHandler)(); });
 
-  // Define the core appearance with a renderer for the components.
-  // A `Renderer` takes input consuming components like `Input` and
-  // produces a DOM to visually represent their current state.
-  auto renderer = Renderer(entryField, [&history,&entryField,&makeBtn, &joinBtn, &helpBtn] {
-    return vbox({
-      window(text("Main Menu"),
-        yframe(
-          vbox(history) | focusPositionRelative(0, 1)
-        )
-      ) | yflex,
+  auto backHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
+  Component backBtn = Button("Back [b]", [backHandler] { (*backHandler)(); });
 
-      window(text("Welcome"),
-        entryField->Render()
-      ) | size(HEIGHT, EQUAL, 3),
-
-      window(text("Options"),
-        hbox(
-          hflow(0.4, makeBtn->Render()), // Add spacing between buttons.
-          hflow(0.4, joinBtn->Render()), // Add spacing between buttons.
-          hflow(0.4, helpBtn->Render())
-          
-        ) | size(HEIGHT, EQUAL, 3)
-      ) | size(HEIGHT, EQUAL, 5),
-
-    }) | color(Color::GreenLight);
+ 
+  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &page] {
+    //if page == 0 this is the main menu
+    if (page == 0) {
+      return vbox({
+          window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
+          window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), hbox(
+              hflow(0.4, makeBtn->Render()), 
+              hflow(0.4, joinBtn->Render()), 
+              hflow(0.4, helpBtn->Render())
+          ) | size(HEIGHT, EQUAL, 3)
+          ) | size(HEIGHT, EQUAL, 5),
+      }) | color(Color::GreenLight);
+      //page 1 is the help page
+    } else if (page == 1) {
+      return vbox({
+          window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+          window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+      }) | color(Color::BlueLight);
+      //page 2 is the join game page
+    } else if (page == 2) {
+      return vbox({
+          window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+          window(text("Join Game Content"), text("This is the Join Game content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+      }) | color(Color::RedLight);
+      //page 3 is the make game page
+    } else if (page == 3) {
+      return vbox({
+          window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+          window(text("Make Game Content"), text("This is the Make Game content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+      }) | color(Color::YellowLight);
+    }
   });
 
   auto screen = ScreenInteractive::Fullscreen();
 
-  // Bind a handler for "return" presses that consumes the text entered
-  // so far.
-  auto handler = CatchEvent(renderer, [&entry,&onTextEntry](const Event& event) {
+  //handler for specific events caught in the chat windows
+  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler](const Event& event) {
     if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
+      return true;
+    } else if (event == Event::Character('h')) {
+      // Switch to the Help page when 'h' is pressed.
+      page = 1;
+      return true;
+    } else if (event == Event::Character('j')) {
+      // Switch to the Join Game page when 'j' is pressed.
+      page = 2;
+      return true;
+    } else if (event == Event::Character('m')) {
+      // Switch to the Make Game page when 'm' is pressed.
+      page = 3;
+      return true;
+    } 
+    else if (event == Event::Character('b')) {
+      // Switch to the Make Game page when 'm' is pressed.
+      page = 0;
       return true;
     }
     return false;
   });
 
-//MAIN LOOP
   const int UPDATE_INTERVAL_IN_MS = 50;
   Loop loop(&screen, handler);
   while (!done && !client.isDisconnected() && !loop.HasQuitted()) {
@@ -126,7 +154,6 @@ void RunChatClient(networking::Client& client) {
 
     auto response = client.receive();
     if (!response.empty()) {
-     
       history.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();
     }
@@ -134,5 +161,4 @@ void RunChatClient(networking::Client& client) {
     loop.RunOnce();
     std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_INTERVAL_IN_MS));
   }
-
 }
