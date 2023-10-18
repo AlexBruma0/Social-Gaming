@@ -20,6 +20,6 @@ set_target_properties(parser
 target_link_libraries( parser
 tree-sitter-socialgaming
 cpp-tree-sitter)
-install(TARGETS networking
+install(TARGETS parser
   ARCHIVE DESTINATION lib
 )
