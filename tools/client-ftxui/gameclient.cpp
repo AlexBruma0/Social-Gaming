@@ -133,6 +133,16 @@ void RunChatClient(networking::Client& client) {
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
       }) | color(Color::YellowLight);
     }
+    return vbox({
+          window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
+          window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), hbox(
+              hflow(0.4, makeBtn->Render()), 
+              hflow(0.4, joinBtn->Render()), 
+              hflow(0.4, helpBtn->Render())
+          ) | size(HEIGHT, EQUAL, 3)
+          ) | size(HEIGHT, EQUAL, 5),
+      }) | color(Color::GreenLight);
   });
 
   auto screen = ScreenInteractive::Fullscreen();
