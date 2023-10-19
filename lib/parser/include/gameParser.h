@@ -16,8 +16,7 @@ std::string file_to_string(const std::string path);
 ts::Tree string_to_tree(const std::string tree_string);
 
 // gets the value for the substring given by the byte range
-std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte);
-
+std::string getSubstringUsingByteRange(const std::string& input, size_t startByte, size_t endByte);
 
 // depth first search for a tree; debugging use to see contents
 void printDfs(const ts::Node& node, const std::string& source_code, int depth);

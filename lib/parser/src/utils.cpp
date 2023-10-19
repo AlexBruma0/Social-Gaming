@@ -11,6 +11,7 @@
 #include <cctype>
 #include <regex>
 #include <cpp-tree-sitter.h>
+#include "gameParser.h"
 
 using json = nlohmann::json;
 
