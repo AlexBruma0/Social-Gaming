@@ -42,7 +42,7 @@ void printBfs(const ts::Node& node) {
 // prints the string representation of a node
 void printNodeStringValue(const ts::Node& node, const std::string& sourceCode) {
     if(sourceCode.empty()){
-        std::cout << "Source code is empty\n";
+        std::cerr << "Source code is empty\n";
         return;
     }
     std::cout << getNodeStringValue(node, sourceCode) << "\n";
@@ -316,12 +316,10 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
     }
     
     if(upfromPresent){
-        json json_return = findObjectWithStringArray(strings, jsonObj);
-        output = generateNumbersList(1, json_return);
+        output = generateNumbersList(1, findObjectWithStringArray(strings, jsonObj));
 
     } else{
-        json json_return = findObjectWithStringArray(strings, jsonObj);
-        output = json_return;
+        output = findObjectWithStringArray(strings, jsonObj);
     }
 
     return output;
