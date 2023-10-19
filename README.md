@@ -8,6 +8,7 @@
   <li>Alex Bruma</li>
   <li>Lex Rohweder</li>
   <li>Zelin Zhu</li>
+  <li>Evan Mangat</li>
 </ol>
 
 ## How to use
