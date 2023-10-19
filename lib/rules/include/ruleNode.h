@@ -94,13 +94,6 @@ class TreeNodeImpl {
         std::vector<const TreeNode*> children;
 };
 
-class RuleNodeImpl: public TreeNodeImpl{
-    public:
-        RuleNodeImpl(std::string id): TreeNodeImpl(id){};
-        ~RuleNodeImpl(){}
-        void execute();
-};
-
 class ForNodeImpl: public TreeNodeImpl{
     public:
         ForNodeImpl(std::string id): TreeNodeImpl(id){};

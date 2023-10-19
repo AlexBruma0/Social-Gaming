@@ -31,7 +31,7 @@ extern "C" {
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     std::string nodeTest = "test";
     TreeNode t (nodeTest, nodeTest);
-    ASSERT_EQ(t.impl->identifier, "");
+    ASSERT_EQ(t.impl->identifier, "bad");
 }
 
 TEST (RuleTests, TREE_NODE_CHILDREN) {
@@ -40,7 +40,7 @@ TEST (RuleTests, TREE_NODE_CHILDREN) {
 
     std::string childS = "childString";
     TreeNode c1 ("parent2", "dummy");
-    auto child = std::make_unique<RuleNodeImpl>(childS);
+    auto child = std::make_unique<ForNodeImpl>(childS);
     c1.impl = std::move(child);
     parent.addChild(&c1);
 
@@ -59,7 +59,7 @@ TEST (RuleTests, TREE_NODE_CHILDREN) {
     // Dynamic testing
     // Will probably create a convert function
     // dynamic casting does not appear to work with other types of nodes yet.
-    auto ruleNodePtr = dynamic_cast<RuleNodeImpl*>(parent.impl->children[0]->impl.get());
+    auto ruleNodePtr = dynamic_cast<ForNodeImpl*>(parent.impl->children[0]->impl.get());
     ASSERT_NE(ruleNodePtr, nullptr);
 
 

@@ -111,13 +111,6 @@ void TreeNodeImpl::execute(){
     });
 }
 
-// execute will differ depending on what type of node is implemented 
-// Test implementation for now
-void RuleNodeImpl::execute(){
-    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
-        child->execute();
-    });
-}
 
 
 // Same as RuleNode Temp for testing
