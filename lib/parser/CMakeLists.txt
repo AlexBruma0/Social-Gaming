@@ -15,11 +15,12 @@ target_include_directories(parser
 set_target_properties(parser
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
+                      CXX_STANDARD 20
 )
 target_link_libraries( parser
-tree-sitter-socialgaming
-cpp-tree-sitter)
+    tree-sitter-socialgaming
+    cpp-tree-sitter
+    rules)
 install(TARGETS parser
   ARCHIVE DESTINATION lib
 )

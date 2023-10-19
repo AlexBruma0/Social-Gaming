@@ -3,7 +3,10 @@
 #include <iostream>
 #include <cstdio>
 #include <cpp-tree-sitter.h>
+#include <vector>
 #include <exception>
+#include <algorithm>
+#include "ruleNode.h"
 #include <fstream>
 
 extern "C" {
@@ -44,23 +47,74 @@ std::string getSubstringByByteRange(const std::string& input, size_t startByte, 
     return input.substr(startIndex, length);
 }
 
-void dfs(const ts::Node& node, const std::string& source_code) {
-    // Skip nodes with type "comment"
+std::string getSubstringForNode(const ts::Node& node, const std::string& source_code) {
+    return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
+}
+
+void printIndents(int depth) {
+    for (int i = 0; i < depth; ++i) {
+        std::cout << " ";
+    }
+}
+
+// for debugging
+void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
+// Skip nodes with type "comment"
     if (node.getType() == "comment") {
         return;
     }
 
-    // Print out all information about a node
-    std::cout << "Node Type: " << node.getType() << std::endl;
-    std::cout << "byte range: " << node.getByteRange().start << ", " << node.getByteRange().end << std::endl;
-    // Pring substring if type is quoted_string or number
-    //if(node.getType() == "quoted_string" || node.getType() == "number"){
-        std::cout << "substring: " << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end ) << std::endl;
-    //}
-    std::cout << "num of children: " << node.getNumChildren() << std::endl << std::endl;
+    printIndents(depth);
+    std::cout << "Depth: " << depth << ", Node Type: " << node.getType() << std::endl;
+    printIndents(depth);
+    std::cout << "substring: "
+        << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
+        << std::endl;
 
-    // Recursively visit children nodes
+    // Recursively visit children nodes for all nodes
     for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        dfs(node.getChild(i), source_code);
+        printDfs(node.getChild(i), source_code, depth + 1);
     }
+}
+
+// this will be used to fill in the nodes when they are ready
+// when we use it for real, we will pass in a parentNode as a parameter so we know what to attach to.
+void identifyOperations(const ts::Node& node, const std::string& source_code, const TreeNode& parentNode, int depth = 0) {
+    // list of stuff we need to implement, operation nodes defined by the language
+    std::vector<std::string_view> allowedTypes = {
+            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
+            "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
+            "input_range", "message", "scores"
+    };
+
+    std::string nodeType = std::string(node.getType());
+
+    // Skip nodes with type "comment"
+    if (nodeType == "comment") {
+        return;
+    }
+    auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
+    if (it != allowedTypes.end()) {
+        std::string input = getSubstringForNode(node, source_code);
+
+        TreeNode child(input, nodeType);
+        //use this to check what type of node you've just created
+        //child.execute();
+
+        for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
+            identifyOperations(node.getChild(i), source_code, child, depth+1);
+        }
+    } else {
+        for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
+            identifyOperations(node.getChild(i), source_code, parentNode, depth + 1);
+        }
+    }
+
+}
+
+TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
+    TreeNode parent("root", "root");
+    identifyOperations(syntaxTree, source_code, parent, 0);
+
+    return std::move(parent);
 }
