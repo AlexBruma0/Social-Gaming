@@ -17,8 +17,9 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node, std::string type){
-    impl = std::move(this->parseNode(node, type));
+TreeNode::TreeNode(std::string node, std::string type) : nodeType(type) {
+    impl = std::move(this->parseNode(node));
+    //std::cout << "address of impl " << impl.get() << std::endl;
 }
 
 TreeNode::TreeNode(TreeNode&& other) noexcept
@@ -38,20 +39,20 @@ void TreeNode::updateIdentifier(const std::string& identifier){
     impl->updateIdentifier(identifier);
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, const std::string type){
-    std::unordered_map<std::string, std::function<std::string(const std::string&)>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&)>> typeToFunction;
     typeToFunction["for"] = processFor;
     typeToFunction["discard"] = processDiscard;
-    typeToFunction["message"] = processMessage;
-    typeToFunction["parallel_for"] = processParallelFor;
-    typeToFunction["input_choice"] = processInputChoice;
-    typeToFunction["match"] = processMatch;
-    typeToFunction["scores"] = processScores;
-    typeToFunction["extend"] = processExtend;
+//    typeToFunction["message"] = processMessage;
+//    typeToFunction["parallel_for"] = processParallelFor;
+//    typeToFunction["input_choice"] = processInputChoice;
+//    typeToFunction["match"] = processMatch;
+//    typeToFunction["scores"] = processScores;
+//    typeToFunction["extend"] = processExtend;
 
-    std::string result = "";
-    if (typeToFunction.find(type) != typeToFunction.end()) {
-        result = typeToFunction[type](node);
+    if (typeToFunction.count(nodeType) > 0) {
+        //std::cout << "\nnode made of type " << nodeType << std::endl;
+        return typeToFunction[nodeType](node);
     }
     /*
         Might look something like
@@ -61,7 +62,7 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, const
         else if node is a discard node
             return make_unique discardNode
     */
-    return std::make_unique<TreeNodeImpl>(result);
+    return std::make_unique<TreeNodeImpl>("bad");
 }
 
 void TreeNode::execute() const{
@@ -101,13 +102,18 @@ void TreeNodeImpl::printTree(int depth) const{
     for (const auto& child : children) {
         child->printTree(depth + 1);
     }
+}
 
+void TreeNodeImpl::execute(){
+    //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
+    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+        child->execute();
+    });
 }
 
 // execute will differ depending on what type of node is implemented 
 // Test implementation for now
-void RuleNode::execute(){
-    //std::cout<< "impl executing" <<std::endl;
+void RuleNodeImpl::execute(){
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();
     });
@@ -115,89 +121,18 @@ void RuleNode::execute(){
 
 
 // Same as RuleNode Temp for testing
-void ForNode::execute(){
+void ForNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
+    std::cout<< "executing for" <<std::endl;
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();
     });
 }
 
-
-
-// (cstong) TEMP COMMENTED OUT
-
-/*
-
-// Needs to call base class constructor to populate and use the value field
-RuleNode::RuleNode() : TreeNode() {};
-
-RuleNode::~RuleNode(){}
-
-
-// Needs to call base class constructor to populate and use the value field
-ForNode::ForNode() : TreeNode() {};
-
-ForNode::~ForNode(){}
-
-// define a trait for Node behaviour
-template <typename T>
-void NodeTrait<T>::execute(const T& node) {
-    // Default behavior (do nothing)
-    printf("test");
+void DiscardNodeImpl::execute(){
+    //std::cout<< "impl executing" <<std::endl;
+    std::cout<< "executing discard" <<std::endl;
+    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+        child->execute();
+    });
 }
-template <typename T>
-T NodeTrait<T>::parse(const std::string& data) {
-    // Default behavior (return an empty node)
-    return T();
-}
-
-
-// templatization; inserting the implementations
-template <>
-struct NodeTrait<forNode> {
-    static void execute(const forNode& node) {
-        std::cout << "Execution for Node of type: for: " << std::endl;
-        // not needed yet, but for example, in this "execution" we would need to:
-        //      figure out the looping variable and write it to json
-        //      figure out how many times we need to loop
-        //      execute the children that many times (changing state as necessary between runs)
-    }
-
-    static forNode parse(const std::string& data) {
-        // for example, if this is a for loop, then we want to do two things:
-        //      first, check that it is the node with all the content (not just the word "for")
-        //          we can do this by breaking the contents into tokens, and then checking for more than 1
-        //          use the function in ruleNodeSupport for this.
-        //      second, we should crop it so that only the RELEVANT stuff is here
-        //          the for loop will also include everything inside it. We don't want that because it'll be its own node.
-        //          thus, we should discard everything after the first line break (make a method in ruleNodeSupport)
-        return forNode(validatedData);
-    }
-};
-
-template <>
-struct NodeTrait<discardNode> {
-    static void execute(const discardNode& node) {
-        std::cout << "Execution for Node of type: discard: " << std::endl;
-        // the requirements for this execution are to simply modify the game state, thus we assume it has no children
-    }
-
-    static discardNode parse(const std::string& data) {
-        // discard will have different validating requirements.
-        //      in this case, we simply want to ensure that it includes the whole line. No need for cutting the string.
-        //      just check that there's more than one token here.
-
-        //  etc, every node type will have different validation requirements.
-        return discardNode(validatedData);
-    }
-};
-
-// generally, the GOAL is to make sure that we have nodes representing the control flow logically.
-//      we should validate this by tokenizing them and making sure they have enough information, then making sure there isn't overlap.
-//      stuff like for or parallel for will naturally overlap because they contain stuff after the condition... discard it
-//      hopefully, you can eventually represent the rules node by node cleanly... with only the following types and no overlap.
-//          "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
-//          "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
-//          "input_range", "message", "scores"
-
-*/

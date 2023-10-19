@@ -11,8 +11,8 @@
 std::vector<std::string> splitStringBySpace(const std::string& input);
 std::string getFirstLine(const std::string& input);
 
-std::string processFor(const std::string op_string);
-std::string processDiscard(const std::string op_string);
+std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string);
+std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string);
 std::string processMessage(const std::string op_string);
 std::string processParallelFor(const std::string op_string);
 std::string processInputChoice(const std::string op_string);

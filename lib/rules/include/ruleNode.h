@@ -57,9 +57,11 @@ class TreeNode {
 
         void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, const std::string type);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
+
     private:
         std::unique_ptr<TreeNodeImpl> impl;
+        std::string nodeType;
         
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
@@ -78,7 +80,7 @@ class TreeNodeImpl {
 
         void updateIdentifier(const std::string& identifier);
 
-        virtual void execute(){};
+        virtual void execute();
 
     private:
         // Identifier to for the json object
@@ -92,112 +94,25 @@ class TreeNodeImpl {
         std::vector<const TreeNode*> children;
 };
 
-class RuleNode: public TreeNodeImpl{
+class RuleNodeImpl: public TreeNodeImpl{
     public:
-        RuleNode(std::string id): TreeNodeImpl(id){};
-        ~RuleNode(){}
+        RuleNodeImpl(std::string id): TreeNodeImpl(id){};
+        ~RuleNodeImpl(){}
         void execute();
 };
 
-class ForNode: public TreeNodeImpl{
+class ForNodeImpl: public TreeNodeImpl{
     public:
-        ForNode(std::string id): TreeNodeImpl(id){};
-        ~ForNode(){}
+        ForNodeImpl(std::string id): TreeNodeImpl(id){};
+        ~ForNodeImpl(){}
         void execute();
 };
 
-/*
-
-TEMPORARILY COMMENTED OUT
-
-
-
-
-// Define a trait for Node behavior
-template <typename T>
-struct NodeTrait {
-    static void execute(const T& node);
-    static T parse(const std::string& data);
-};
-
-
-// Traversere class to do execute and parse on each node
-// Like a wrapper class that will of form TreeNodeTraverse<RuleNode>
-// Unsure if it should be a has or not
-// Will experiment more
-template <typename T>
-class TreeNodeTraverser{
-    public:
-        TreeNodeTraverser(const std::shared_ptr<T>& node)
-            : node(node){};
-
-        ~TreeNodeTraverser(){};
-
-        // Functions that every tree node should have
-        // Template classes need to have their functions implemented in the .h files
-        void execute() {
-            //NodeTrait<T>::execute(static_cast<const T&>(node));
-            NodeTrait<T>::execute(node);
-        }
-
-        // Parse data to create a node
-        std::shared_ptr<T> parse(const std::string& data) {
-            return NodeTrait<T>::parse(data);
-        }
-        private:
-            T node;
-};
-
-
-class RuleNode: public TreeNode {
+class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    RuleNode();
-    RuleNode(const std::shared_ptr<RuleNode>& sharedPtr)
-            : TreeNode(), type(""), rule(""), sharedPtr_(sharedPtr) {}
-    ~RuleNode();
-
-private:
-    std::string type;
-    std::string rule;
-    std::shared_ptr<RuleNode> sharedPtr_;
+    DiscardNodeImpl(std::string id): TreeNodeImpl(id){};
+    ~DiscardNodeImpl(){}
+    void execute();
 };
-
-template <>
-struct NodeTrait<RuleNode> {
-    static void execute(const RuleNode& node){
-        // Printing Test
-        printf("I'm a ruleNode!\n");
-    };
-    static RuleNode parse(const std::string& data){
-
-    };
-};
-
-
-class ForNode: public TreeNode {
-public:
-    ForNode();
-    ~ForNode();
-
-private:
-    std::string type;
-    std::string rule;
-};
-
-template <>
-struct NodeTrait<ForNode> {
-    static void execute(const ForNode& node){
-        // Printing Test
-        printf("I'm a ForNode!\n");
-    };
-    static ForNode parse(const std::string& data);
-};
-
-template <>
-struct NodeTrait<discardNode> {
-    static void execute(const discardNode& node);
-    static discardNode parse(const std::string& data);
-};
-*/
 
 #endif //SOCIAL_GAMING_RULENODE_H

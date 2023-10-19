@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "ruleNode.h"
+#include <iostream>
 
 // doesn't work cause it thinks we're on C++11 somehow
 // if we can fix the version problem please use this one, it's much better.
@@ -60,12 +62,20 @@ std::string getFirstLine(const std::string& input) {
 }
 
 
-std::string processFor(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() > 1) ? getFirstLine(op_string) : "";
+std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string) {
+    if (splitStringBySpace(op_string).size() > 1) {
+        return std::make_unique<ForNodeImpl>(getFirstLine(op_string));
+    } else {
+        return std::make_unique<TreeNodeImpl>("");
+    }
 }
 
-std::string processDiscard(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() == 4) ? op_string : "";
+std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string) {
+    if (splitStringBySpace(op_string).size() == 4) {
+        return std::make_unique<DiscardNodeImpl>(op_string);
+    } else {
+        return std::make_unique<TreeNodeImpl>("");
+    }
 }
 
 std::string processMessage(const std::string op_string) {
