@@ -14,6 +14,9 @@
 // Game Parser functionality
 #include "gameParser.h"
 
+// Node classes
+#include "ruleNode.h"
+
 // helper methods
 #include "utils.h"
 
@@ -63,7 +66,7 @@ TEST(ParserTests, EMPTY_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    //dfs(root, sourcecode);
+    //printDfs(root, sourcecode);
 }
 
 TEST(ParserTests, RPS_TEST) {
@@ -80,7 +83,7 @@ TEST(ParserTests, RPS_TEST) {
 
     // Printing the tree; leave commented out unless you want to see it
     //std::cout << root.getSExpr().get() << "\n";
-    //dfs(root, sourcecode);
+    ////printDfs(root, sourcecode, 0);
 }
 
 // verifys the print test method and checks the behaviour of games for 3 game types
@@ -361,3 +364,14 @@ TEST(ParserTests, JSON_UTILS_TEST_generateNumbersList){
 }
 
 
+
+// this test is for checking behaviour while building the rules tree
+// we'll add mocks soon
+TEST(ParserTests, OP_TREE_TEST) {
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    ts::Node root = tree.getRootNode();
+
+    TreeNode ruleTree = buildRuleTree(root, sourcecode);
+}

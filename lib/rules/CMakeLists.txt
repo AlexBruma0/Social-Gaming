@@ -1,9 +1,10 @@
 
-add_library(lib_game 
-        src/Game.cpp
+add_library(rules
+        src/ruleNode.cpp
+        src/ruleNodeSupport.cpp
 )
 
-target_include_directories(lib_game
+target_include_directories(rules
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -12,10 +13,12 @@ target_include_directories(lib_game
 )
 
 
-set_target_properties(lib_game
+set_target_properties(rules
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
+                      CXX_STANDARD 20
 )
 
-target_link_libraries(lib_game PUBLIC model)
+install(TARGETS rules
+  ARCHIVE DESTINATION lib
+)

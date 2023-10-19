@@ -15,7 +15,7 @@ endif()
 
 
 add_executable(client-ftxui
-  chatclient.cpp
+  gameclient.cpp
 )
 
 set_target_properties(client-ftxui PROPERTIES

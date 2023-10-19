@@ -5,5 +5,5 @@ else()
   add_subdirectory(server)
 
   # Change this to another client if you want to switch  
-  add_subdirectory(client-ncurses)
+  add_subdirectory(client-ftxui)
 endif()

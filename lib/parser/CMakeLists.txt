@@ -24,7 +24,13 @@ target_include_directories(utils
 set_target_properties(parser
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
+                      CXX_STANDARD 20
+)
+
+set_target_properties(utils
+                      PROPERTIES
+                      LINKER_LANGUAGE CXX
+                      CXX_STANDARD 20
 )
 
 set_target_properties(utils
