@@ -62,6 +62,10 @@ add_grammar_from_repo_no_version(tree-sitter-socialgaming
   https://github.com/nsumner/tree-sitter-socialgaming.git
   7ad013c8773b07e27e7eb7a9e4779d473a85c24f
 )
+CPMAddPackage(
+    NAME nlohmann_json
+    GITHUB_REPOSITORY nlohmann/json
+    VERSION 3.10.1)
 
 add_subdirectory(lib)
 add_subdirectory(tests)

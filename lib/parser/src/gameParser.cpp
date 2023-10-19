@@ -1,5 +1,6 @@
 
 #include "parser.h"
+#include "utils.h"
 #include <iostream>
 #include <cstdio>
 #include <cpp-tree-sitter.h>
@@ -8,6 +9,8 @@
 #include <algorithm>
 #include "ruleNode.h"
 #include <fstream>
+
+
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -32,7 +35,7 @@ ts::Tree string_to_tree(const std::string tree_string) {
     return parser.parseString(tree_string);
 }
 
-std::string getSubstringByByteRange(const std::string& input, size_t startByte, size_t endByte) {
+std::string getSubstringUsingByteRange(const std::string& input, size_t startByte, size_t endByte) {
     // Ensure startByte is within range
     if (startByte >= input.size())
         throw std::runtime_error("Start byte exceeds source code size, invalid range");
@@ -48,7 +51,7 @@ std::string getSubstringByByteRange(const std::string& input, size_t startByte, 
 }
 
 std::string getSubstringForNode(const ts::Node& node, const std::string& source_code) {
-    return getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
+    return getSubstringUsingByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
 }
 
 void printIndents(int depth) {
@@ -68,7 +71,7 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
     std::cout << "Depth: " << depth << ", Node Type: " << node.getType() << std::endl;
     printIndents(depth);
     std::cout << "substring: "
-        << getSubstringByByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
+        << getSubstringUsingByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
         << std::endl;
 
     // Recursively visit children nodes for all nodes
