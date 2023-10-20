@@ -373,5 +373,7 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     ts::Node root = tree.getRootNode();
 
-    TreeNode ruleTree = buildRuleTree(root, sourcecode);
+    TreeNode node = buildRuleTree(root, sourcecode);
+
+    //node.execute();
 }

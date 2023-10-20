@@ -118,6 +118,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
     TreeNode parent("root", "root");
     identifyOperations(syntaxTree, source_code, parent, 0);
+    parent.execute();
 
     return std::move(parent);
 }

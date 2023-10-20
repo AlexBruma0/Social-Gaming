@@ -12,6 +12,10 @@ target_include_directories(rules
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+target_link_libraries(rules
+gameState
+)
+
 
 set_target_properties(rules
                       PROPERTIES

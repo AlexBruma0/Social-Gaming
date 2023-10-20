@@ -105,6 +105,7 @@ void TreeNodeImpl::printTree(int depth) const{
 }
 
 void TreeNodeImpl::execute(){
+    //std::cout << children.size() << "\n";
     //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
     std::for_each(children.begin(), children.end(), [](const TreeNode* child){
         child->execute();
