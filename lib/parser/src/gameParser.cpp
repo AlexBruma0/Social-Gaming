@@ -87,21 +87,18 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
             "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
-            "input_range", "message", "scores"
+            "input_range", "message", "scores","comment"
     };
 
     std::string nodeType = std::string(node.getType());
 
-    // Skip nodes with type "comment"
-    if (nodeType == "comment") {
-        return;
-    }
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
     if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
 
         TreeNode child(input, nodeType);
         //use this to check what type of node you've just created
+        parentNode.addChild(std::move(&child));
         //child.execute();
 
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
@@ -112,13 +109,15 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
             identifyOperations(node.getChild(i), source_code, parentNode, depth + 1);
         }
     }
+    // return std::move(parentNode);
 
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
     TreeNode parent("root", "root");
     identifyOperations(syntaxTree, source_code, parent, 0);
-    parent.execute();
+    parent.printTree();
+    //test.execute();
 
     return std::move(parent);
 }

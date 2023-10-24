@@ -28,7 +28,7 @@ TreeNode::TreeNode(TreeNode&& other) noexcept
 }
 
 void TreeNode::addChild(const TreeNode* child) const {
-    impl->addChild(child);
+    impl->addChild(std::move(child));
 }
 
 void TreeNode::printTree(int depth) const {
@@ -86,7 +86,7 @@ TreeNodeImpl::~TreeNodeImpl(){
 }
 
 void TreeNodeImpl::addChild(const TreeNode* child){
-    children.push_back(child);
+    children.push_back(std::move(child));
 }
 
 void TreeNodeImpl::updateIdentifier(const std::string& identifier){
