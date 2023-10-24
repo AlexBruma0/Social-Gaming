@@ -10,8 +10,6 @@
 #include "ruleNode.h"
 #include <fstream>
 
-
-
 extern "C" {
     //TSLanguage *tree_sitter_json();
     TSLanguage *tree_sitter_socialgaming();
@@ -35,48 +33,11 @@ ts::Tree string_to_tree(const std::string tree_string) {
     return parser.parseString(tree_string);
 }
 
-std::string getSubstringUsingByteRange(const std::string& input, size_t startByte, size_t endByte) {
-    // Ensure startByte is within range
-    if (startByte >= input.size())
-        throw std::runtime_error("Start byte exceeds source code size, invalid range");
-
-    // Adjust endByte if it's beyond the string length
-    endByte = std::min(endByte, input.size() - 1);
-    // Calculate the character indices for the substring
-    size_t startIndex = startByte;
-    size_t length = endByte - startByte;
-
-    // Extract the substring
-    return input.substr(startIndex, length);
-}
-
-std::string getSubstringForNode(const ts::Node& node, const std::string& source_code) {
-    return getSubstringUsingByteRange(source_code, node.getByteRange().start, node.getByteRange().end);
-}
-
+// a method for printing out indents when we want to visually represent a tree for debugging
+// hopefully not necessary soon
 void printIndents(int depth) {
     for (int i = 0; i < depth; ++i) {
         std::cout << " ";
-    }
-}
-
-// for debugging
-void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
-// Skip nodes with type "comment"
-    if (node.getType() == "comment") {
-        return;
-    }
-
-    printIndents(depth);
-    std::cout << "Depth: " << depth << ", Node Type: " << node.getType() << std::endl;
-    printIndents(depth);
-    std::cout << "substring: "
-        << getSubstringUsingByteRange(source_code, node.getByteRange().start, node.getByteRange().end)
-        << std::endl;
-
-    // Recursively visit children nodes for all nodes
-    for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-        printDfs(node.getChild(i), source_code, depth + 1);
     }
 }
 
@@ -98,7 +59,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
     }
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
     if (it != allowedTypes.end()) {
-        std::string input = getSubstringForNode(node, source_code);
+        std::string input = getNodeStringValue(node, source_code);
 
         TreeNode child(input, nodeType);
         //use this to check what type of node you've just created

@@ -7,7 +7,7 @@ add_executable(client-ncurses
 set_target_properties(client-ncurses
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
+                      CXX_STANDARD 20
                       PREFIX ""
 )
 

@@ -1,7 +1,3 @@
-//
-// Created by kevin on 10/11/2023.
-//
-
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
