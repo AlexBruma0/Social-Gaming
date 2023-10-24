@@ -27,8 +27,8 @@ TreeNode::TreeNode(TreeNode&& other) noexcept
     : impl(std::move(other.impl)) {
 }
 
-void TreeNode::addChild(const TreeNode* child) const {
-    impl->addChild(std::move(child));
+void TreeNode::addChild(std::unique_ptr<TreeNode> child) const { //change
+    impl->addChild(std::move(child)); //change
 }
 
 void TreeNode::printTree(int depth) const {
@@ -85,8 +85,8 @@ TreeNodeImpl::~TreeNodeImpl(){
 
 }
 
-void TreeNodeImpl::addChild(const TreeNode* child){
-    children.push_back(std::move(child));
+void TreeNodeImpl::addChild(std::unique_ptr<TreeNode> child){ //change
+    children.push_back(std::move(child)); 
 }
 
 void TreeNodeImpl::updateIdentifier(const std::string& identifier){
@@ -107,9 +107,9 @@ void TreeNodeImpl::printTree(int depth) const{
 void TreeNodeImpl::execute(){
     //std::cout << children.size() << "\n";
     //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
-    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+    for (const auto& child : children) {
         child->execute();
-    });
+    }
 }
 
 
@@ -118,15 +118,15 @@ void TreeNodeImpl::execute(){
 void ForNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing for" <<std::endl;
-    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+    for (const auto& child : children) {
         child->execute();
-    });
+    }
 }
 
 void DiscardNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing discard" <<std::endl;
-    std::for_each(children.begin(), children.end(), [](const TreeNode* child){
+    for (const auto& child : children) {
         child->execute();
-    });
+    }
 }
