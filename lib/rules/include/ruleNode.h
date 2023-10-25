@@ -1,13 +1,14 @@
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
-
+#pragma once
 #include <string>
 #include <vector>
 #include <iostream>
 #include <memory>
 #include <algorithm>
 #include <gtest/gtest_prod.h>
+#include "../../gameState/include/GameState.h"
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 

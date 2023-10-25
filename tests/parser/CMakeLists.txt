@@ -16,6 +16,12 @@ target_link_libraries(parser_test
 )
 add_test(NAME parser_test COMMAND parser_test)
 
+target_compile_definitions(parser_test
+    PRIVATE
+    -DRPS_LOCATION="${CMAKE_SOURCE_DIR}/resources/games/rock-paper-scissors.game"
+    -DEMPTY_GAME_LOCATION="${CMAKE_SOURCE_DIR}/resources/games/empty.game"
+)
+
 # Command for adding something into the resource folder
 # Need to change the target
 add_custom_command(TARGET parser_test PRE_BUILD
