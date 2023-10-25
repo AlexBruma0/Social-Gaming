@@ -86,7 +86,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
             "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
-            "input_range", "message", "scores","comment"
+            "input_range", "message", "scores"
     };
 
     std::string nodeType = std::string(node.getType());

@@ -29,11 +29,11 @@ extern "C" {
 }
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
-    // std::string nodeTest = "test";
-    // TreeNode t (nodeTest, nodeTest);
-    // ASSERT_EQ(t.impl->identifier, "bad");
+    std::string nodeTest = "test";
+    TreeNode t (nodeTest, nodeTest);
+    ASSERT_EQ(t.impl->identifier, "bad");
 }
-
+// need to rewrite tests to work with the addchild() method
 TEST (RuleTests, TREE_NODE_CHILDREN) {
     TreeNode parent("parent", "dummy");
     ASSERT_EQ(parent.impl->children.size(), 0);

@@ -27,8 +27,8 @@ TreeNode::TreeNode(TreeNode&& other) noexcept
     : impl(std::move(other.impl)) {
 }
 
-void TreeNode::addChild(std::unique_ptr<TreeNode> child) const { //change
-    impl->addChild(std::move(child)); //change
+void TreeNode::addChild(std::unique_ptr<TreeNode> child) const { 
+    impl->addChild(std::move(child)); 
 }
 
 void TreeNode::printTree(int depth) const {
@@ -85,7 +85,7 @@ TreeNodeImpl::~TreeNodeImpl(){
 
 }
 
-void TreeNodeImpl::addChild(std::unique_ptr<TreeNode> child){ //change
+void TreeNodeImpl::addChild(std::unique_ptr<TreeNode> child){
     children.push_back(std::move(child)); 
 }
 
