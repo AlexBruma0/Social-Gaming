@@ -9,8 +9,13 @@
 #include <algorithm>
 #include "ruleNode.h"
 #include <fstream>
+#include <nlohmann/json.hpp>
+#include "GameState.h"
 
 
+
+// Current Directory is your build directory
+#define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
 extern "C" {
     //TSLanguage *tree_sitter_json();
@@ -81,7 +86,7 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
 }
 
 
-void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode) {
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState& gameState) {
     // list of stuff we need to implement, operation nodes defined by the language
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
@@ -95,27 +100,49 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
     if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
 
-        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType);
+        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType, gameState);
 
         TreeNode& childRef = *child;
         parentNode.addChild(std::move(child));
 
 
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, childRef);
+            identifyOperations(node.getChild(i), source_code, childRef, gameState);
         }
     } else {
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, parentNode);
+            identifyOperations(node.getChild(i), source_code, parentNode, gameState);
         }
     }
 
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
-    TreeNode parent("root", "root");
-    identifyOperations(syntaxTree, source_code, parent);
-    parent.printTree();
+    const int num_players = 2;
+    const int num_rounds = 2;
+
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    // Access the root node of the AST
+    ts::Node root = tree.getRootNode();
+
+
+    json jsonData = createJsonData(root, sourcecode);
+
+    jsonData["configuration"]["rounds"] = num_rounds;
+    jsonData["players"][0] = jsonData["per-player"];
+    jsonData["players"][0]["name"] = "Alice";
+
+    jsonData["players"][1] = jsonData["per-player"];
+    jsonData["players"][1]["name"] = "Bob";
+    GameState gs{jsonData};
+    //std::cout << gs.getState().dump();
+
+
+    TreeNode parent("root", "root", gs);
+    identifyOperations(syntaxTree, source_code, parent, gs);
+    //parent.printTree();
 
     return parent;
 }

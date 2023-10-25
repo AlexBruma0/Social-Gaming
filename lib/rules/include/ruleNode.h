@@ -12,6 +12,8 @@
 #include <memory>
 #include <algorithm>
 #include <gtest/gtest_prod.h>
+#include "../../gameState/include/GameState.h" 
+
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
@@ -39,7 +41,7 @@ class RuleNode;
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node, std::string type);
+        TreeNode(std::string node, std::string type, GameState& gameState);
 
         TreeNode(TreeNode&& other) noexcept;
 
@@ -57,7 +59,7 @@ class TreeNode {
 
         void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
 
     private:
         std::unique_ptr<TreeNodeImpl> impl;
@@ -71,7 +73,7 @@ class TreeNode {
 class TreeNodeImpl { 
 
     public:
-        TreeNodeImpl(std::string id);
+        TreeNodeImpl(std::string id, GameState& gameState);
         ~TreeNodeImpl();
 
         void printTree(int depth = 0) const;
@@ -83,6 +85,12 @@ class TreeNodeImpl {
         virtual void execute();
 
     private:
+        // json object to store the necessary data for each node
+        json identifiers;
+
+        // common to all nodes
+        GameState gameState;
+
         // Identifier to for the json object
         std::string identifier;
 
@@ -96,14 +104,14 @@ class TreeNodeImpl {
 
 class ForNodeImpl: public TreeNodeImpl{
     public:
-        ForNodeImpl(std::string id): TreeNodeImpl(id){};
+        ForNodeImpl(std::string id, GameState& gameState): TreeNodeImpl(id, gameState){};
         ~ForNodeImpl(){}
         void execute();
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    DiscardNodeImpl(std::string id): TreeNodeImpl(id){};
+    DiscardNodeImpl(std::string id, GameState& gameState): TreeNodeImpl(id, gameState){};
     ~DiscardNodeImpl(){}
     void execute();
 };

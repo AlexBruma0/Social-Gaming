@@ -11,14 +11,15 @@
 
 
 
+
 /*
 -------------------------------------------
 TREE NODE CLASS 
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node, std::string type) : nodeType(type) {
-    impl = std::move(this->parseNode(node));
+TreeNode::TreeNode(std::string node, std::string type, GameState& gameState) : nodeType(type) {
+    impl = std::move(this->parseNode(node, gameState));
     //std::cout << "address of impl " << impl.get() << std::endl;
 }
 
@@ -39,10 +40,10 @@ void TreeNode::updateIdentifier(const std::string& identifier){
     impl->updateIdentifier(identifier);
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
-    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&)>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
     typeToFunction["for"] = processFor;
-    typeToFunction["discard"] = processDiscard;
+    // typeToFunction["discard"] = processDiscard;
 //    typeToFunction["message"] = processMessage;
 //    typeToFunction["parallel_for"] = processParallelFor;
 //    typeToFunction["input_choice"] = processInputChoice;
@@ -52,7 +53,7 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
 
     if (typeToFunction.count(nodeType) > 0) {
         //std::cout << "\nnode made of type " << nodeType << std::endl;
-        return typeToFunction[nodeType](node);
+        return typeToFunction[nodeType](node, gameState);
     }
     /*
         Might look something like
@@ -62,7 +63,7 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
         else if node is a discard node
             return make_unique discardNode
     */
-    return std::make_unique<TreeNodeImpl>("bad");
+    return std::make_unique<TreeNodeImpl>("bad", gameState);
 }
 
 void TreeNode::execute() const{
@@ -77,8 +78,8 @@ NODE CLASSES
 */
 
 
-TreeNodeImpl::TreeNodeImpl(std::string id)
-: identifier(id) {
+TreeNodeImpl::TreeNodeImpl(std::string id, GameState& _gameState)
+: identifier(id), gameState(_gameState) {
 }
 
 TreeNodeImpl::~TreeNodeImpl(){

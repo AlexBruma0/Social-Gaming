@@ -13,7 +13,11 @@ target_include_directories(rules
 )
 
 target_link_libraries(rules
+nlohmann_json
+tree-sitter-socialgaming
 gameState
+cpp-tree-sitter
+utils
 )
 
 

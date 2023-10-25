@@ -61,44 +61,43 @@ std::string getFirstLine(const std::string& input) {
     }
 }
 
-
-std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string) {
+std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState& gameState) {
     if (splitStringBySpace(op_string).size() > 1) {
-        return std::make_unique<ForNodeImpl>(getFirstLine(op_string));
+        return std::make_unique<ForNodeImpl>(getFirstLine(op_string), gameState);
     } else {
-        return std::make_unique<TreeNodeImpl>("");
+        return std::make_unique<TreeNodeImpl>("", gameState);
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string) {
-    if (splitStringBySpace(op_string).size() == 4) {
-        return std::make_unique<DiscardNodeImpl>(op_string);
-    } else {
-        return std::make_unique<TreeNodeImpl>("");
-    }
-}
+// std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string, GameState& gameState) {
+//     if (splitStringBySpace(op_string).size() == 4) {
+//         return std::make_unique<DiscardNodeImpl>(op_string, gameState);
+//     } else {
+//         return std::make_unique<TreeNodeImpl>("", gameState);
+//     }
+// }
 
-std::string processMessage(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() == 3) ? op_string : "";
-}
+// std::string processMessage(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() == 3) ? op_string : "";
+// }
 
-std::string processParallelFor(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() > 1) ? getFirstLine(op_string) : "";
-}
+// std::string processParallelFor(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() > 1) ? getFirstLine(op_string) : "";
+// }
 
-std::string processInputChoice(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() > 1) ? op_string : "";
-}
+// std::string processInputChoice(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() > 1) ? op_string : "";
+// }
 
-std::string processMatch(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() > 1) ? op_string : "";
-}
+// std::string processMatch(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() > 1) ? op_string : "";
+// }
 
-std::string processScores(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() == 2) ? op_string : "";
-}
+// std::string processScores(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() == 2) ? op_string : "";
+// }
 
-std::string processExtend(const std::string op_string) {
-    return (splitStringBySpace(op_string).size() > 3) ? op_string : "";
-}
+// std::string processExtend(const std::string op_string) {
+//     return (splitStringBySpace(op_string).size() > 3) ? op_string : "";
+// }
 
