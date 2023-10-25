@@ -1,9 +1,9 @@
 
-add_library(lib_game 
-        src/Game.cpp
+add_library(gameState 
+        src/GameState.cpp
 )
 
-target_include_directories(lib_game
+target_include_directories(gameState
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -12,10 +12,12 @@ target_include_directories(lib_game
 )
 
 
-set_target_properties(lib_game
+set_target_properties(gameState
                       PROPERTIES
                       LINKER_LANGUAGE CXX
                       CXX_STANDARD 17
 )
 
-target_link_libraries(lib_game PUBLIC model)
+target_link_libraries(gameState
+nlohmann_json
+)

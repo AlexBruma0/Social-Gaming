@@ -80,9 +80,8 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
     }
 }
 
-// this will be used to fill in the nodes when they are ready
-// when we use it for real, we will pass in a parentNode as a parameter so we know what to attach to.
-void identifyOperations(const ts::Node& node, const std::string& source_code, const TreeNode& parentNode, int depth = 0) {
+
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode) {
     // list of stuff we need to implement, operation nodes defined by the language
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
@@ -92,24 +91,22 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
 
     std::string nodeType = std::string(node.getType());
 
-    // Skip nodes with type "comment"
-    if (nodeType == "comment") {
-        return;
-    }
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
     if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
 
-        TreeNode child(input, nodeType);
-        //use this to check what type of node you've just created
-        //child.execute();
+        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType);
+
+        TreeNode& childRef = *child;
+        parentNode.addChild(std::move(child));
+
 
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, child, depth+1);
+            identifyOperations(node.getChild(i), source_code, childRef);
         }
     } else {
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, parentNode, depth + 1);
+            identifyOperations(node.getChild(i), source_code, parentNode);
         }
     }
 
@@ -117,7 +114,8 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, co
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
     TreeNode parent("root", "root");
-    identifyOperations(syntaxTree, source_code, parent, 0);
+    identifyOperations(syntaxTree, source_code, parent);
+    parent.printTree();
 
-    return std::move(parent);
+    return parent;
 }
