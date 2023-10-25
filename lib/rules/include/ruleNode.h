@@ -44,7 +44,7 @@ class TreeNode {
         void printTree(int depth = 0) const;
 
 
-        void addChild(const TreeNode* child) const;
+        void addChild(std::unique_ptr<TreeNode> child) const; 
 
         // Function to update the identifier value if something changes
 
@@ -72,7 +72,7 @@ class TreeNodeImpl {
 
         void printTree(int depth = 0) const;
 
-        void addChild(const TreeNode* child);
+        void addChild(std::unique_ptr<TreeNode> child);
 
         void updateIdentifier(const std::string& identifier);
 
@@ -87,7 +87,7 @@ class TreeNodeImpl {
         FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
     protected:
         // Node list of children 
-        std::vector<const TreeNode*> children;
+        std::vector<std::unique_ptr<TreeNode>> children;
 };
 
 class ForNodeImpl: public TreeNodeImpl{

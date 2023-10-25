@@ -354,3 +354,16 @@ TEST(ParserTests, JSON_UTILS_TEST_generateNumbersList){
 
 
 }
+
+// this test is for checking behaviour while building the rules tree
+// we'll add mocks soon
+TEST(ParserTests, OP_TREE_TEST) {
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    ts::Node root = tree.getRootNode();
+
+    TreeNode node = buildRuleTree(root, sourcecode);
+
+    //node.execute();
+}
