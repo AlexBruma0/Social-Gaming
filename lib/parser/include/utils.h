@@ -3,7 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include <cpp-tree-sitter.h>
-#include "parser.h" // Include the necessary tree-sitter header here
+#include "parser.h"
 #include <string>
 
 

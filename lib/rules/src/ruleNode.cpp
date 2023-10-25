@@ -1,11 +1,3 @@
-/*
- Created by kevin on 10/11/2023.
-
- Edited:
-    cstong (Caleb) 10/12/2023
-*/
-
-
 #include "ruleNode.h"
 #include "ruleNodeSupport.h"
 
@@ -19,7 +11,6 @@ TREE NODE CLASS
 
 TreeNode::TreeNode(std::string node, std::string type) : nodeType(type) {
     impl = std::move(this->parseNode(node));
-    //std::cout << "address of impl " << impl.get() << std::endl;
 }
 
 TreeNode::TreeNode(TreeNode&& other) noexcept
@@ -27,8 +18,8 @@ TreeNode::TreeNode(TreeNode&& other) noexcept
     : impl(std::move(other.impl)) {
 }
 
-void TreeNode::addChild(std::unique_ptr<TreeNode> child) const { 
-    impl->addChild(std::move(child)); 
+void TreeNode::addChild(std::unique_ptr<TreeNode> child) const {
+    impl->addChild(std::move(child));
 }
 
 void TreeNode::printTree(int depth) const {
@@ -51,22 +42,12 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node){
 //    typeToFunction["extend"] = processExtend;
 
     if (typeToFunction.count(nodeType) > 0) {
-        //std::cout << "\nnode made of type " << nodeType << std::endl;
         return typeToFunction[nodeType](node);
     }
-    /*
-        Might look something like
-
-        if node is a for node
-            return make_unique forNode
-        else if node is a discard node
-            return make_unique discardNode
-    */
     return std::make_unique<TreeNodeImpl>("bad");
 }
 
 void TreeNode::execute() const{
-    //std::cout<< "executing" <<std::endl;
     impl->execute();
 }
 
@@ -75,7 +56,6 @@ void TreeNode::execute() const{
 NODE CLASSES
 -------------------------------------------
 */
-
 
 TreeNodeImpl::TreeNodeImpl(std::string id)
 : identifier(id) {
@@ -86,7 +66,7 @@ TreeNodeImpl::~TreeNodeImpl(){
 }
 
 void TreeNodeImpl::addChild(std::unique_ptr<TreeNode> child){
-    children.push_back(std::move(child)); 
+    children.push_back(std::move(child));
 }
 
 void TreeNodeImpl::updateIdentifier(const std::string& identifier){
@@ -105,18 +85,12 @@ void TreeNodeImpl::printTree(int depth) const{
 }
 
 void TreeNodeImpl::execute(){
-    //std::cout << children.size() << "\n";
-    //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
 }
 
-
-
-// Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
-    //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing for" <<std::endl;
     for (const auto& child : children) {
         child->execute();
@@ -124,7 +98,6 @@ void ForNodeImpl::execute(){
 }
 
 void DiscardNodeImpl::execute(){
-    //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing discard" <<std::endl;
     for (const auto& child : children) {
         child->execute();
