@@ -8,7 +8,6 @@
 #include <memory>
 #include <algorithm>
 #include <gtest/gtest_prod.h>
-#include "../../gameState/include/GameState.h"
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 

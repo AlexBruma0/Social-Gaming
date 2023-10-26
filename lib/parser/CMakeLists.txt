@@ -22,18 +22,6 @@ target_include_directories(utils
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-set_target_properties(parser
-        PROPERTIES
-        LINKER_LANGUAGE CXX
-        CXX_STANDARD 20
-)
-
-set_target_properties(utils
-        PROPERTIES
-        LINKER_LANGUAGE CXX
-        CXX_STANDARD 20
-)
-
 target_link_libraries(utils
         nlohmann_json
         tree-sitter-socialgaming

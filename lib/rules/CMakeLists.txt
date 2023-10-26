@@ -1,7 +1,4 @@
-add_library(rules
-        src/ruleNode.cpp
-        src/ruleNodeSupport.cpp
-)
+add_library(rules src/ruleNode.cpp src/ruleNodeSupport.cpp)
 
 target_include_directories(rules
         PUBLIC
@@ -11,16 +8,4 @@ target_include_directories(rules
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(rules
-        gameState
-)
-
-set_target_properties(rules
-        PROPERTIES
-        LINKER_LANGUAGE CXX
-        CXX_STANDARD 20
-)
-
-install(TARGETS rules
-        ARCHIVE DESTINATION lib
-)
+install(TARGETS rules ARCHIVE DESTINATION lib)
