@@ -8,6 +8,10 @@ GameState::GameState(json gameState){
     this->gameState = gameState;
 }
 
+GameState::GameState() {
+    this->gameState = json::parse("{}");
+}
+
 json GameState::getState() const{
     return this->gameState;
 }
@@ -15,4 +19,5 @@ json GameState::getState() const{
 void GameState::setState(json gameState){
     this->gameState = gameState;
 }
+
 

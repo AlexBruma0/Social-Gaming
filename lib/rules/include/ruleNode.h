@@ -5,13 +5,14 @@
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
-
+#include "parser.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <memory>
 #include <algorithm>
 #include <gtest/gtest_prod.h>
+#include <nlohmann/json.hpp>
 #include "../../gameState/include/GameState.h" 
 
 
@@ -54,9 +55,6 @@ class TreeNode {
 
         // Function to update the identifier value if something changes
 
-        // Might be needed for for loop nodes 
-        void updateIdentifier(const std::string& identifier);
-
         void execute() const;
 
         std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
@@ -74,39 +72,51 @@ class TreeNodeImpl {
 
     public:
         TreeNodeImpl(std::string id, GameState& gameState);
+        TreeNodeImpl();
         ~TreeNodeImpl();
+
+        TreeNodeImpl(TreeNodeImpl&& other) noexcept;
 
         void printTree(int depth = 0) const;
 
         void addChild(std::unique_ptr<TreeNode> child);
 
-        void updateIdentifier(const std::string& identifier);
+        void setIdentifierData(const json& data);
+
+        json getIdentifierData() const;
 
         virtual void execute();
 
-    private:
+
+    protected:
+        // Node list of children 
+        std::vector<std::unique_ptr<TreeNode>> children;
+
         // json object to store the necessary data for each node
         json identifiers;
+
+        std::string content;
 
         // common to all nodes
         GameState gameState;
 
-        // Identifier to for the json object
-        std::string identifier;
-
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
         FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
-    protected:
-        // Node list of children 
-        std::vector<std::unique_ptr<TreeNode>> children;
 };
 
 class ForNodeImpl: public TreeNodeImpl{
-    public:
-        ForNodeImpl(std::string id, GameState& gameState): TreeNodeImpl(id, gameState){};
-        ~ForNodeImpl(){}
-        void execute();
+public:
+    ForNodeImpl(std::string id, GameState& gameState);
+    ForNodeImpl(ForNodeImpl&& other) noexcept;
+    ~ForNodeImpl(){}
+    void execute();
+
+private:
+    std::vector<std::unique_ptr<TreeNode>> children;
+    json identifiers;
+    std::string content;
+    GameState gameState;
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{

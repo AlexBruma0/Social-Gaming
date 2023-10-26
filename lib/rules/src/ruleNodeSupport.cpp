@@ -62,8 +62,20 @@ std::string getFirstLine(const std::string& input) {
 }
 
 std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState& gameState) {
-    if (splitStringBySpace(op_string).size() > 1) {
-        return std::make_unique<ForNodeImpl>(getFirstLine(op_string), gameState);
+    std::vector<std::string> tokens = splitStringBySpace(op_string);
+    if (tokens.size() > 1) {
+        std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ForNodeImpl>(getFirstLine(op_string), gameState);
+        //orNodeImpl impl(getFirstLine(op_string), gameState);
+
+        json data = json::parse("{}");
+        data["var"] = tokens[1];
+        data["collection"] = tokens[3];
+        implPtr->setIdentifierData(data);
+
+        std::cout << "\nfrom processFor data: " << data.dump();
+        std::cout << "\nfrom processFor impl: " << implPtr->getIdentifierData().dump();
+
+        return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
     }

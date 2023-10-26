@@ -11,4 +11,5 @@ class GameState{
     json getState() const;
     void setState(json gameState);
     GameState(json gameState);
+    GameState();
 };
