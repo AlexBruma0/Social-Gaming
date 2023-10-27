@@ -40,10 +40,10 @@ void TreeNode::printTree(int depth) const {
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
     std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
     typeToFunction["for"] = processFor;
-    // typeToFunction["discard"] = processDiscard;
+    typeToFunction["discard"] = processDiscard;
 //    typeToFunction["message"] = processMessage;
 //    typeToFunction["parallel_for"] = processParallelFor;
-//    typeToFunction["input_choice"] = processInputChoice;
+    typeToFunction["input_choice"] = processInputChoice;
 //    typeToFunction["match"] = processMatch;
 //    typeToFunction["scores"] = processScores;
 //    typeToFunction["extend"] = processExtend;
@@ -80,13 +80,6 @@ TreeNodeImpl::TreeNodeImpl() : content("") {
 
 TreeNodeImpl::~TreeNodeImpl(){}
 
-//TreeNodeImpl::TreeNodeImpl(TreeNodeImpl&& other) noexcept
-//    : content(other.content),
-//    identifiers(other.identifiers),
-//    children(std::move(other.children)),
-//    gameState(other.gameState)
-//{}
-
 void TreeNodeImpl::addChild(std::unique_ptr<TreeNode> child){
     children.push_back(std::move(child)); 
 }
@@ -122,17 +115,6 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): content(id), ga
     identifiers = json::parse("{}");
 }
 
-//ForNodeImpl::ForNodeImpl(ForNodeImpl&& other) noexcept
-//    : content(other.content),
-//    identifiers(other.identifiers),
-//    children(std::move(other.children)),
-//    gameState(other.gameState)
-//{
-//    std::cout << "\nMove constructor called for ForNodeImpl";
-//    std::cout << "\nother identifiers: " << other.identifiers.dump();
-//    std::cout << "\nbefore move, identifiers: " << identifiers.dump();
-//}
-
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
@@ -142,9 +124,25 @@ void ForNodeImpl::execute(){
     }
 }
 
+DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+    identifiers = json::parse("{}");
+}
+
 void DiscardNodeImpl::execute(){
     //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing discard" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+    identifiers = json::parse("{}");
+}
+
+void InputChoiceNodeImpl::execute(){
+    //std::cout<< "impl executing" <<std::endl;
+    std::cout<< "executing input choice" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }

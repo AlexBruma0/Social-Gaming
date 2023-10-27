@@ -15,7 +15,7 @@ std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState
 std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string, GameState& gameState);
 std::string processMessage(const std::string op_string);
 std::string processParallelFor(const std::string op_string);
-std::string processInputChoice(const std::string op_string);
+std::unique_ptr<TreeNodeImpl> processInputChoice(const std::string op_string, GameState& gameState);
 std::string processMatch(const std::string op_string);
 std::string processScores(const std::string op_string);
 std::string processExtend(const std::string op_string);

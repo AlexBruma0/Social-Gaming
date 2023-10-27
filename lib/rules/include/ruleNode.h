@@ -75,8 +75,6 @@ class TreeNodeImpl {
         TreeNodeImpl();
         ~TreeNodeImpl();
 
-        TreeNodeImpl(TreeNodeImpl&& other) noexcept;
-
         void printTree(int depth = 0) const;
 
         void addChild(std::unique_ptr<TreeNode> child);
@@ -108,7 +106,6 @@ class TreeNodeImpl {
 class ForNodeImpl: public TreeNodeImpl{
 public:
     ForNodeImpl(std::string id, GameState& gameState);
-    ForNodeImpl(ForNodeImpl&& other) noexcept;
     ~ForNodeImpl(){}
     void execute();
 
@@ -121,9 +118,28 @@ private:
 
 class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    DiscardNodeImpl(std::string id, GameState& gameState): TreeNodeImpl(id, gameState){};
+    DiscardNodeImpl(std::string id, GameState& gameState);
     ~DiscardNodeImpl(){}
     void execute();
+
+private:
+    std::vector<std::unique_ptr<TreeNode>> children;
+    json identifiers;
+    std::string content;
+    GameState gameState;
+};
+
+class InputChoiceNodeImpl: public TreeNodeImpl{
+public:
+    InputChoiceNodeImpl(std::string id, GameState& gameState);
+    ~InputChoiceNodeImpl(){}
+    void execute();
+
+private:
+    std::vector<std::unique_ptr<TreeNode>> children;
+    json identifiers;
+    std::string content;
+    GameState gameState;
 };
 
 #endif //SOCIAL_GAMING_RULENODE_H
