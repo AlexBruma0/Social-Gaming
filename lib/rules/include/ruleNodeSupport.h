@@ -13,12 +13,12 @@ std::string getFirstLine(const std::string& input);
 
 std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState& gameState);
 std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string, GameState& gameState);
-std::string processMessage(const std::string op_string);
-std::string processParallelFor(const std::string op_string);
+std::unique_ptr<TreeNodeImpl> processMessage(const std::string op_string, GameState& gameState);
+std::unique_ptr<TreeNodeImpl> processParallelFor(const std::string op_string, GameState& gameState);
 std::unique_ptr<TreeNodeImpl> processInputChoice(const std::string op_string, GameState& gameState);
-std::string processMatch(const std::string op_string);
-std::string processScores(const std::string op_string);
-std::string processExtend(const std::string op_string);
+std::unique_ptr<TreeNodeImpl> processMatch(const std::string op_string, GameState& gameState);
+std::unique_ptr<TreeNodeImpl> processScores(const std::string op_string, GameState& gameState);
+std::unique_ptr<TreeNodeImpl> processExtend(const std::string op_string, GameState& gameState);
 
 
 #endif //SOCIAL_GAMING_RULENODESUPPORT_H

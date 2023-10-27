@@ -41,17 +41,16 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameS
     std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
     typeToFunction["for"] = processFor;
     typeToFunction["discard"] = processDiscard;
-//    typeToFunction["message"] = processMessage;
-//    typeToFunction["parallel_for"] = processParallelFor;
+    typeToFunction["message"] = processMessage;
+    typeToFunction["parallel_for"] = processParallelFor;
     typeToFunction["input_choice"] = processInputChoice;
 //    typeToFunction["match"] = processMatch;
 //    typeToFunction["scores"] = processScores;
 //    typeToFunction["extend"] = processExtend;
 
     if (typeToFunction.count(nodeType) > 0) {
-        //std::cout << "\nnode made of type " << nodeType << std::endl;
         std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](node, gameState);
-        std::cout << "\nfrom parseNode: " << impl->getIdentifierData().dump();
+        //std::cout << std::endl << impl->getIdentifierData().dump();
         return std::move(impl);
     }
     return std::make_unique<TreeNodeImpl>("bad", gameState);
@@ -105,7 +104,6 @@ json TreeNodeImpl::getIdentifierData() const {
 
 void TreeNodeImpl::execute(){
     //std::cout << children.size() << "\n";
-    //std::cout<< "impl executing FOR WOOO ITS WORKINGLETS GOOOOOO" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -117,7 +115,6 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): content(id), ga
 
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
-    //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing for" <<std::endl;
     for (const auto& child : children) {
         child->execute();
@@ -129,8 +126,29 @@ DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState& _gameState): content
 }
 
 void DiscardNodeImpl::execute(){
-    //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing discard" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+MessageNodeImpl::MessageNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+    identifiers = json::parse("{}");
+}
+
+void MessageNodeImpl::execute(){
+    std::cout<< "executing message" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+    identifiers = json::parse("{}");
+}
+
+void ParallelForNodeImpl::execute(){
+    std::cout<< "executing parallel for" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -141,7 +159,6 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState& _gameState):
 }
 
 void InputChoiceNodeImpl::execute(){
-    //std::cout<< "impl executing" <<std::endl;
     std::cout<< "executing input choice" <<std::endl;
     for (const auto& child : children) {
         child->execute();

@@ -129,6 +129,32 @@ private:
     GameState gameState;
 };
 
+class MessageNodeImpl: public TreeNodeImpl{
+public:
+    MessageNodeImpl(std::string id, GameState& gameState);
+    ~MessageNodeImpl(){}
+    void execute();
+
+private:
+    std::vector<std::unique_ptr<TreeNode>> children;
+    json identifiers;
+    std::string content;
+    GameState gameState;
+};
+
+class ParallelForNodeImpl: public TreeNodeImpl {
+public:
+    ParallelForNodeImpl(std::string id, GameState &gameState);
+    ~ParallelForNodeImpl() {}
+    void execute();
+
+private:
+    std::vector <std::unique_ptr<TreeNode>> children;
+    json identifiers;
+    std::string content;
+    GameState gameState;
+};
+
 class InputChoiceNodeImpl: public TreeNodeImpl{
 public:
     InputChoiceNodeImpl(std::string id, GameState& gameState);
