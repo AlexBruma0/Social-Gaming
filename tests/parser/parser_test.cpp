@@ -63,10 +63,6 @@ TEST(ParserTests, EMPTY_TEST) {
     ASSERT_EQ(root.getChild(3).getType(), "per_player");
     ASSERT_EQ(root.getChild(4).getType(), "per_audience");
     ASSERT_EQ(root.getChild(5).getType(), "rules");
-
-    // Printing the tree; leave commented out unless you want to see it
-    //std::cout << root.getSExpr().get() << "\n";
-    //printDfs(root, sourcecode);
 }
 
 TEST(ParserTests, RPS_TEST) {
@@ -80,10 +76,6 @@ TEST(ParserTests, RPS_TEST) {
     // GTest to see if correct number of children are read
     ASSERT_EQ(root.getNumChildren(), 18);
     std::cout << root.getNumChildren() << "\n";
-
-    // Printing the tree; leave commented out unless you want to see it
-    //std::cout << root.getSExpr().get() << "\n";
-    ////printDfs(root, sourcecode, 0);
 }
 
 // verifys the print test method and checks the behaviour of games for 3 game types
@@ -362,8 +354,6 @@ TEST(ParserTests, JSON_UTILS_TEST_generateNumbersList){
 
 
 }
-
-
 
 // this test is for checking behaviour while building the rules tree
 // we'll add mocks soon

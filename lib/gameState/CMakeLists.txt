@@ -1,5 +1,5 @@
 
-add_library(gameState 
+add_library(gameState
         src/GameState.cpp
 )
 

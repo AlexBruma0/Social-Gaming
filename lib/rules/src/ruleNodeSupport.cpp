@@ -1,13 +1,10 @@
-//
-// Created by kevin on 10/11/2023.
-//
 #include <vector>
 #include <string>
 #include <sstream>
 #include "ruleNode.h"
 #include <iostream>
 
-// doesn't work cause it thinks we're on C++11 somehow
+// doesn't work cause it thinks we're on C++11 somehow, and we can't use std::quoted
 // if we can fix the version problem please use this one, it's much better.
 //std::vector<std::string> splitStringBySpace(const std::string& input) {
 //    std::vector<std::string> result;
@@ -21,7 +18,7 @@
 //    return result;
 //}
 
-// use something like this for for loops (untested, but it looks like it should work)
+// split a string into tokens
 std::vector<std::string> splitStringBySpace(const std::string& input) {
     std::vector<std::string> tokens;
     bool insideQuotes = false;
@@ -48,7 +45,7 @@ std::vector<std::string> splitStringBySpace(const std::string& input) {
     return tokens;
 }
 
-
+// gets the content before a linebreak of a string
 std::string getFirstLine(const std::string& input) {
     std::size_t newlinePos = input.find('\n');
 
