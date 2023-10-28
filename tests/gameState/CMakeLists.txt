@@ -26,4 +26,4 @@ add_custom_command(TARGET gameStateTest PRE_BUILD
 )
 
 # Command to automatically run the test
-add_custom_command(add_custom_command(TARGET gameStateTest POST_BUILD COMMAND ctest -R "gameStateTest" --output-on-failure))
+add_custom_command(TARGET gameStateTest POST_BUILD COMMAND ctest -R "gameStateTest" --output-on-failure)
