@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <gmock/gmock.h>
 
 // Wrapper API
 #include <cpp-tree-sitter.h>
@@ -27,6 +28,11 @@ extern "C" {
 //TSLanguage *tree_sitter_json();
     TSLanguage *tree_sitter_socialgaming();
 }
+
+class ForNode public TreeNodeImpl{
+    public:
+        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), (override));
+};
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     std::string nodeTest = "test";

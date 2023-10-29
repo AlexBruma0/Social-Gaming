@@ -11,7 +11,9 @@
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include <variant>
 #include <gtest/gtest_prod.h>
+#include <nlohmann/json.hpp>
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
@@ -33,6 +35,8 @@ class RuleNode;
     The traverser has a node field that will have the actual node data
         Execute and parse will now manipulate that node field
 */
+
+using jsonReturnFormat = std::variant<std::vector<std::string>, std::vector<size_t>>;
 
 // Base class to implement all other node types
 // Abstraction so that the parser doesn't have to deal with the underlying node stuff
@@ -85,6 +89,10 @@ class TreeNodeImpl {
     private:
         // Identifier to for the json object
         std::string identifier;
+
+        nlohmann::json gameState;
+
+        jsonReturnFormat getJSON(std::string id){};
 
         // Gtest to test private fields
         FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
