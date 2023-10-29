@@ -1,7 +1,7 @@
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
-
+#pragma once
 #include <string>
 #include <vector>
 #include <iostream>
