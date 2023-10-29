@@ -20,7 +20,7 @@ add_executable(client-ftxui
 
 set_target_properties(client-ftxui PROPERTIES
   LINKER_LANGUAGE CXX
-  CXX_STANDARD 17
+  CXX_STANDARD 20
   PREFIX ""
 )
 

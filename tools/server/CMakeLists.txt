@@ -6,7 +6,7 @@ gameserver.cpp
 set_target_properties(gameserver
                       PROPERTIES
                       LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
+                      CXX_STANDARD 20
                       PREFIX ""
 )
 

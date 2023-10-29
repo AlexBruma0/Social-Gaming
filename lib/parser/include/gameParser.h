@@ -1,7 +1,3 @@
-//
-// Created by kevin on 9/30/2023.
-//
-
 #ifndef SOCIAL_GAMING_GAMEPARSER_H
 #define SOCIAL_GAMING_GAMEPARSER_H
 

@@ -76,8 +76,6 @@ std::string removeCharacterAtIndex(const std::string& str, size_t k) {
 }
 // used to format JSON string, removes any unneccesary character before closing bracket. 
 std::string removeLastNonSpaceBeforeClosingBracket(const std::string& str) {
-    char lastNonSpace = '\0';  // Initialize to null character
-
     for (int i = str.length() - 1; i >= 0; --i) {
         if (str[i] == ']') {
             for (int k = i - 1; k >= 0; --k) {
@@ -279,7 +277,6 @@ json findObjectWithStringArray(std::vector<std::string> strings, json jsonObj){
 // transforms expression into JSON array
 json extractListExpression(const ts::Node &listExpressionNode, const std::string& source_code, json jsonObj) {
 
-    
     bool upfromPresent = false;
     json output;
 
@@ -291,7 +288,6 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
             upfromPresent = true;
 
             // Assume that the value is a direct child of "upfrom"
-            ts::Node valueNode = childNode.getChild(0);
             break;  // We found "upfrom", no need to search further
         }
     }

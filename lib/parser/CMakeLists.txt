@@ -36,7 +36,9 @@ set_target_properties(utils
 target_link_libraries( parser
 nlohmann_json
 tree-sitter-socialgaming
+gameState
 cpp-tree-sitter
+utils
 rules)
 
 target_link_libraries( utils
