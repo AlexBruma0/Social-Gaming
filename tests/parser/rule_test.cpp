@@ -29,10 +29,25 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
-class ForNode public TreeNodeImpl{
+class ForNodeMock :public ForNodeImpl{
     public:
-        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), (override));
+        ForNodeMock(GameState& gameState): ForNodeImpl("id", gameState){}
+        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
+        MOCK_METHOD(void, execute, (), ());
 };
+
+TEST (RuleTests, forNodeExecute){
+    json j; 
+    j["start"] = 1;
+    GameState gs{j};
+    ForNodeMock fNode(gs);
+    std::vector<std::string> v{"1","2","3"};
+    int idx = 2;
+    EXPECT_CALL(fNode, execute()).WillOnce([&fNode](){
+        return fNode.ForNodeImpl::execute();
+    });
+    fNode.execute();
+}
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
     // std::string nodeTest = "test";

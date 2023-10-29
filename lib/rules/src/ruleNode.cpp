@@ -109,7 +109,7 @@ void TreeNodeImpl::execute(){
     }
 }
 
-ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 

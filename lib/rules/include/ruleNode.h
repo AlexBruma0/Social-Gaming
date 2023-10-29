@@ -62,9 +62,6 @@ class TreeNode {
         std::unique_ptr<TreeNodeImpl> impl;
         std::string nodeType;
         
-        // Gtest to test private fields
-        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
 class TreeNodeImpl { 
@@ -97,13 +94,7 @@ class TreeNodeImpl {
         // common to all nodes
         GameState gameState;
 
-        nlohmann::json gameState;
-
         jsonReturnFormat getJSON(std::string id){};
-
-        // Gtest to test private fields
-        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
 class ForNodeImpl: public TreeNodeImpl{

@@ -35,6 +35,7 @@ target_link_libraries(rule_test
         tree-sitter-socialgaming
         cpp-tree-sitter
         ${GTEST_BOTH_LIBRARIES}
+        gmock
         pthread
         rules
         parser
