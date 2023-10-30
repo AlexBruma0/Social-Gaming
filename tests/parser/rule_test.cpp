@@ -29,23 +29,41 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
-class ForNodeMock :public ForNodeImpl{
+class childNode: public TreeNode{
     public:
-        ForNodeMock(GameState& gameState): ForNodeImpl("id", gameState){}
-        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
+        childNode(std::string node, std::string type, GameState& gameState): TreeNode(node, type, gameState){
+            
+        }
+        
         MOCK_METHOD(void, execute, (), ());
 };
+class ForNodeMock :public ForNodeImpl{
+    public:
+        ForNodeMock(GameState& gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
+       
+
+            ForNodeImpl::addChild(std::move(t));
+        }
+
+        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
+        MOCK_METHOD(void, execute, (), ());
+
+};
+
+
 
 TEST (RuleTests, forNodeExecute){
     json j; 
     j["start"] = 1;
     GameState gs{j};
-    ForNodeMock fNode(gs);
+    auto child = std::make_unique<childNode>("bad", "bad",gs);
+
+    ForNodeMock fNode(gs, std::move(child));
+    
     std::vector<std::string> v{"1","2","3"};
-    int idx = 2;
-    EXPECT_CALL(fNode, execute()).WillOnce([&fNode](){
-        return fNode.ForNodeImpl::execute();
-    });
+
+    EXPECT_CALL(fNode, execute()).Times(1);
+
     fNode.execute();
 }
 

@@ -45,7 +45,7 @@ class TreeNode {
 
         TreeNode(TreeNode&& other) noexcept;
 
-        ~TreeNode(){};
+        virtual ~TreeNode(){};
 
         void printTree(int depth = 0) const;
 
@@ -69,7 +69,7 @@ class TreeNodeImpl {
     public:
         TreeNodeImpl(std::string id, GameState& gameState);
         TreeNodeImpl();
-        ~TreeNodeImpl();
+        virtual~TreeNodeImpl();
 
         void printTree(int depth = 0) const;
 
@@ -103,11 +103,7 @@ public:
     ~ForNodeImpl(){}
     void execute();
 
-private:
-    std::vector<std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
+
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{

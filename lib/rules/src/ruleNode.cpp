@@ -103,7 +103,7 @@ json TreeNodeImpl::getIdentifierData() const {
 }
 
 void TreeNodeImpl::execute(){
-    //std::cout << children.size() << "\n";
+    std::cout << children.size() << "\n";
     for (const auto& child : children) {
         child->execute();
     }
