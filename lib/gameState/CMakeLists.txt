@@ -1,7 +1,5 @@
 
-add_library(gameState
-        src/GameState.cpp
-)
+add_library(gameState src/GameState.cpp)
 
 target_include_directories(gameState
   PUBLIC
@@ -12,12 +10,6 @@ target_include_directories(gameState
 )
 
 
-set_target_properties(gameState
-                      PROPERTIES
-                      LINKER_LANGUAGE CXX
-                      CXX_STANDARD 17
-)
+target_link_libraries(gameState nlohmann_json)
 
-target_link_libraries(gameState
-nlohmann_json
-)
+install(TARGETS gameState ARCHIVE DESTINATION lib)

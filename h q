@@ -1,0 +1,841 @@
+[33mcommit 60cbf447fb1110c2c8e9553be9c983cc08d616f5[m[33m ([m[1;36mHEAD -> [m[1;32mgame_logic[m[33m)[m
+Merge: feaae29 f669f81
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Thu Oct 26 17:50:52 2023 -0700
+
+    fix merge conflict, but properly this time!
+
+[33mcommit feaae29da8820aeb090a7e65de3fa3dc6a709624[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Thu Oct 26 17:23:26 2023 -0700
+
+    add message and parallel for node types
+
+[33mcommit 6b5256ee5a911c7d13dc0b3d4a721aacc4a1bb19[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Thu Oct 26 17:05:32 2023 -0700
+
+    cleanup unused copy constructors, implement parsing for two more node types
+
+[33mcommit 565ede1e593d4572ba3d852fe6af98d375f0f9c3[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Thu Oct 26 16:32:03 2023 -0700
+
+    modified processFor method to keep certain tokens as identifiers in json object
+
+[33mcommit cb57ea958e4678c1f5a08869dc2df97ea32a3802[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 25 15:41:20 2023 -0700
+
+    integrated state into NodeClass
+
+[33mcommit f669f8137b1431c453bd8f130b8e5b2e4f4680cb[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Merge: 41012bb 704d708
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 25 20:57:57 2023 +0000
+
+    Merge branch 'cleanup' into 'master'
+    
+    Cleanup of iteration 1 code
+    
+    See merge request 373-23-3-klah/social-gaming!15
+
+[33mcommit 704d70865f1f473c16d57229b6e423f42fde02ea[m[33m ([m[1;31morigin/cleanup[m[33m, [m[1;32mcleanup[m[33m)[m
+Merge: eb5a280 41012bb
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 25 13:57:18 2023 -0700
+
+    pull master and fix merge conflicts
+
+[33mcommit 41012bbc42ffe2c50165e907b5b2a8b31292d196[m
+Merge: d9c5918 c6fa119
+Author: aba215 <alex_bruma@sfu.ca>
+Date:   Wed Oct 25 17:40:01 2023 +0000
+
+    Merge branch 'game_logic' into 'master'
+    
+    Game logic
+    
+    See merge request 373-23-3-klah/social-gaming!14
+
+[33mcommit c6fa11966ae6d8d56e2d938d860d56329f33b7f5[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Tue Oct 24 17:37:10 2023 -0700
+
+    small clean up
+
+[33mcommit eb5a2805a267663dded3d977db3c97ce1364b250[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Tue Oct 24 12:07:09 2023 -0700
+
+    general cleanup; delete unused output, replace duplicate functions, remove commented out or deprecated code, clean up CMake formatting
+
+[33mcommit e88165eb2080c95f7c5cef6a9e79e1859e47acb0[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Tue Oct 24 11:55:15 2023 -0700
+
+    fixed dereferencing bug for building tree
+
+[33mcommit 4582a43dd6d349d5e0d450e954662a890bb17737[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Mon Oct 23 17:44:29 2023 -0700
+
+    testing
+
+[33mcommit 99a5b00a8938d35da112ed874afcf694f1b18990[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Fri Oct 20 15:12:42 2023 -0700
+
+    added files for gameState
+
+[33mcommit e54eb4ecf24e0e793f6ba4c044797fd8d2917d7f[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Fri Oct 20 15:12:11 2023 -0700
+
+    added tests for gameState
+
+[33mcommit 290527a0a11f3f77f9f7eea90e384edbb71c7935[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Fri Oct 20 13:21:26 2023 -0700
+
+    changing from Game to GameState
+
+[33mcommit d9c59186d6bc6326d0f60cc09e322b00b1d86447[m
+Merge: 37fc624 a2313fb
+Author: emangat <emangat@sfu.ca>
+Date:   Thu Oct 19 04:57:24 2023 +0000
+
+    Merge branch 'evan-unit-tests' into 'master'
+    
+    Update networking_test.cpp
+    
+    See merge request 373-23-3-klah/social-gaming!11
+
+[33mcommit 37fc624ce5f4d177b79b98808636320365407f24[m
+Merge: 9098134 6244a35
+Author: asa255 <arjun_singh_3@sfu.ca>
+Date:   Thu Oct 19 04:33:20 2023 +0000
+
+    Merge branch 'ui-renderer-fix' into 'master'
+    
+    fixed compiler error of rendering lambda
+    
+    See merge request 373-23-3-klah/social-gaming!13
+
+[33mcommit a2313fba3c0685e002dea67b811bf2083c1edb36[m[33m ([m[1;31morigin/evan-unit-tests[m[33m)[m
+Author: Evan Mangat <evanmangat@gmail.com>
+Date:   Wed Oct 18 21:23:05 2023 -0700
+
+    Update networking_test.cpp
+    
+    Removed some redundant tests and fixed compiling issues in line with merge request comments! (Server and .disconnect are private methods so commented out tests involving them for now)
+
+[33mcommit 90981349e6e0948b792a961fe4a7d45f1e3c78ca[m
+Merge: ad3d788 56ee1f2
+Author: aba215 <alex_bruma@sfu.ca>
+Date:   Thu Oct 19 04:12:49 2023 +0000
+
+    Merge branch 'alex_utils_fixes' into 'master'
+    
+    Alex utils fixes
+    
+    See merge request 373-23-3-klah/social-gaming!9
+
+[33mcommit 56ee1f2b4334f5465cd6da7dbafa49e94b3e2c24[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 21:12:05 2023 -0700
+
+    addressing MR comments
+
+[33mcommit 3f9a20c3969a3c4c3635ad0730863bb93a2ceb76[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 21:02:00 2023 -0700
+
+    linker fixes
+
+[33mcommit 87d4742d12af79c1f37018db9937f2b3cee7ed3d[m
+Merge: 82c3e99 ad3d788
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 20:40:47 2023 -0700
+
+    Merge remote-tracking branch 'origin' into alex_utils_fixes
+
+[33mcommit ad3d7888fbf198f992e6523918d296b57d735a25[m
+Merge: 7e8f370 20328ed
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Oct 19 03:01:43 2023 +0000
+
+    Merge branch 'operation-tree' into 'master'
+    
+    Introduced RuleNode structure, implemented proof of concept for different execution for different rules
+    
+    See merge request 373-23-3-klah/social-gaming!10
+
+[33mcommit 20328ed82a0d0336ac5d0795dd09bfd4d910c76d[m[33m ([m[1;31morigin/operation-tree[m[33m, [m[1;31morigin/forNode-execute[m[33m)[m
+Merge: ea667a9 7e8f370
+Author: cstong <cstong@sfu.ca>
+Date:   Wed Oct 18 19:41:56 2023 -0700
+
+    Merge remote-tracking branch 'origin' into operation-tree
+
+[33mcommit ea667a97f6093a898d3771c12d534193e9038dc9[m
+Author: cstong <cstong@sfu.ca>
+Date:   Wed Oct 18 19:41:17 2023 -0700
+
+    Fixes and removal of the ForNode
+
+[33mcommit be97682eba2fa4541910c6ee7ea717b5047156c5[m
+Merge: 90b93a8 f7d7c24
+Author: cstong <cstong@sfu.ca>
+Date:   Wed Oct 18 19:37:53 2023 -0700
+
+    Merge branch 'operation-tree' of csil-git1.cs.sfu.ca:373-23-3-klah/social-gaming into operation-tree
+
+[33mcommit 0f70e9bcf990d0fbc8f7dabcee6e0871179accb7[m[33m ([m[1;32mevan-unit-tests[m[33m)[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Wed Oct 18 18:33:45 2023 -0700
+
+    added a file for testing ui
+
+[33mcommit 6244a35aad737b08287b46d7bfdb6f8c2757b22a[m[33m ([m[1;31morigin/ui-renderer-fix[m[33m, [m[1;32mui-renderer-fix[m[33m)[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Wed Oct 18 18:14:19 2023 -0700
+
+    fixed compiler error of rendering lambda
+
+[33mcommit 7e8f3703c18b683fce4e0b0ed1461e8d46b3733e[m
+Merge: 6165156 9e75ea5
+Author: emangat <emangat@sfu.ca>
+Date:   Thu Oct 19 01:13:20 2023 +0000
+
+    Merge branch 'emangat-master-patch-23524' into 'master'
+    
+    Update README.md
+    
+    See merge request 373-23-3-klah/social-gaming!12
+
+[33mcommit 9e75ea56efdf3ad21152f148a3bf6968e5a8dcb8[m
+Author: emangat <emangat@sfu.ca>
+Date:   Thu Oct 19 01:12:59 2023 +0000
+
+    Update README.md
+
+[33mcommit 82c3e9966f005b0ae5090079286666547857c6fb[m[33m ([m[1;31morigin/alex_utils_fixes[m[33m, [m[1;32malex_utils_fixes[m[33m)[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 16:51:58 2023 -0700
+
+    authors: aba215, lrohwede
+
+[33mcommit f7d7c243888b703b55823fd18728afff7a9552d1[m[33m ([m[1;32moperation-tree[m[33m)[m
+Merge: c649942 6165156
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 18 16:48:04 2023 -0700
+
+    resolve merge conflicts after pulling master
+
+[33mcommit c6499427e34ee2a5e07f1197d82dea78bf87f2a6[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 18 16:45:37 2023 -0700
+
+    authors: kfc7, cstong; clean up rule node implementation, remove debug print statements and commented out code
+
+[33mcommit 61651561344a8723110a696205bd477fb5356936[m
+Merge: c9e1aef 51de186
+Author: asa255 <arjun_singh_3@sfu.ca>
+Date:   Wed Oct 18 23:32:34 2023 +0000
+
+    Merge branch 'networking-start' into 'master'
+    
+    Networking
+    
+    See merge request 373-23-3-klah/social-gaming!8
+
+[33mcommit fd3e66df8a97dc8bec20c7fdd41fb5ba2ee14ae4[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 18 16:29:41 2023 -0700
+
+    finished proof of concept for using NodeImpl to execute different types of nodes
+
+[33mcommit 245e0a07bf4f8c8413ca0677ff3330624a645e33[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 14:20:14 2023 -0700
+
+    fixed linking error
+
+[33mcommit 462d72b25f3643d3dc915500741612ddfc556858[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Wed Oct 18 12:59:09 2023 -0700
+
+    cleaned up
+
+[33mcommit 51de1864cce8c6edc3a592d1f7f3b354fa7d0370[m[33m ([m[1;31morigin/networking-start[m[33m)[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Wed Oct 18 11:26:15 2023 -0700
+
+    added premature join and make handling(not done)
+
+[33mcommit 8e8fa4bb98b0bec12105b93e05528f25a8478b98[m[33m ([m[1;31morigin/alex_utils[m[33m, [m[1;32malex_utils[m[33m)[m
+Merge: 7f62871 c9e1aef
+Author: aba215 <alex_bruma@sfu.ca>
+Date:   Wed Oct 18 18:22:05 2023 +0000
+
+    Merge branch 'master' into 'alex_utils'
+    
+    # Conflicts:
+    #   lib/CMakeLists.txt
+    #   lib/parser/CMakeLists.txt
+    #   lib/parser/src/gameParser.cpp
+    #   tests/parser/parser_test.cpp
+
+[33mcommit 52d4f74ecf251ac59296a49aeb920273b8420242[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Wed Oct 18 10:22:41 2023 -0700
+
+    added create game request button
+
+[33mcommit f80125af88d352721293932cb409589602009bdf[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Wed Oct 18 09:47:04 2023 -0700
+
+    made menu screen between join, make, help and main
+
+[33mcommit c9e1aefe9ba34500b7ccee040435a05257fa898c[m
+Merge: cd11ffe 7111c35
+Author: zza217 <zza217@sfu.ca>
+Date:   Wed Oct 18 07:02:39 2023 +0000
+
+    Merge branch 'bugfix-parse-unittest' into 'master'
+    
+    fix a bug in file_to_string, fix unit setup.
+    
+    See merge request 373-23-3-klah/social-gaming!6
+
+[33mcommit 7111c352013365eb6297766dc5f103a0e8443b80[m
+Author: Zelin Zhu <zza217@sfu.ca>
+Date:   Wed Oct 18 00:01:39 2023 -0700
+
+    add dev name
+
+[33mcommit 2174d506fe7f4bd3d108d6d42e689104bc40cfb7[m
+Author: Zelin Zhu <zza217@sfu.ca>
+Date:   Tue Oct 17 23:55:21 2023 -0700
+
+    no need to copy resources into build bin
+
+[33mcommit 7f6287145fd2fe7e9de3b79deb103d4150535387[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Tue Oct 17 23:55:14 2023 -0700
+
+    more testing
+
+[33mcommit 4a91b36c07b1e710b4e8b14c3609ae19ad7a2864[m
+Author: Zelin Zhu <zza217@sfu.ca>
+Date:   Tue Oct 17 23:47:29 2023 -0700
+
+    fix a bug in file_to_string, fix unit setup.
+    
+    file_to_string needs to handle file not end with '\n'. It also
+    cause wrong expectation in unittest.
+    Add macro setup from cmake so the test could be triggered from
+    vscode RunCTest integration. Also, under build folder, you can
+    trigger it by running ctest directly.
+
+[33mcommit f33b41c4fa301cbb06624fea581dc9a28b359a92[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Tue Oct 17 22:00:55 2023 -0700
+
+    added buttons to the ui
+
+[33mcommit ccb0f2febdccf1bc84774f8807f62f83910c1ab6[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Tue Oct 17 19:19:37 2023 -0700
+
+    added event handling to client loop
+
+[33mcommit 9f5a4a42c47fd9049d5b39ecf9993c603a4a9953[m
+Author: Evan Mangat <evanmangat@gmail.com>
+Date:   Tue Oct 17 16:28:11 2023 -0700
+
+    Update networking_test.cpp
+    
+    Minor comment change!
+
+[33mcommit d606cc4942bea7a3b70de3f0d38300076aee7c18[m
+Author: Evan Mangat <evanmangat@gmail.com>
+Date:   Tue Oct 17 16:22:15 2023 -0700
+
+    Update networking_test.cpp
+    
+    Fixed and reworked some tests!
+
+[33mcommit 2d183f891a8961bf437ec3d514a083d85fedd100[m
+Author: Evan Mangat <evanmangat@gmail.com>
+Date:   Tue Oct 17 15:09:09 2023 -0700
+
+    Update networking_test.cpp
+    
+    Adding more cases I was working on locally!
+
+[33mcommit 90b93a86fa2275e630e20d70db2ae752c2c6898b[m
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 14:57:03 2023 -0700
+
+    Fixed tests
+
+[33mcommit 507141607ed31c80ea18b6671969d4e33dd468a2[m
+Author: Evan Mangat <evanmangat@gmail.com>
+Date:   Tue Oct 17 14:53:56 2023 -0700
+
+    Update networking_test.cpp
+
+[33mcommit 1bf02cc546742d48595aa74969ae8467f7553389[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Tue Oct 17 13:17:32 2023 -0700
+
+    added parser testing and minor parser fixes
+
+[33mcommit d3bcbd08fb4d2cc9282882cc552e5224ff2906b0[m
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 12:43:05 2023 -0700
+
+    Cmake Fixes
+    - Changed gameParser CmakeLists to work with ruleNodeSupport
+    - Changed Include Headers
+
+[33mcommit a8d0e896b28c63ea916a7100ba47ccbac175682b[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 18 11:09:54 2023 -0700
+
+    incomplete move of parsing logic to node class. Having compile issues but committing to save progress
+
+[33mcommit 3e14e78cb32091bb855833fe1f6e8e5ced9f2ae3[m
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 09:33:02 2023 -0700
+
+    -Temp commented out ruleNodesupport
+    - Definitions were conflicting with game parser
+    - Changed tests to work with new TreeNode Implementation
+
+[33mcommit 42ca0c120c8458b43e92fb7c36b3f2079bfbe425[m
+Merge: f744a52 3232e6c
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 08:49:47 2023 -0700
+
+    Merge branch 'operation-tree' of csil-git1.cs.sfu.ca:373-23-3-klah/social-gaming into operation-tree
+
+[33mcommit 3232e6cc607c5c520dff6f49bc77bf46e79220b5[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Tue Oct 17 21:51:32 2023 -0700
+
+    uncomment someone else's wip work that was stopping me from compiling
+
+[33mcommit 0c81201d2964f98727efe2d1b7fff54db11ab1f4[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Tue Oct 17 21:48:28 2023 -0700
+
+    add parentNode type to the traversal. In the real implementation, we will make a node and pass it along in the next recursive call so that children can attach themselves to it.
+
+[33mcommit ca229b06a0ad30363703f627645b83f52656757b[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Tue Oct 17 21:18:04 2023 -0700
+
+    initial tree logic for identifying operation nodes, temporarily just validate and print out. Logic to be moved into TreeNodes when available.
+
+[33mcommit f28e86f90eb807013a2db6ce2fc68c8f468828fa[m
+Merge: 7210b2f cd11ffe
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Tue Oct 17 19:50:44 2023 -0700
+
+    resolve merge conflicts
+
+[33mcommit f744a52e0c8d338175225a12616bd3b371917981[m
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 08:45:15 2023 -0700
+
+    - Added a functions for TreeNode
+    - Added functions for TreeNodeImpl
+    - Added simple tests
+    - Will update tests
+
+[33mcommit 7210b2f583474932fc929b7477943499e6dd27eb[m
+Author: cstong <cstong@sfu.ca>
+Date:   Tue Oct 17 01:38:59 2023 -0700
+
+    Temporary interface for the treenodes.
+    Will update later this week.
+
+[33mcommit cd11ffe0261b16d8b443c3db4fa8c1660a2c0c71[m
+Merge: 9c990ea ec5235d
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Tue Oct 17 05:00:49 2023 +0000
+
+    Merge branch 'trivial-cmake-fix' into 'master'
+    
+    Trivial cmake fix
+    
+    See merge request 373-23-3-klah/social-gaming!5
+
+[33mcommit 9c990ea25c94ef5e316f3603a89ec928a0700dba[m
+Merge: fd5596a 2dda220
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Mon Oct 16 00:28:16 2023 +0000
+
+    Merge branch 'lrohwede-master-patch-77385' into 'master'
+    
+    Update README.md
+    
+    See merge request 373-23-3-klah/social-gaming!4
+
+[33mcommit ec5235dc20b19d671c53911ca98979c833cdb689[m[33m ([m[1;31morigin/trivial-cmake-fix[m[33m, [m[1;32mtrivial-cmake-fix[m[33m)[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sun Oct 15 17:27:21 2023 -0700
+
+    compiles
+
+[33mcommit cd5dc03ce6c04129d810c5c65326e0726ba0441d[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sun Oct 15 17:25:08 2023 -0700
+
+    Fixed cmake errors
+
+[33mcommit fd5596a0c9d6680abd736bf6dff2990035d79e32[m
+Merge: 5f7713f f0c13d2
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sun Oct 15 08:01:44 2023 +0000
+
+    Merge branch 'lex-gameClass' into 'master'
+    
+    Merging Lex's game class to master
+    
+    See merge request 373-23-3-klah/social-gaming!3
+
+[33mcommit 2dda220c59e7f51cb302c3d50d7b3e6cf48f530e[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sun Oct 15 06:28:27 2023 +0000
+
+    Update README.md
+
+[33mcommit f0c13d28a70db48a0eccf01b1270b5023f24edd8[m[33m ([m[1;31morigin/lex-gameClass[m[33m)[m
+Author: root <root@Lex>
+Date:   Sat Oct 14 17:17:46 2023 -0700
+
+    removed old support files
+
+[33mcommit 49b5c037a456723a0f23078a72c4b300f53ea226[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sat Oct 14 16:36:02 2023 -0700
+
+    clean up
+
+[33mcommit ead0430472a1b359a84cef299150758ea08025b4[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Fri Oct 13 22:08:55 2023 -0700
+
+    implement smart pointers for nodes instead of raw pointers
+
+[33mcommit 03842486e15ccd4ede43f460ae2faec4068ff961[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Fri Oct 13 19:44:20 2023 -0700
+
+    traversing the ForEach loop nodes
+
+[33mcommit 404d062fb103f2035ec7248efbb955dc03cc2694[m
+Author: cstong <cstong@sfu.ca>
+Date:   Fri Oct 13 16:41:54 2023 -0700
+
+    cstong
+    - Added test Dynamic Cast case
+    - Removed unique_ptrs for now. Will reimplement later.
+
+[33mcommit fb34f7c4e125aa8e76063aadc019fa08d4221fb0[m
+Author: cstong <cstong@sfu.ca>
+Date:   Fri Oct 13 16:29:51 2023 -0700
+
+    cstong
+    - Added unique pointers
+    - Testing with dynamic casting
+
+[33mcommit f00fcf36d96e33089a65a2e36c507512ffddb47e[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Fri Oct 13 13:56:28 2023 -0700
+
+    Removed remaining old config files
+
+[33mcommit 811521ee2014f5fcf47cc8028188ca0c4d826ee0[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Fri Oct 13 13:55:05 2023 -0700
+
+    Removed old config files
+
+[33mcommit f862c83cec62b7bc71e348ea8b7eec3ce64677cd[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Fri Oct 13 13:52:07 2023 -0700
+
+    changed game object to be compatable with JSONObject
+
+[33mcommit dfce217b777fd21c35f4e0b9311fc3f89e9702ea[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Oct 12 05:20:13 2023 -0700
+
+    cstong
+    - Added comments
+
+[33mcommit 3c3385ddf496d5cc44b10b1696656b26611cd487[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Oct 12 05:15:54 2023 -0700
+
+    cstong
+    - Changed structure of nodes
+    - Now the tree node and rule node are there own non templated classes where the tree node is the base class
+    - Treenode Traverse is the template class where it can parse and execute all nodes
+    - Added simple tests
+
+[33mcommit 166d27b6a18171eb521b87e9f72931144d77e830[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Oct 12 02:29:52 2023 -0700
+
+    cstong
+    - Moved and changed names of rules folder to be similar to other library structure
+    - Added class defenitions of TreeNode and RuleNode
+    - Changed RuleTrait to NodeTrait
+    - Temporarily commented out other Node trait implementations
+    - Created Rules_test and Rules library
+
+[33mcommit 3656d8fba0c60e3bc57458de73cc2793583d6570[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 11 21:06:51 2023 -0700
+
+    introduce basic structure for the templatized rule node, add comments explaining what needs to be done
+
+[33mcommit c7caa732375a5a9a8d1ddcb0bfe0298cc6996f5f[m[33m ([m[1;32mlex-gameClass[m[33m)[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Wed Oct 11 19:52:26 2023 -0700
+
+    minor build fix
+
+[33mcommit ec034f6cd061e2a2c506a38ed1402141bfb1dd76[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Tue Oct 10 16:35:06 2023 -0700
+
+    tests completed
+
+[33mcommit 3e63095e69fc5bc3842662244613c2517ef1b1c6[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Tue Oct 10 02:27:02 2023 -0700
+
+    updated with placeholder gamelogic
+
+[33mcommit 8eed5bd1ea7700e277703e606b4118c160dfc089[m
+Author: asa255 <asa255@sfu.ca>
+Date:   Tue Oct 10 02:03:23 2023 -0700
+
+    added temp server list and client threads
+
+[33mcommit 7ef7fb96ff24691337188a083cc48ea52d30e0d6[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sat Oct 7 18:52:00 2023 -0700
+
+    created utils file
+
+[33mcommit 0ebbaaa505c44d08d9483aff1b2d1560d1e0cbbd[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sat Oct 7 13:32:07 2023 -0700
+
+    json parser integrated
+
+[33mcommit 095fc0cafbb3a7956183daf622686823297438eb[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Fri Oct 6 16:09:36 2023 -0700
+
+    fixed include errors
+
+[33mcommit c96d7d34412b585bf40e46f3211b885a02873da5[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Thu Oct 5 18:15:01 2023 -0700
+
+    added methods
+
+[33mcommit 6b4e9df08d44357a45f84df6c0413cc65e019ba4[m
+Author: cstong <cstong@sfu.ca>
+Date:   Wed Oct 4 22:52:24 2023 -0700
+
+    cstong
+    - Added a test case for game test
+    - Moved constants to its own library
+    - Now compiles a model library where all game constants are kept
+    - Added a default constructor for the range class
+    - Ranged class needs one otherwise the libraries don't compile properly
+
+[33mcommit e6c6c0a9338cf54372bc36e3917098cd5a1dde24[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Wed Oct 4 16:33:47 2023 -0700
+
+    added support.h
+
+[33mcommit cc1eb484306973f08c82d80624b2f1673f766336[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Wed Oct 4 15:36:51 2023 -0700
+
+    updated branch
+
+[33mcommit e9995a80e8ebc13ff0e2080cffdeb43e449c71ac[m
+Merge: bbc8818 5f7713f
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Wed Oct 4 15:34:37 2023 -0700
+
+    Merge remote-tracking branch 'origin' into lex-gameClass
+
+[33mcommit bbc88186aa270f57a7a1c80fc741f2c116ae16e1[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sun Oct 1 23:03:45 2023 -0700
+
+    changed to store inside
+
+[33mcommit 9c6bed078c3d77efedfae4221143cf1f5048abc4[m
+Author: ashokar19 <arjun.shokar@gmail.com>
+Date:   Sun Oct 1 19:08:36 2023 -0700
+
+    updated CMakeLists.txt
+
+[33mcommit f8ffa4e5d389dee26ac73ae804e9a14fa88a2cf6[m
+Author: ashokar19 <arjun.shokar@gmail.com>
+Date:   Sun Oct 1 18:54:30 2023 -0700
+
+    added chat functionalites to gameclient
+
+[33mcommit 01174fe4c9b327e87ba1ea6609fcdbd5477772a2[m
+Author: ashokar19 <arjun.shokar@gmail.com>
+Date:   Sun Oct 1 18:43:29 2023 -0700
+
+    added server and client with main()
+
+[33mcommit 5f7713fe5238b406512c56d751e29527bced5182[m
+Merge: 5c9082b 44b706f
+Author: aba215 <alex_bruma@sfu.ca>
+Date:   Sun Oct 1 20:43:16 2023 +0000
+
+    Merge branch 'alex-reading-substrings' into 'master'
+    
+    Traversing the grammar tree and printing values
+    
+    See merge request 373-23-3-klah/social-gaming!2
+
+[33mcommit 44b706f7b74823e2c477a642193da1a467fee222[m[33m ([m[1;31morigin/alex-reading-substrings[m[33m)[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sun Oct 1 12:08:22 2023 -0700
+
+    parser: small bug fixes
+
+[33mcommit 5c9082bec4fef909d250f0d2115f78ff017e258b[m
+Merge: edcff07 fda0104
+Author: aba215 <alex_bruma@sfu.ca>
+Date:   Sun Oct 1 18:01:34 2023 +0000
+
+    Merge branch 'caleb-cmakefiles' into 'master'
+    
+    File structure and CMakeFiles
+    
+    See merge request 373-23-3-klah/social-gaming!1
+
+[33mcommit bd81e68eacc0b4fa2c4ef70b39802bcf8d893f70[m[33m ([m[1;32malex-reading-substrings[m[33m)[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sun Oct 1 10:16:55 2023 -0700
+
+    cleaned up
+
+[33mcommit 0abfd8def18f2abb60a4d4f2e31217d1b535fe9e[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sun Oct 1 10:13:27 2023 -0700
+
+    edit readme
+
+[33mcommit cd9228785ac4794729c2da04041854805e219189[m
+Author: aba215 <aba215@sfu.ca>
+Date:   Sun Oct 1 10:10:48 2023 -0700
+
+    parser: added method to get values for substrings
+
+[33mcommit 6e8fa206806db9d7cb3aef774f83ede520d39610[m[33m ([m[1;31morigin/kevin-tree-traversal[m[33m, [m[1;32mkevin-tree-traversal[m[33m)[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Sat Sep 30 12:01:27 2023 -0700
+
+    add more tests and discard comments from the tree
+
+[33mcommit 0b702131c71a37f790300a75d9f03a1d849d3836[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Sat Sep 30 11:22:04 2023 -0700
+
+    rename file with parser functionality to gameParser for clarity, implement dfs on the syntax tree and print out information about the nodes
+
+[33mcommit 202b22cff2210188bea360551815daf50e5019f9[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Sat Sep 30 10:02:30 2023 -0700
+
+    add gitignore for IDE files and fix broken build by linking pthread
+
+[33mcommit 18ce8ed81e8b968b585950ea5daea829dd9c8a85[m
+Author: lrohwede <lex_rohweder@sfu.ca>
+Date:   Sat Sep 30 01:03:12 2023 -0700
+
+    Initial Game class
+
+[33mcommit fda0104f51708725b59c6707867e0ce1842bf765[m[33m ([m[1;31morigin/caleb-cmakefiles[m[33m, [m[1;32mcaleb-cmakefiles[m[33m)[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Sep 28 20:01:31 2023 -0700
+
+    cstong
+    - Fixed return value, now breaks when fails
+    - file_to_string no closes file
+
+[33mcommit 04b20024a06e06c80b5096ebbdbe9677f24b9ec1[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Sep 28 16:54:35 2023 -0700
+
+    cstong
+    - Added games to resource folder
+    - Added simple parser library
+    - Added simple file reading function
+    - Added tests for the parser
+    - Added README instructions
+    - Added instructions to create a new client
+
+[33mcommit fa265d898c734020e8c75b53b1d73ebaf853afe8[m
+Author: cstong <cstong@sfu.ca>
+Date:   Thu Sep 28 15:50:08 2023 -0700
+
+    cstong
+    - Added CMakeFiles to all directories
+    - Added gtest dependancies to the CMakeFiles (May need to install gtest library)
+    - Added a simple networking test to check that you can access the library
+    - Added resources folder for game and html files
+    - Added both the networking example to project
+
+[33mcommit edcff0773c7033fe3ffb6abe6f6c3a5a04b313aa[m
+Author: ashokar19 <arjun.shokar@gmail.com>
+Date:   Wed Sep 27 16:36:50 2023 -0700
+
+    added directories and CMakeLists.txt
+
+[33mcommit 7fad32c97e4e248827931dbab19b473b914f30b4[m
+Author: ashokar19 <arjun.shokar@gmail.com>
+Date:   Wed Sep 27 15:45:10 2023 -0700
+
+    making sure I can push
+
+[33mcommit c93969656293c3b03fed43ab25ede55f9656578d[m[33m ([m[1;31morigin/parser-branch[m[33m)[m
+Author: cstong <cstong@sfu.ca>
+Date:   Wed Sep 27 10:40:49 2023 -0700
+
+    Added Name
+
+[33mcommit a5144c6ed8bca3ddb4ccccbeb6421f16faabbd22[m
+Author: kfc7 <kfc7@sfu.ca>
+Date:   Mon Sep 25 17:20:36 2023 -0700
+
+    test pushing to repo
+
+[33mcommit 7ae0becb43c7552b988dfd1cf7b59823a581f8e3[m
+Author: Nick Sumner <wsumner@sfu.ca>
+Date:   Thu Sep 21 01:49:39 2023 +0000
+
+    Initial commit

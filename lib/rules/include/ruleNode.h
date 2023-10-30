@@ -1,6 +1,7 @@
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
+#pragma once
 #include "parser.h"
 #include <string>
 #include <vector>
@@ -9,7 +10,7 @@
 #include <algorithm>
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
-#include "../../gameState/include/GameState.h" 
+#include "../../gameState/include/GameState.h"
 
 
 // Forward declarations for classes used in RuleTrait and RuleNode
