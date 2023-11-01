@@ -24,6 +24,8 @@
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
 
+#define DUMMY_ID "DUMMY"
+
 extern "C" {
 //TSLanguage *tree_sitter_json();
     TSLanguage *tree_sitter_socialgaming();
@@ -31,18 +33,33 @@ extern "C" {
 
 class dummyNode: public TreeNodeImpl{
     public:
-        dummyNode(GameState& gameState): TreeNodeImpl("dummy", gameState){
-        
+        dummyNode(GameState& gameState, json& indexes): TreeNodeImpl("dummy", gameState){
+            idIndexes = indexes;
         }
-        virtual void execute(){
-            std::cout<< "dummy" <<std::endl;
+        void execute(){
+            testCounter += idIndexes[DUMMY_ID].get<size_t>();
         }
+
+        size_t getCounter(){
+            return testCounter;
+        }
+
+        int getIndex(){
+            return idIndexes[DUMMY_ID].get<int>();
+        }
+
+    private:
+        size_t testCounter = 0;
 };
 
 class childNode: public TreeNode{
     public:
         childNode(std::string node, std::string type, GameState& gameState, std::unique_ptr<dummyNode> d): TreeNode(node, type, gameState){
             impl = std::move(d);
+        }
+
+        dummyNode* getImpl(){
+            return dynamic_cast<dummyNode*>( impl.get());
         }
         
         MOCK_METHOD(void, execute, (), ());
@@ -67,21 +84,35 @@ class ForNodeMock :public ForNodeImpl{
 
 
 TEST (RuleTests, forNodeExecute){
+    int vecSize = 6;
+    auto vecData = std::vector<int>(vecSize);
+    std::iota(vecData.begin(), vecData.end(),0);
+    auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
+
     json j; 
-    j["start"] = 1;
+    j[DUMMY_ID] = vecData;
+
+    json indexes;
+    indexes[DUMMY_ID] =0;
+    
     GameState gs{j};
-    auto dummy = std::make_unique<dummyNode> (gs);
+    auto dummy = std::make_unique<dummyNode> (gs, indexes);
     auto child = std::make_unique<childNode>("bad", "bad",gs, std::move(dummy));
 
     ForNodeMock fNode(gs, std::move(child));
+    fNode.setIdentifierData(j);
     
-    std::vector<std::string> v{"1","2","3"};
-
     EXPECT_CALL(fNode, execute()).WillOnce([&fNode]{
         return fNode.ForNodeImpl::execute();
     });
-
+    
     fNode.execute();
+
+    auto counter = fNode.getC()->getImpl()->getCounter();
+    auto index = fNode.getC()->getImpl()->getIndex();
+    ASSERT_EQ(counter, sum);
+    ASSERT_EQ(index, (vecSize-1));
+
 }
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {

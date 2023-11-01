@@ -52,6 +52,10 @@ class TreeNode {
 
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
+        // Update the indexes
+        // Needs to be here because the TreeNodeImpls access treeNodes
+        void setIdentifierIndex(size_t index, std::string id);
+
         // Function to update the identifier value if something changes
 
         virtual void execute() const;
@@ -79,6 +83,8 @@ class TreeNodeImpl {
 
         json getIdentifierData() const;
 
+        void setIdentifierIndex(size_t index, std::string id);
+
         virtual void execute();
 
 
@@ -98,8 +104,6 @@ class TreeNodeImpl {
 
         // common to all nodes
         GameState gameState;
-
-        jsonReturnFormat getJSON(std::string id){};
 };
 
 class ForNodeImpl: public TreeNodeImpl{

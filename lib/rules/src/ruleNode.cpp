@@ -37,6 +37,10 @@ void TreeNode::printTree(int depth) const {
     impl->printTree(depth);
 }
 
+void TreeNode::setIdentifierIndex(size_t index, std::string id){
+    impl->setIdentifierIndex(index, id);
+}
+
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
     std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
     typeToFunction["for"] = processFor;
@@ -102,6 +106,10 @@ json TreeNodeImpl::getIdentifierData() const {
     return identifiers;
 }
 
+void TreeNodeImpl::setIdentifierIndex(size_t index, std::string id){
+    idIndexes[id] = index;
+}
+
 void TreeNodeImpl::execute(){
     std::cout << children.size() << "\n";
     for (const auto& child : children) {
@@ -115,10 +123,25 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): TreeNodeImpl(id
 
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
-    std::cout<< "executing for" <<std::endl;
-    for (const auto& child : children) {
-        child->execute();
+    json gameJson = getIdentifierData();
+
+    // Gets the first element
+    // Assuming that it will be parsed and contain only one array
+    auto id = gameJson.begin().key();
+    auto array = gameJson[id];
+    //std::cout<< "executing for" <<std::endl;
+
+    // For all the elements in the array execute the child code
+    size_t index = 0;
+    for (auto el: array) {
+        
+        for (const auto& child : children) {
+            child->setIdentifierIndex(index, id);
+            child->execute();
+        }
+        index ++;
     }
+    
 }
 
 DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
