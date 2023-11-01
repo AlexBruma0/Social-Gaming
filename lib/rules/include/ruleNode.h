@@ -54,11 +54,11 @@ class TreeNode {
 
         // Function to update the identifier value if something changes
 
-        void execute() const;
+        virtual void execute() const;
 
         std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
 
-    private:
+    protected:
         std::unique_ptr<TreeNodeImpl> impl;
         std::string nodeType;
         
@@ -88,6 +88,11 @@ class TreeNodeImpl {
 
         // json object to store the necessary data for each node
         json identifiers;
+
+        // Contains the indexes for how to access the json objects
+        // Ex json["players"][0]
+        // players is stored in identifiers and 0 is stored here 
+        json idIndexes;
 
         std::string content;
 

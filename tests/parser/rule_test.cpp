@@ -29,10 +29,20 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
+class dummyNode: public TreeNodeImpl{
+    public:
+        dummyNode(GameState& gameState): TreeNodeImpl("dummy", gameState){
+        
+        }
+        virtual void execute(){
+            std::cout<< "dummy" <<std::endl;
+        }
+};
+
 class childNode: public TreeNode{
     public:
-        childNode(std::string node, std::string type, GameState& gameState): TreeNode(node, type, gameState){
-            
+        childNode(std::string node, std::string type, GameState& gameState, std::unique_ptr<dummyNode> d): TreeNode(node, type, gameState){
+            impl = std::move(d);
         }
         
         MOCK_METHOD(void, execute, (), ());
@@ -42,7 +52,11 @@ class ForNodeMock :public ForNodeImpl{
         ForNodeMock(GameState& gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
        
 
-            ForNodeImpl::addChild(std::move(t));
+            addChild(std::move(t));
+        }
+
+        childNode* getC(){
+            return dynamic_cast<childNode*>( ForNodeImpl::children[0].get());
         }
 
         MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
@@ -56,13 +70,16 @@ TEST (RuleTests, forNodeExecute){
     json j; 
     j["start"] = 1;
     GameState gs{j};
-    auto child = std::make_unique<childNode>("bad", "bad",gs);
+    auto dummy = std::make_unique<dummyNode> (gs);
+    auto child = std::make_unique<childNode>("bad", "bad",gs, std::move(dummy));
 
     ForNodeMock fNode(gs, std::move(child));
     
     std::vector<std::string> v{"1","2","3"};
 
-    EXPECT_CALL(fNode, execute()).Times(1);
+    EXPECT_CALL(fNode, execute()).WillOnce([&fNode]{
+        return fNode.ForNodeImpl::execute();
+    });
 
     fNode.execute();
 }
