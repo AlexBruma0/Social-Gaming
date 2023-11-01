@@ -129,12 +129,12 @@ void ForNodeImpl::execute(){
     // Assuming that it will be parsed and contain only one array
     auto id = gameJson.begin().key();
     auto array = gameJson[id];
+    
     //std::cout<< "executing for" <<std::endl;
 
     // For all the elements in the array execute the child code
     size_t index = 0;
     for (auto el: array) {
-        
         for (const auto& child : children) {
             child->setIdentifierIndex(index, id);
             child->execute();

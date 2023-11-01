@@ -31,6 +31,8 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
+// Dummy Node class 
+// Overrides the other classes so we can test that something happens
 class dummyNode: public TreeNodeImpl{
     public:
         dummyNode(GameState& gameState, json& indexes): TreeNodeImpl("dummy", gameState){
@@ -52,6 +54,9 @@ class dummyNode: public TreeNodeImpl{
         size_t testCounter = 0;
 };
 
+// ChildNode wrapper 
+// Need to check how many times it executes and for mocks
+// Also needed to change the impl
 class childNode: public TreeNode{
     public:
         childNode(std::string node, std::string type, GameState& gameState, std::unique_ptr<dummyNode> d): TreeNode(node, type, gameState){
@@ -64,6 +69,9 @@ class childNode: public TreeNode{
         
         MOCK_METHOD(void, execute, (), ());
 };
+
+// Sample fornode wrapper
+// Checks executing time and adds a child with the constructor
 class ForNodeMock :public ForNodeImpl{
     public:
         ForNodeMock(GameState& gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
@@ -72,8 +80,8 @@ class ForNodeMock :public ForNodeImpl{
             addChild(std::move(t));
         }
 
-        childNode* getC(){
-            return dynamic_cast<childNode*>( ForNodeImpl::children[0].get());
+        childNode* getC(int index){
+            return dynamic_cast<childNode*>( ForNodeImpl::children[index].get());
         }
 
         MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
@@ -83,36 +91,57 @@ class ForNodeMock :public ForNodeImpl{
 
 
 
-TEST (RuleTests, forNodeExecute){
+TEST (RuleTests, forNodeTwoChild){
+    // Setting up a vector labeled 1,2,3,4......
     int vecSize = 6;
     auto vecData = std::vector<int>(vecSize);
     std::iota(vecData.begin(), vecData.end(),0);
+    // Reversing data to ensure results are correct
+    std::reverse(vecData.begin(), vecData.end());
+    // Get the total sum of 1+2+3+4....+(n-1)+n
     auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
 
+    // Passing in dummy data 
     json j; 
     j[DUMMY_ID] = vecData;
 
+    // Passing in the dummy indexes which will be incremented by the forNode
     json indexes;
     indexes[DUMMY_ID] =0;
     
     GameState gs{j};
+
+    // Test if two childs are being executed
     auto dummy = std::make_unique<dummyNode> (gs, indexes);
     auto child = std::make_unique<childNode>("bad", "bad",gs, std::move(dummy));
 
+    auto dummy2 = std::make_unique<dummyNode> (gs, indexes);
+    auto child2 = std::make_unique<childNode>("bad", "bad",gs, std::move(dummy2));
+
     ForNodeMock fNode(gs, std::move(child));
+    fNode.addChild(std::move(child2));
     fNode.setIdentifierData(j);
     
-    EXPECT_CALL(fNode, execute()).WillOnce([&fNode]{
+    // Triggers the actual function call
+    // Also checks it triggers once
+    EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
         return fNode.ForNodeImpl::execute();
     });
     
     fNode.execute();
 
-    auto counter = fNode.getC()->getImpl()->getCounter();
-    auto index = fNode.getC()->getImpl()->getIndex();
+    // Ensures that the dummy node incremeted its index vecSize times
+    // Should be the case since the forNode will execute for every element in the dummy data
+    // Dummy Node will sum up all elements in the vector so the counter is checking that
+    auto counter = fNode.getC(0)->getImpl()->getCounter();
+    auto index = fNode.getC(0)->getImpl()->getIndex();
     ASSERT_EQ(counter, sum);
     ASSERT_EQ(index, (vecSize-1));
 
+    counter = fNode.getC(1)->getImpl()->getCounter();
+    index = fNode.getC(1)->getImpl()->getIndex();
+    ASSERT_EQ(counter, sum);
+    ASSERT_EQ(index, (vecSize-1));
 }
 
 TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
