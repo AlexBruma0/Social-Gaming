@@ -44,9 +44,9 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
     typeToFunction["message"] = processMessage;
     typeToFunction["parallel_for"] = processParallelFor;
     typeToFunction["input_choice"] = processInputChoice;
-// //    typeToFunction["match"] = processMatch;
+    typeToFunction["match"] = processMatch;
 //    typeToFunction["scores"] = processScores;
-//    typeToFunction["extend"] = processExtend;
+   typeToFunction["extend"] = processExtend;
 
     if (typeToFunction.count(nodeType) > 0) {
         std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](tsNode, gameState, source_code);
@@ -87,7 +87,8 @@ void TreeNodeImpl::printTree(int depth) const{
     for (int i = 0; i < depth; i++) {
         std::cout << "  ";
     }
-    std::cout << identifiers << std::endl;
+    
+    std::cout << "identifiers: " << identifiers << std::endl;
 
     for (const auto& child : children) {
         child->printTree(depth + 1);
