@@ -11,6 +11,7 @@
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
 #include "../../gameState/include/GameState.h"
+#include <cpp-tree-sitter.h>
 
 
 // Forward declarations for classes used in RuleTrait and RuleNode
@@ -37,7 +38,7 @@ class TreeNodeImpl;
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node, std::string type, GameState& gameState);
+        TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode ,GameState& gameState);
 
         TreeNode(TreeNode&& other) noexcept;
 
@@ -52,7 +53,7 @@ class TreeNode {
 
         void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
+        std::unique_ptr<TreeNodeImpl> parseNode(const ts::Node tsNode, GameState& gameState,const std::string& source_code);
 
     private:
         std::unique_ptr<TreeNodeImpl> impl;

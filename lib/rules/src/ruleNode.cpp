@@ -18,8 +18,8 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node, std::string type, GameState& gameState) : nodeType(type) {
-    impl = std::move(this->parseNode(node, gameState));
+TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState& gameState) : nodeType(type) {
+    impl = std::move(this->parseNode(tsNode, gameState, sourceCode ));
     //std::cout << impl->getIdentifierData().dump();
     //std::cout << "address of impl " << impl.get() << std::endl;
 }
@@ -37,19 +37,19 @@ void TreeNode::printTree(int depth) const {
     impl->printTree(depth);
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
-    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState& gameState,const std::string& source_code){
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState&, const std::string& )>> typeToFunction;
     typeToFunction["for"] = processFor;
-    typeToFunction["discard"] = processDiscard;
-    typeToFunction["message"] = processMessage;
-    typeToFunction["parallel_for"] = processParallelFor;
-    typeToFunction["input_choice"] = processInputChoice;
-//    typeToFunction["match"] = processMatch;
+//     typeToFunction["discard"] = processDiscard;
+//     typeToFunction["message"] = processMessage;
+//     typeToFunction["parallel_for"] = processParallelFor;
+//     typeToFunction["input_choice"] = processInputChoice;
+// //    typeToFunction["match"] = processMatch;
 //    typeToFunction["scores"] = processScores;
 //    typeToFunction["extend"] = processExtend;
 
     if (typeToFunction.count(nodeType) > 0) {
-        std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](node, gameState);
+        std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](tsNode, gameState, source_code);
         //std::cout << std::endl << impl->getIdentifierData().dump();
         return std::move(impl);
     }
