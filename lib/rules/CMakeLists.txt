@@ -1,4 +1,7 @@
-add_library(rules src/ruleNode.cpp src/ruleNodeSupport.cpp)
+add_library(rules
+        src/ruleNode.cpp
+        src/ruleNodeSupport.cpp
+)
 
 target_include_directories(rules
         PUBLIC
@@ -8,4 +11,14 @@ target_include_directories(rules
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-install(TARGETS rules ARCHIVE DESTINATION lib)
+target_link_libraries(rules
+nlohmann_json
+tree-sitter-socialgaming
+gameState
+cpp-tree-sitter
+utils
+)
+
+install(TARGETS rules
+  ARCHIVE DESTINATION lib
+)

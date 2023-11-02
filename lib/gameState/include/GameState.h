@@ -1,6 +1,7 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #pragma once
+
 using json = nlohmann::json;
 
 class GameState{
@@ -10,4 +11,5 @@ class GameState{
     json getState() const;
     void setState(json gameState);
     GameState(json gameState);
+    GameState();
 };

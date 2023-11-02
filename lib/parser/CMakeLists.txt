@@ -22,18 +22,17 @@ target_include_directories(utils
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+target_link_libraries( parser
+nlohmann_json
+tree-sitter-socialgaming
+gameState
+cpp-tree-sitter
+utils
+rules)
 target_link_libraries(utils
         nlohmann_json
         tree-sitter-socialgaming
         cpp-tree-sitter
-)
-
-target_link_libraries(parser
-        nlohmann_json
-        tree-sitter-socialgaming
-        cpp-tree-sitter
-        rules
-        utils
 )
 
 install(TARGETS parser
