@@ -97,14 +97,11 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
     std::string nodeType = std::string(node.getType());
 
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
-    if (it != allowedTypes.end()) {
-        // std::string input = getSubstringForNode(node, source_code);
-
+    if (it != allowedTypes.end() && node.getNumChildren() > 0) {
         std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(node, nodeType, source_code,  gameState);
 
         TreeNode& childRef = *child;
         parentNode.addChild(std::move(child));
-
 
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
             identifyOperations(node.getChild(i), source_code, childRef, gameState);

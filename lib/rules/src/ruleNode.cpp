@@ -40,10 +40,10 @@ void TreeNode::printTree(int depth) const {
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState& gameState,const std::string& source_code){
     std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState&, const std::string& )>> typeToFunction;
     typeToFunction["for"] = processFor;
-//     typeToFunction["discard"] = processDiscard;
-//     typeToFunction["message"] = processMessage;
-//     typeToFunction["parallel_for"] = processParallelFor;
-//     typeToFunction["input_choice"] = processInputChoice;
+    typeToFunction["discard"] = processDiscard;
+    typeToFunction["message"] = processMessage;
+    typeToFunction["parallel_for"] = processParallelFor;
+    typeToFunction["input_choice"] = processInputChoice;
 // //    typeToFunction["match"] = processMatch;
 //    typeToFunction["scores"] = processScores;
 //    typeToFunction["extend"] = processExtend;
