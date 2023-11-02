@@ -139,7 +139,7 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     //std::cout << gs.getState().dump();
 
 
-    TreeNode parent("root", "root", gs);
+    TreeNode parent(root, "root", "root", gs);
     identifyOperations(syntaxTree, source_code, parent, gs);
     //parent.printTree();
 

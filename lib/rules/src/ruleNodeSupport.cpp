@@ -3,6 +3,7 @@
 #include <sstream>
 #include "ruleNode.h"
 #include <iostream>
+#include "utils.h"
 
 // doesn't work cause it thinks we're on C++11 somehow, and we can't use std::quoted
 // if we can fix the version problem please use this one, it's much better.
@@ -61,11 +62,12 @@ std::string getFirstLine(const std::string& input) {
 std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode) {
     // std::vector<std::string> tokens = splitStringBySpace(op_string);
     if (tsNode.getNumChildren() > 0) {
-        std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ForNodeImpl>(getFirstLine(op_string), gameState);
+        std::string input = getNodeStringValue(tsNode, sourceCode);
+        std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ForNodeImpl>(getFirstLine(input), gameState);
 
         json data = json::parse("{}");
-        //data["var"] = tokens[1];
-        data["collection"] = extractListExpression(tsNode,sourceCode, gameState.getState());
+        data["var"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
+        data["collection"] = extractListExpression(tsNode.getChild(3), sourceCode, gameState.getState());
         implPtr->setIdentifierData(data);
 
         return implPtr;
