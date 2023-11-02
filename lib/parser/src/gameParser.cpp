@@ -121,14 +121,13 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     const int num_players = 2;
     const int num_rounds = 2;
 
-    std::string sourcecode = file_to_string(RPS_LOCATION);
-    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Tree tree = string_to_tree(source_code);
 
     // Access the root node of the AST
     ts::Node root = tree.getRootNode();
 
 
-    json jsonData = createJsonData(root, sourcecode);
+    json jsonData = createJsonData(root, source_code);
 
     jsonData["configuration"]["rounds"] = num_rounds;
     jsonData["players"][0] = jsonData["per-player"];

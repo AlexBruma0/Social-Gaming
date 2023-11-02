@@ -11,6 +11,9 @@
   <li>Evan Mangat</li>
 </ol>
 
+## Testing
+- Use "make test" before pushing to check that all tests are running correctly
+
 ## How to use
 - Create a build directory out of the source and make it
 - Resources folder contains things like game files or html

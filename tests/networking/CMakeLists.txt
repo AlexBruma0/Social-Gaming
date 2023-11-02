@@ -11,3 +11,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}/resources/networking/
         ${CMAKE_BINARY_DIR}/resources/networking/
 )
+
+#Automatically runs the tests
+#Commented out temporarily because the tests don't work
+#add_custom_command(TARGET networking_test POST_BUILD COMMAND ctest "networking_test" --output-on-failure)

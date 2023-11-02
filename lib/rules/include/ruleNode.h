@@ -1,6 +1,7 @@
 #ifndef SOCIAL_GAMING_RULENODE_H
 #define SOCIAL_GAMING_RULENODE_H
 
+#pragma once
 #include "parser.h"
 #include <string>
 #include <vector>
@@ -9,15 +10,13 @@
 #include <algorithm>
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
-#include "../../gameState/include/GameState.h" 
+#include "../../gameState/include/GameState.h"
 
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
 class TreeNode;
 class TreeNodeImpl;
-class ForNode;
-class RuleNode;
 
 /*
     Overall Format
@@ -85,12 +84,9 @@ class TreeNodeImpl {
     protected:
         // Node list of children 
         std::vector<std::unique_ptr<TreeNode>> children;
-
         // json object to store the necessary data for each node
         json identifiers;
-
         std::string content;
-
         // common to all nodes
         GameState gameState;
 
@@ -104,12 +100,6 @@ public:
     ForNodeImpl(std::string id, GameState& gameState);
     ~ForNodeImpl(){}
     void execute();
-
-private:
-    std::vector<std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{
@@ -117,12 +107,6 @@ public:
     DiscardNodeImpl(std::string id, GameState& gameState);
     ~DiscardNodeImpl(){}
     void execute();
-
-private:
-    std::vector<std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
@@ -130,12 +114,6 @@ public:
     MessageNodeImpl(std::string id, GameState& gameState);
     ~MessageNodeImpl(){}
     void execute();
-
-private:
-    std::vector<std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
 };
 
 class ParallelForNodeImpl: public TreeNodeImpl {
@@ -143,12 +121,6 @@ public:
     ParallelForNodeImpl(std::string id, GameState &gameState);
     ~ParallelForNodeImpl() {}
     void execute();
-
-private:
-    std::vector <std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
 };
 
 class InputChoiceNodeImpl: public TreeNodeImpl{
@@ -156,12 +128,6 @@ public:
     InputChoiceNodeImpl(std::string id, GameState& gameState);
     ~InputChoiceNodeImpl(){}
     void execute();
-
-private:
-    std::vector<std::unique_ptr<TreeNode>> children;
-    json identifiers;
-    std::string content;
-    GameState gameState;
 };
 
 #endif //SOCIAL_GAMING_RULENODE_H

@@ -1,7 +1,4 @@
-add_library(networking
-        src/Server.cpp
-        src/Client.cpp
-)
+add_library(networking src/Server.cpp src/Client.cpp)
 
 target_include_directories(networking
         PUBLIC
@@ -28,12 +25,4 @@ else()
   )
 endif()
 
-set_target_properties(networking
-        PROPERTIES
-        LINKER_LANGUAGE CXX
-        CXX_STANDARD 20
-)
-
-install(TARGETS networking
-        ARCHIVE DESTINATION lib
-)
+install(TARGETS networking ARCHIVE DESTINATION lib)
