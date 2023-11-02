@@ -12,10 +12,10 @@ std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState& 
 std::unique_ptr<TreeNodeImpl> processMessage(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
 std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
 std::unique_ptr<TreeNodeImpl> processInputChoice(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
-// std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
 std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
-// std::unique_ptr<TreeNodeImpl> processExtend(const std::string op_string, GameState& gameState);
 std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
+std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
+std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode);
 
 
 #endif //SOCIAL_GAMING_RULENODESUPPORT_H

@@ -145,4 +145,18 @@ public:
     void execute();
 };
 
+class MatchNodeImpl: public TreeNodeImpl{
+public:
+    MatchNodeImpl(std::string id, GameState& gameState);
+    ~MatchNodeImpl(){}
+    void execute();
+};
+
+class ExtendNodeImpl: public TreeNodeImpl{
+public:
+    ExtendNodeImpl(std::string id, GameState& gameState);
+    ~ExtendNodeImpl(){}
+    void execute();
+};
+
 #endif //SOCIAL_GAMING_RULENODE_H

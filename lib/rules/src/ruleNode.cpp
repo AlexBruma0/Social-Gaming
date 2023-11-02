@@ -42,9 +42,9 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
     typeToFunction["message"] = processMessage;
     typeToFunction["parallel_for"] = processParallelFor;
     typeToFunction["input_choice"] = processInputChoice;
-// //    typeToFunction["match"] = processMatch;
+    typeToFunction["match"] = processMatch;
+    typeToFunction["extend"] = processExtend;
     typeToFunction["scores"] = processScores;
-//    typeToFunction["extend"] = processExtend;
     typeToFunction["assignment"] = processAssignment;
 
     if (typeToFunction.count(nodeType) > 0) {
@@ -86,7 +86,8 @@ void TreeNodeImpl::printTree(int depth) const{
     for (int i = 0; i < depth; i++) {
         std::cout << "  ";
     }
-    std::cout << identifiers << std::endl;
+
+    std::cout << "identifiers: " << identifiers << std::endl;
 
     for (const auto& child : children) {
         child->printTree(depth + 1);
@@ -181,6 +182,28 @@ AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState& _gameState) : 
 
 void AssignmentNodeImpl::execute(){
     std::cout<< "executing assignment" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+MatchNodeImpl::MatchNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+    identifiers = json::parse("{}");
+}
+
+void MatchNodeImpl::execute(){
+    std::cout<< "executing match" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+    identifiers = json::parse("{}");
+}
+
+void ExtendNodeImpl::execute(){
+    std::cout<< "executing extend" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
