@@ -87,7 +87,7 @@ void TreeNodeImpl::printTree(int depth) const{
     for (int i = 0; i < depth; i++) {
         std::cout << "  ";
     }
-    std::cout << content << std::endl;
+    std::cout << identifiers << std::endl;
 
     for (const auto& child : children) {
         child->printTree(depth + 1);
