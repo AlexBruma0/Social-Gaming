@@ -147,11 +147,38 @@ std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState& game
 // }
 // complication with match: we need to identify the conditions and their corresponding executions
 
-// std::string processScores(const std::string op_string) {
-//     return (splitStringBySpace(op_string).size() == 2) ? op_string : "";
-// }
+std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode) {
+     if (tsNode.getNumChildren() > 0) {
+         std::string input = getNodeStringValue(tsNode, sourceCode);
+         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ScoresNodeImpl>(getFirstLine(input), gameState);
+
+         json data = json::parse("{}");
+         data["keys"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
+         implPtr->setIdentifierData(data);
+
+         return implPtr;
+     } else {
+         return std::make_unique<TreeNodeImpl>("", gameState);
+     }
+ }
 
 // std::string processExtend(const std::string op_string) {
 //     return (splitStringBySpace(op_string).size() > 3) ? op_string : "";
 // }
+
+std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameState& gameState, const std::string& sourceCode) {
+    if (tsNode.getNumChildren() > 0) {
+        std::string input = getNodeStringValue(tsNode, sourceCode);
+        std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<AssignmentNodeImpl>(getFirstLine(input), gameState);
+
+        json data = json::parse("{}");
+        data["target"] = getNodeStringValue(tsNode.getChild(0), sourceCode);
+        data["value"] = getNodeStringValue(tsNode.getChild(2), sourceCode);
+        implPtr->setIdentifierData(data);
+
+        return implPtr;
+    } else {
+        return std::make_unique<TreeNodeImpl>("", gameState);
+    }
+}
 

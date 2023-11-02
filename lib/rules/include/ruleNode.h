@@ -131,4 +131,18 @@ public:
     void execute();
 };
 
+class ScoresNodeImpl: public TreeNodeImpl{
+public:
+    ScoresNodeImpl(std::string id, GameState& gameState);
+    ~ScoresNodeImpl(){}
+    void execute();
+};
+
+class AssignmentNodeImpl: public TreeNodeImpl{
+public:
+    AssignmentNodeImpl(std::string id, GameState& gameState);
+    ~AssignmentNodeImpl(){}
+    void execute();
+};
+
 #endif //SOCIAL_GAMING_RULENODE_H

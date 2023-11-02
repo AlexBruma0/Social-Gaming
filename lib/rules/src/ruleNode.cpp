@@ -20,8 +20,6 @@ TREE NODE CLASS
 
 TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState& gameState) : nodeType(type) {
     impl = std::move(this->parseNode(tsNode, gameState, sourceCode ));
-    //std::cout << impl->getIdentifierData().dump();
-    //std::cout << "address of impl " << impl.get() << std::endl;
 }
 
 TreeNode::TreeNode(TreeNode&& other) noexcept
@@ -45,8 +43,9 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
     typeToFunction["parallel_for"] = processParallelFor;
     typeToFunction["input_choice"] = processInputChoice;
 // //    typeToFunction["match"] = processMatch;
-//    typeToFunction["scores"] = processScores;
+    typeToFunction["scores"] = processScores;
 //    typeToFunction["extend"] = processExtend;
+    typeToFunction["assignment"] = processAssignment;
 
     if (typeToFunction.count(nodeType) > 0) {
         std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](tsNode, gameState, source_code);
@@ -160,6 +159,28 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState& _gameState) 
 
 void InputChoiceNodeImpl::execute(){
     std::cout<< "executing input choice" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+    identifiers = json::parse("{}");
+}
+
+void ScoresNodeImpl::execute(){
+    std::cout<< "executing scores" <<std::endl;
+    for (const auto& child : children) {
+        child->execute();
+    }
+}
+
+AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+    identifiers = json::parse("{}");
+}
+
+void AssignmentNodeImpl::execute(){
+    std::cout<< "executing assignment" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
