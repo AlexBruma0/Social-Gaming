@@ -4,6 +4,7 @@
 #include <string>
 #include "parser.h" // Include the necessary tree-sitter header here
 #include "../../rules/include/ruleNode.h"
+#pragma once
 
 // read a file into a string
 std::string file_to_string(const std::string path);

@@ -72,3 +72,5 @@ CPMAddPackage(
 add_subdirectory(lib)
 add_subdirectory(tests)
 add_subdirectory(tools)
+
+set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX CXX_STANDARD 20)
