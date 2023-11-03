@@ -37,8 +37,8 @@ void TreeNode::printTree(int depth) const {
     impl->printTree(depth);
 }
 
-void TreeNode::setIdentifierIndex(size_t index, std::string id){
-    impl->setIdentifierIndex(index, id);
+void TreeNode::update(){
+    impl->update();
 }
 
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
@@ -106,8 +106,8 @@ json TreeNodeImpl::getIdentifierData() const {
     return identifiers;
 }
 
-void TreeNodeImpl::setIdentifierIndex(size_t index, std::string id){
-    idIndexes[id] = index;
+void TreeNodeImpl::update(){
+
 }
 
 void TreeNodeImpl::execute(){
@@ -121,12 +121,17 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): TreeNodeImpl(id
     identifiers = json::parse("{}");
 }
 
+void ForNodeImpl::update(){
+    std::cout << "updating" <<std::endl;
+}
+
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
     json gameJson = getIdentifierData();
 
     // Gets the first element
     // Assuming that it will be parsed and contain only one array
+    // Temporary until the id are decided
     auto id = gameJson.begin().key();
     auto array = gameJson[id];
     
@@ -136,8 +141,9 @@ void ForNodeImpl::execute(){
     size_t index = 0;
     for (auto el: array) {
         for (const auto& child : children) {
-            child->setIdentifierIndex(index, id);
+            
             child->execute();
+            child->update();
         }
         index ++;
     }
