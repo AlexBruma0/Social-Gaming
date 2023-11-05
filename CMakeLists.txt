@@ -69,6 +69,17 @@ CPMAddPackage(
         VERSION 3.10.1
 )
 
+CPMAddPackage(
+    NAME GoogleTest
+    GITHUB_REPOSITORY google/googletest
+    GIT_TAG release-1.11.0
+    DOWNLOAD_ONLY YES
+)
+
+if (GoogleTest_ADDED)
+    enable_testing()
+endif()
+
 add_subdirectory(lib)
 add_subdirectory(tests)
 add_subdirectory(tools)

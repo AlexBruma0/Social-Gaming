@@ -4,19 +4,19 @@
 
 using json = nlohmann::json;
 
-GameState::GameState(json gameState){
+GameState::GameState(json* gameState){
     this->gameState = gameState;
 }
 
 GameState::GameState() {
-    this->gameState = json::parse("{}");
+    this->gameState = nullptr;
 }
 
-json GameState::getState() const{
+json* GameState::getState() const{
     return this->gameState;
 }
 
-void GameState::setState(json gameState){
+void GameState::setState(json* gameState){
     this->gameState = gameState;
 }
 

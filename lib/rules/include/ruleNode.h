@@ -40,7 +40,7 @@ using jsonReturnFormat = std::variant<std::vector<std::string>, std::vector<size
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node, std::string type, GameState& gameState);
+        TreeNode(std::string node, std::string type, GameState* gameState);
 
         TreeNode(TreeNode&& other) noexcept;
 
@@ -59,7 +59,7 @@ class TreeNode {
 
         virtual void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState* gameState);
 
     protected:
         std::unique_ptr<TreeNodeImpl> impl;
@@ -70,7 +70,7 @@ class TreeNode {
 class TreeNodeImpl { 
 
     public:
-        TreeNodeImpl(std::string id, GameState& gameState);
+        TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
 
@@ -100,12 +100,12 @@ class TreeNodeImpl {
 
         std::string content;
         // common to all nodes
-        GameState gameState;
+        GameState* gameState;
 };
 
 class ForNodeImpl: public TreeNodeImpl{
 public:
-    ForNodeImpl(std::string id, GameState& gameState);
+    ForNodeImpl(std::string id, GameState* gameState);
     ~ForNodeImpl(){}
     void execute();
     void update();
@@ -115,28 +115,28 @@ public:
 
 class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    DiscardNodeImpl(std::string id, GameState& gameState);
+    DiscardNodeImpl(std::string id, GameState* gameState);
     ~DiscardNodeImpl(){}
     void execute();
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
 public:
-    MessageNodeImpl(std::string id, GameState& gameState);
+    MessageNodeImpl(std::string id, GameState* gameState);
     ~MessageNodeImpl(){}
     void execute();
 };
 
 class ParallelForNodeImpl: public TreeNodeImpl {
 public:
-    ParallelForNodeImpl(std::string id, GameState &gameState);
+    ParallelForNodeImpl(std::string id, GameState* gameState);
     ~ParallelForNodeImpl() {}
     void execute();
 };
 
 class InputChoiceNodeImpl: public TreeNodeImpl{
 public:
-    InputChoiceNodeImpl(std::string id, GameState& gameState);
+    InputChoiceNodeImpl(std::string id, GameState* gameState);
     ~InputChoiceNodeImpl(){}
     void execute();
 };

@@ -100,7 +100,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
     if (it != allowedTypes.end()) {
         std::string input = getSubstringForNode(node, source_code);
 
-        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType, gameState);
+        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType, &gameState);
 
         TreeNode& childRef = *child;
         parentNode.addChild(std::move(child));
@@ -135,11 +135,11 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
 
     jsonData["players"][1] = jsonData["per-player"];
     jsonData["players"][1]["name"] = "Bob";
-    GameState gs{jsonData};
+    GameState gs{&jsonData};
     //std::cout << gs.getState().dump();
 
 
-    TreeNode parent("root", "root", gs);
+    TreeNode parent("root", "root", &gs);
     identifyOperations(syntaxTree, source_code, parent, gs);
     //parent.printTree();
 

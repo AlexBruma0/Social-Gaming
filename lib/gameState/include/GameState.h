@@ -6,10 +6,10 @@ using json = nlohmann::json;
 
 class GameState{
     private:
-    json gameState;
+    json* gameState;
     public:
-    json getState() const;
-    void setState(json gameState);
-    GameState(json gameState);
+    json* getState() const;
+    void setState(json* gameState);
+    GameState(json* gameState);
     GameState();
 };

@@ -18,7 +18,7 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(std::string node, std::string type, GameState& gameState) : nodeType(type) {
+TreeNode::TreeNode(std::string node, std::string type, GameState* gameState) : nodeType(type) {
     impl = std::move(this->parseNode(node, gameState));
     //std::cout << impl->getIdentifierData().dump();
     //std::cout << "address of impl " << impl.get() << std::endl;
@@ -41,8 +41,8 @@ void TreeNode::update(){
     impl->update();
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState& gameState){
-    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState&)>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const std::string& node, GameState* gameState){
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const std::string&, GameState*)>> typeToFunction;
     typeToFunction["for"] = processFor;
     typeToFunction["discard"] = processDiscard;
     typeToFunction["message"] = processMessage;
@@ -72,13 +72,13 @@ NODE CLASSES
 */
 
 
-TreeNodeImpl::TreeNodeImpl(std::string id, GameState& _gameState): content(id), gameState(_gameState) {
+TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState): content(id), gameState(_gameState) {
     identifiers = json::parse("{}");
 }
 
 TreeNodeImpl::TreeNodeImpl() : content("") {
     identifiers = json::parse("{}");
-    gameState = GameState();
+    gameState = nullptr;
 }
 
 TreeNodeImpl::~TreeNodeImpl(){}
@@ -117,7 +117,7 @@ void TreeNodeImpl::execute(){
     }
 }
 
-ForNodeImpl::ForNodeImpl(std::string id, GameState& _gameState): TreeNodeImpl(id, _gameState) {
+ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 
@@ -150,7 +150,7 @@ void ForNodeImpl::execute(){
     
 }
 
-DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 
@@ -161,7 +161,7 @@ void DiscardNodeImpl::execute(){
     }
 }
 
-MessageNodeImpl::MessageNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 
@@ -172,7 +172,7 @@ void MessageNodeImpl::execute(){
     }
 }
 
-ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 
@@ -183,7 +183,7 @@ void ParallelForNodeImpl::execute(){
     }
 }
 
-InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState& _gameState) : TreeNodeImpl(id, _gameState) {
+InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse("{}");
 }
 
