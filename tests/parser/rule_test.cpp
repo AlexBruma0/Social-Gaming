@@ -25,7 +25,7 @@
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
 
 #define DUMMY_ID "DUMMY"
-#define ARRAY_ID "ARRAY"
+#define ARRAY_ID "collection"
 
 extern "C" {
 //TSLanguage *tree_sitter_json();
@@ -40,7 +40,7 @@ class dummyNode: public TreeNodeImpl{
             idIndexes = indexes;
         }
         void execute(){
-            testCounter += idIndexes[DUMMY_ID].get<size_t>();
+            testCounter += idIndexes[ARRAY_ID].get<size_t>();
         }
 
         size_t getCounter(){
@@ -48,7 +48,7 @@ class dummyNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[DUMMY_ID].get<size_t>();
+            return idIndexes[ARRAY_ID].get<size_t>();
         }
         void update(){
             // Temporary will be changed when parser IDs are decided
@@ -68,7 +68,7 @@ class readNode: public TreeNodeImpl{
             //std::cout<<"reading"<<std::endl;
             json* j = gameState->getState();
             
-            testCounter += (*j)[DUMMY_ID][getIndex()].get<int>();
+            testCounter += (*j)[ARRAY_ID][getIndex()].get<int>();
         }
 
         size_t getCounter(){
@@ -81,7 +81,7 @@ class readNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[DUMMY_ID].get<int>();
+            return idIndexes[ARRAY_ID].get<int>();
         }
     
     private:
@@ -100,7 +100,7 @@ class writeNode: public TreeNodeImpl{
         void execute(){
             //std::cout<<"writing"<<std::endl;
             json* j = gameState->getState();
-            (*j)[DUMMY_ID][getIndex()] = (*j)[DUMMY_ID][getIndex()].get<int>() +1;
+            (*j)[ARRAY_ID][getIndex()] = (*j)[ARRAY_ID][getIndex()].get<int>() +1;
         }
         
         void update(){
@@ -109,7 +109,7 @@ class writeNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[DUMMY_ID].get<int>();
+            return idIndexes[ARRAY_ID].get<int>();
         }
 };
 
@@ -172,13 +172,13 @@ TEST (RuleTests, forNodeWriteTest){
 
     // Passing in dummy data 
     json j; 
-    j[DUMMY_ID] = vecData;
+    j[ARRAY_ID] = vecData;
 
     // Passing in the dummy indexes which will be incremented by the forNode
     json identifiers;
-    identifiers[ARRAY_ID] = DUMMY_ID;
+    identifiers[ARRAY_ID] = vecData;
     json indexes;
-    indexes[DUMMY_ID] =0;
+    indexes[ARRAY_ID] =0;
     
     GameState gs{&j};
 
@@ -228,13 +228,13 @@ TEST (RuleTests, forNodeTwoChild){
 
     // Passing in dummy data 
     json j; 
-    j[DUMMY_ID] = vecData;
+    j[ARRAY_ID] = vecData;
 
     // Passing in the dummy indexes which will be incremented by the forNode
     json identifiers;
-    identifiers[ARRAY_ID] = DUMMY_ID;
+    identifiers[ARRAY_ID] = vecData;
     json indexes;
-    indexes[DUMMY_ID] =0;
+    indexes[ARRAY_ID] =0;
     
     GameState gs{&j};
 

@@ -132,8 +132,7 @@ void ForNodeImpl::execute(){
     // Gets the first element
     // Assuming that it will be parsed and contain only one array
     // Temporary until the id are decided
-    auto id = gameJson.begin().key();
-    auto array = gameJson[id];
+    auto array = gameJson[TreeNodeImpl::COLLECTION_ID];
     
     //std::cout<< "executing for" <<std::endl;
 

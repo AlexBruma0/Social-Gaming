@@ -70,6 +70,9 @@ class TreeNode {
 class TreeNodeImpl { 
 
     public:
+        // Needs to be a string for accessing json
+        const std::string COLLECTION_ID = "collection";
+
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
