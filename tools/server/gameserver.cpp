@@ -48,9 +48,9 @@ void handleJoinRequest(Server& server, const Message &message, std::deque<Messag
       std::cout << "Attempting to join game with such code: \n";
       //find a game with such a game code id
 
-      for(std::string c : codes) {
-        if()
-      }
+      // for(std::string c : codes) {
+      //   if()
+      // }
       // Construct a response message
       std::string response = "There is no game with code: ";
       responseMessages.push_back({message.connection, response});

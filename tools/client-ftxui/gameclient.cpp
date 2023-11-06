@@ -2,12 +2,15 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cmath> 
+#include <chrono>
 
 #include "Client.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/loop.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
+#include "ftxui/component/animation.hpp"
 
 using namespace ftxui;
 
