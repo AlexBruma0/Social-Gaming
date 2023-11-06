@@ -148,25 +148,26 @@ void RunChatClient(networking::Client& client) {
   auto screen = ScreenInteractive::Fullscreen();
 
   //handler for specific events caught in the chat windows
-  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler](const Event& event) {
+  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler, &client](const Event& event) {
     if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
       return true;
-    } else if (event == Event::Character('h')) {
+    } else if (event == Event::F2) {
       // Switch to help page when 'h' is pressed.
       page = 1;
       return true;
-    } else if (event == Event::Character('j')) {
+    } 
+    else if (event == Event::F3) {
       //  join game page when 'j' is pressed.
       page = 2;
       return true;
-    } else if (event == Event::Character('m')) {
+    } else if (event == Event::F4) {
       //  to the make game page when 'm' is pressed.
       page = 3;
       return true;
     } 
-    else if (event == Event::Character('b')) {
+    else if (event == Event::F1) {
       // switch to the main page when 'b' is pressed.
       page = 0;
       return true;
@@ -183,11 +184,7 @@ void RunChatClient(networking::Client& client) {
       page = 0;
       return true;
     }
-    // else if (event == Event::Mouse) {
-    //     // Mouse mouse = event.mouse();
-    //     // int x = mouse.x;
-    //     // int y = mouse.y;
-    // }
+    
     return false;
   });
 

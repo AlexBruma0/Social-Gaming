@@ -15,6 +15,20 @@ using networking::Message;
 
 std::vector<Connection> clients;
 
+std::string generateFourDigitNumber() {
+    // random num generator seed
+    static bool seedInitialized = false;
+    if (!seedInitialized) {
+      // uses current time as seed 
+        std::srand(time(nullptr)); 
+        seedInitialized = true;
+    }
+
+    // Random number between 1000 and 9999
+    int randomNumber = 1000 + std::rand() % 9000; 
+    return std::to_string(randomNumber);
+}
+
 
 void
 onConnect(Connection c) {
@@ -42,7 +56,7 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
   std::ostringstream result;
   bool quit = false;
   for (const auto& message : incoming) {
-    if (message.text == "quit") {
+    if (message.text == "q") {
       server.disconnect(message.connection);
     } else if (message.text == "shutdown") {
       std::cout << "Shutting down.\n";
