@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include <variant>
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
 #include "../../gameState/include/GameState.h"
@@ -32,43 +33,49 @@ class TreeNodeImpl;
         Execute and parse will now manipulate that node field
 */
 
+using jsonReturnFormat = std::variant<std::vector<std::string>, std::vector<size_t>>;
+
 // Base class to implement all other node types
 // Abstraction so that the parser doesn't have to deal with the underlying node stuff
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node, std::string type, GameState& gameState);
+        TreeNode(std::string node, std::string type, GameState* gameState);
 
         TreeNode(TreeNode&& other) noexcept;
 
-        ~TreeNode(){};
+        virtual ~TreeNode(){};
 
         void printTree(int depth = 0) const;
 
 
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
+        // Update the indexes
+        // Needs to be here because the TreeNodeImpls access treeNodes
+        void update();
+
         // Function to update the identifier value if something changes
 
-        void execute() const;
+        virtual void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState& gameState);
+        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState* gameState);
 
-    private:
+    protected:
         std::unique_ptr<TreeNodeImpl> impl;
         std::string nodeType;
         
-        // Gtest to test private fields
-        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
 };
 
 class TreeNodeImpl { 
 
     public:
-        TreeNodeImpl(std::string id, GameState& gameState);
+        // Needs to be a string for accessing json
+        const std::string COLLECTION_ID = "collection";
+
+        TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
-        ~TreeNodeImpl();
+        virtual~TreeNodeImpl();
 
         void printTree(int depth = 0) const;
 
@@ -78,6 +85,8 @@ class TreeNodeImpl {
 
         json getIdentifierData() const;
 
+        virtual void update();
+
         virtual void execute();
 
 
@@ -86,46 +95,51 @@ class TreeNodeImpl {
         std::vector<std::unique_ptr<TreeNode>> children;
         // json object to store the necessary data for each node
         json identifiers;
+
+        // Contains the indexes for how to access the json objects
+        // Ex json["players"][0]
+        // players is stored in identifiers and 0 is stored here 
+        json idIndexes;
+
         std::string content;
         // common to all nodes
-        GameState gameState;
-
-        // Gtest to test private fields
-        FRIEND_TEST(RuleTests, BASE_CLASS_INSTANTIATE);
-        FRIEND_TEST(RuleTests, TREE_NODE_CHILDREN);
+        GameState* gameState;
 };
 
 class ForNodeImpl: public TreeNodeImpl{
 public:
-    ForNodeImpl(std::string id, GameState& gameState);
+    ForNodeImpl(std::string id, GameState* gameState);
     ~ForNodeImpl(){}
     void execute();
+    void update();
+
+
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    DiscardNodeImpl(std::string id, GameState& gameState);
+    DiscardNodeImpl(std::string id, GameState* gameState);
     ~DiscardNodeImpl(){}
     void execute();
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
 public:
-    MessageNodeImpl(std::string id, GameState& gameState);
+    MessageNodeImpl(std::string id, GameState* gameState);
     ~MessageNodeImpl(){}
     void execute();
 };
 
 class ParallelForNodeImpl: public TreeNodeImpl {
 public:
-    ParallelForNodeImpl(std::string id, GameState &gameState);
+    ParallelForNodeImpl(std::string id, GameState* gameState);
     ~ParallelForNodeImpl() {}
     void execute();
 };
 
 class InputChoiceNodeImpl: public TreeNodeImpl{
 public:
-    InputChoiceNodeImpl(std::string id, GameState& gameState);
+    InputChoiceNodeImpl(std::string id, GameState* gameState);
     ~InputChoiceNodeImpl(){}
     void execute();
 };

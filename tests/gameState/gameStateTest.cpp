@@ -45,7 +45,7 @@ TEST(gameStateTest, Initial) {
     for(int i = 0; i < num_players; i++){
         jsonData["players"][i] = jsonData["per-player"];
     }
-    GameState gs{jsonData};
-    std::cout << gs.getState().dump();
+    GameState gs{&jsonData};
+    std::cout << gs.getState()->dump();
 
 }

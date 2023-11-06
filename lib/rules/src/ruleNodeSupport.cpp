@@ -58,7 +58,7 @@ std::string getFirstLine(const std::string& input) {
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState& gameState) {
+std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState* gameState) {
     std::vector<std::string> tokens = splitStringBySpace(op_string);
     if (tokens.size() > 1) {
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ForNodeImpl>(getFirstLine(op_string), gameState);
@@ -74,7 +74,7 @@ std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState
     }
 }
 
- std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string, GameState& gameState) {
+ std::unique_ptr<TreeNodeImpl> processDiscard(const std::string op_string, GameState* gameState) {
      std::vector<std::string> tokens = splitStringBySpace(op_string);
      if (tokens.size() == 4) {
          std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<DiscardNodeImpl>(op_string, gameState);
@@ -90,7 +90,7 @@ std::unique_ptr<TreeNodeImpl> processFor(const std::string& op_string, GameState
      }
  }
 
-std::unique_ptr<TreeNodeImpl> processMessage(const std::string op_string, GameState& gameState) {
+std::unique_ptr<TreeNodeImpl> processMessage(const std::string op_string, GameState* gameState) {
     std::vector<std::string> tokens = splitStringBySpace(op_string);
     if (tokens.size() > 1) {
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<MessageNodeImpl>(getFirstLine(op_string), gameState);
@@ -106,7 +106,7 @@ std::unique_ptr<TreeNodeImpl> processMessage(const std::string op_string, GameSt
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processParallelFor(const std::string op_string, GameState& gameState) {
+std::unique_ptr<TreeNodeImpl> processParallelFor(const std::string op_string, GameState* gameState) {
     std::vector<std::string> tokens = splitStringBySpace(op_string);
     if (tokens.size() > 1) {
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ParallelForNodeImpl>(getFirstLine(op_string), gameState);
@@ -122,7 +122,7 @@ std::unique_ptr<TreeNodeImpl> processParallelFor(const std::string op_string, Ga
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processInputChoice(const std::string op_string, GameState& gameState) {
+std::unique_ptr<TreeNodeImpl> processInputChoice(const std::string op_string, GameState* gameState) {
      std::vector<std::string> tokens = splitStringBySpace(op_string);
      if (tokens.size() > 1) {
          std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<InputChoiceNodeImpl>(op_string, gameState);
