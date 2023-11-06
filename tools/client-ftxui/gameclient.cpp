@@ -49,7 +49,32 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-void SendCreateGameRequest(networking::Client& client) {
+std::vector<Element>& getCurrentHistory(Page pageContext,
+                                        std::vector<Element>& mainMenuHistory,
+                                        std::vector<Element>& joinGameHistory,
+                                        std::vector<Element>& createGameHistory) {
+                                          
+  if (pageContext == Page::MainMenu) {
+    //return mainMenu chat list
+    return mainMenuHistory;
+  } else if (pageContext == Page::JoinGame) {
+    //return joinmenu chat list
+    return joinGameHistory;
+  } else if (pageContext == Page::CreateGame) {
+    //return createMenu chat list
+    return createGameHistory;
+  } else {
+    //default to the main menu history
+    return mainMenuHistory;
+  }
+}
+
+void joinGameRequest(networking::Client& client){
+  std::string gameRequest = "join_game";
+  client.send(gameRequest);
+}
+
+void sendCreateGameRequest(networking::Client& client) {
   std::string gameRequest = "create_game";
   client.send(gameRequest); 
 }
@@ -218,12 +243,12 @@ void RunChatClient(networking::Client& client) {
     else if (event == Event::F5) {
       // send game request through
       // (*createGameHandler)();
-      SendCreateGameRequest(client);
+      sendCreateGameRequest(client);
       return true;
     }
     else if (event == Event::F6) {
       // send game request through
-      // (*joinRequestHandler)();
+      joinGameRequest(client);
       return true;
     }
     
@@ -236,9 +261,7 @@ void RunChatClient(networking::Client& client) {
     try {
       client.update();
     } catch (std::exception& e) {
-      auto& currentHistory = (pageContext == Page::CreateGame) ? createGameHistory :
-                             (pageContext == Page::JoinGame) ? joinGameHistory :
-                              history; // Default to mainMenu chat history 
+      auto& currentHistory = getCurrentHistory(pageContext, history, joinGameHistory, createGameHistory);
 
       currentHistory.push_back(text("Exception from Client update:"));
       currentHistory.push_back(text(e.what()));
@@ -247,9 +270,7 @@ void RunChatClient(networking::Client& client) {
 
     auto response = client.receive();
     if (!response.empty()) {
-      auto& currentHistory = (pageContext == Page::CreateGame) ? createGameHistory :
-                             (pageContext == Page::JoinGame) ? joinGameHistory :
-                              history; // Default to mainMenu chat history 
+      auto& currentHistory = getCurrentHistory(pageContext, history, joinGameHistory, createGameHistory);
 
       currentHistory.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();

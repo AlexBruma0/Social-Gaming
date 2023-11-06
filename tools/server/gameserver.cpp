@@ -14,6 +14,8 @@ using networking::Message;
 
 
 std::vector<Connection> clients;
+std::vector<std::string> codes;
+
 
 std::string generateFourDigitNumber() {
     // random num generator seed
@@ -29,6 +31,33 @@ std::string generateFourDigitNumber() {
     return std::to_string(randomNumber);
 }
 
+
+void handleCreateRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
+      std::string code = generateFourDigitNumber();
+      codes.push_back(code);
+      std::cout << "Created game with code: " << code << "\n";
+      // Construct a response message
+      std::string response = "Game created. Your code is: " + code;
+      responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
+      server.send(responseMessages);
+      // result << message.connection.id << "> " << response << "\n";
+}
+
+void handleJoinRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
+      std::cout << "Attempting to join game with such code: \n";
+      //find a game with such a game code id
+
+      for(std::string c : codes) {
+        if()
+      }
+      // Construct a response message
+      std::string response = "There is no game with code: ";
+      responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
+      server.send(responseMessages);
+      // result << message.connection.id << "> " << response << "\n";
+}
 
 void
 onConnect(Connection c) {
@@ -63,28 +92,12 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
     } else if (message.text == "shutdown") {
       std::cout << "Shutting down.\n";
       quit = true;
-    } else if (message.text == "create_game") {
-      std::string code = generateFourDigitNumber();
-      std::cout << "Created game with code: " << code << "\n";
-      // Construct a response message
-      std::string response = "Game created. Your code is: " + code;
-      responseMessages.push_back({message.connection, response});
-      // Send the deque of response messages back to the client
-      server.send(responseMessages);
-      // Optionally, you can log the message to the server's console or result stream
-      // result << message.connection.id << "> " << response << "\n";
-    } else if (message.text == "join_game") {
-      std::cout << "Attempting to join game with such code: \n";
-      //find a game with such a game code id
       
-      //complete proper response here
-      // Construct a response message
-      std::string response = "There is no game with code: ";
-      responseMessages.push_back({message.connection, response});
-      // Send the deque of response messages back to the client
-      server.send(responseMessages);
-      // Optionally, you can log the message to the server's console or result stream
-      // result << message.connection.id << "> " << response << "\n";
+    } else if (message.text == "create_game") {
+        handleCreateRequest(server, message, responseMessages);
+
+    } else if (message.text == "join_game") {
+        handleJoinRequest(server, message, responseMessages);
     } else {
       result << message.connection.id << "> " << message.text << "\n";
     }
