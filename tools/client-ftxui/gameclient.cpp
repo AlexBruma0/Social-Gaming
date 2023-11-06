@@ -42,6 +42,11 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
+void SendCreateGameRequest(networking::Client& client) {
+  std::string gameRequest = "create_game";
+  client.send(gameRequest); 
+}
+
 Element RenderMainMenu(const std::vector<Element>& history, Component entryField, Component makeBtn, Component joinBtn, Component helpBtn) {
   return vbox({
     window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
@@ -67,7 +72,7 @@ Element RenderHelpPage(const std::vector<Element>& history, Component backBtn) {
       separator(),
       text("Gameplay:"),
       text("Currently, we are developing rock paper scissors functionality"),
-      text("You will be asked depending on game server configuration to pick which choice, and you will see the winner as such.")
+      text("You will be asked depending on game server configuration to pick which choice, and you will see the winner as such."),
       separator(),
       text("Troubleshooting:"),
       text(" - If you encounter issues, try restarting the client."),
@@ -92,12 +97,13 @@ Element RenderJoinGamePage(const std::vector<Element>& history, Component joinGa
           window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
       }) | color(Color::RedLight);
+
 }
 
 
 Element RenderMakeGamePage(const std::vector<Element>& history, Component createGameBtn, Component backBtn) {
   return yframe(vbox({
-    // window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1)),
+    window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
     window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
     window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
   })) | yflex | color(Color::YellowLight);
@@ -138,7 +144,7 @@ void RunChatClient(networking::Client& client) {
 
   //universal back button
   auto backHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component backBtn = Button("Back [F1]", [backHandler] { (*backHandler)(); });
+  Component backBtn = Button("Back [Esc]", [backHandler] { (*backHandler)(); });
 
 
 
@@ -176,7 +182,7 @@ void RunChatClient(networking::Client& client) {
 
   //handler for specific events caught in the chat windows
   auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler, &client](const Event& event) {
-    if (event == Event::Return && page == 0) {
+    if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
       return true;
@@ -194,7 +200,7 @@ void RunChatClient(networking::Client& client) {
       page = 3;
       return true;
     } 
-    else if (event == Event::F1) {
+    else if (event == Event::Escape) {
       // switch to the main page when 'b' is pressed.
       entry.clear();
       page = 0;
@@ -204,12 +210,12 @@ void RunChatClient(networking::Client& client) {
       // send game request through
       // (*createGameHandler)();
       page = 0;
+      SendCreateGameRequest(client);
       return true;
     }
     else if (event == Event::F6) {
       // send game request through
       // (*joinRequestHandler)();
-      page = 0;
       return true;
     }
     

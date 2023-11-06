@@ -61,6 +61,11 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
     } else if (message.text == "shutdown") {
       std::cout << "Shutting down.\n";
       quit = true;
+    } else if (message.text == "create_game") {
+      std::string code = generateFourDigitNumber();
+      std::cout << "created game.\n";
+      std::cout << "Your code is" + code + ".\n";
+      result << message.connection.id << "> " << message.text << "\n";
     } else {
       result << message.connection.id << "> " << message.text << "\n";
     }
