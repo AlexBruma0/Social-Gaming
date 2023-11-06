@@ -67,7 +67,7 @@ Element RenderMainMenu(const std::vector<Element>& history, Component entryField
   }) | color(Color::GreenLight);
 }
 
-Element RenderHelpPage(const std::vector<Element>& history, Component backBtn) {
+Element RenderHelpPage(Component backBtn) {
   return yframe(vbox({
     // window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1)),
     window(text("Help Content"), vbox({
@@ -103,7 +103,7 @@ Element RenderJoinGamePage(const std::vector<Element>& history, Component joinGa
           window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
           window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-      }) | color(Color::RedLight);
+  }) | color(Color::RedLight);
 
 }
 
@@ -119,7 +119,7 @@ Element RenderMakeGamePage(const std::vector<Element>& history, Component create
 
 
 void RunChatClient(networking::Client& client) {
-  Page page = Page::MainMenu;
+  Page pageContext = Page::MainMenu;
   bool done = false;
 
   auto onTextEntry = [&done, &client](std::string text) {
@@ -177,11 +177,11 @@ void RunChatClient(networking::Client& client) {
 
  
 
-  auto renderer = Renderer(entryField, [&history, &createGameHistory, &joinGameHistory, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &page] {
-      switch (page) {
+  auto renderer = Renderer(entryField, [&history, &createGameHistory, &joinGameHistory, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &pageContext] {
+      switch (pageContext) {
         case Page::MainMenu: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
-        case Page::HelpMenu: return RenderHelpPage(joinGameHistory, backBtn);
-        case Page::JoinGame: return RenderJoinGamePage(history, joinGameBtn, backBtn);
+        case Page::HelpMenu: return RenderHelpPage(backBtn);
+        case Page::JoinGame: return RenderJoinGamePage(joinGameHistory, joinGameBtn, backBtn);
         case Page::CreateGame: return RenderMakeGamePage(createGameHistory, createGameBtn, backBtn);
         default: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
       }
@@ -190,29 +190,29 @@ void RunChatClient(networking::Client& client) {
   auto screen = ScreenInteractive::Fullscreen();
 
   //handler for specific events caught in the chat windows
-  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler, &client](const Event& event) {
+  auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &pageContext, &backHandler, &createGameHandler, &joinRequestHandler, &client](const Event& event) {
     if (event == Event::Return) {
       onTextEntry(std::move(entry));
       entry.clear();
       return true;
     } else if (event == Event::F2) {
       // Switch to help page when 'h' is pressed.
-      page = Page::HelpMenu;
+      pageContext = Page::HelpMenu;
       return true;
     } 
     else if (event == Event::F3) {
       //  join game page when 'j' is pressed.
-      page = Page::JoinGame;
+      pageContext = Page::JoinGame;
       return true;
     } else if (event == Event::F4) {
       //  to the make game page when 'm' is pressed.
-      page = Page::CreateGame;
+      pageContext = Page::CreateGame;
       return true;
     } 
     else if (event == Event::Escape) {
       // switch to the main page when 'b' is pressed.
       entry.clear();
-      page = Page::MainMenu;
+      pageContext = Page::MainMenu;
       return true;
     }
     else if (event == Event::F5) {
@@ -236,14 +236,22 @@ void RunChatClient(networking::Client& client) {
     try {
       client.update();
     } catch (std::exception& e) {
-      history.push_back(text("Exception from Client update:"));
-      history.push_back(text(e.what()));
+      auto& currentHistory = (pageContext == Page::CreateGame) ? createGameHistory :
+                             (pageContext == Page::JoinGame) ? joinGameHistory :
+                              history; // Default to mainMenu chat history 
+
+      currentHistory.push_back(text("Exception from Client update:"));
+      currentHistory.push_back(text(e.what()));
       done = true;
     }
 
     auto response = client.receive();
     if (!response.empty()) {
-      history.push_back(paragraphAlignLeft(response));
+      auto& currentHistory = (pageContext == Page::CreateGame) ? createGameHistory :
+                             (pageContext == Page::JoinGame) ? joinGameHistory :
+                              history; // Default to mainMenu chat history 
+
+      currentHistory.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();
       
     }
