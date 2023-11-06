@@ -1,13 +1,17 @@
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+#include <cmath> 
+#include <chrono>
 
 #include "Client.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/loop.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
+#include "ftxui/component/animation.hpp"
+
+using namespace ftxui;
 
 //callback struct to create actions for the buttons
 struct ButtonHandler {
@@ -23,12 +27,97 @@ void RunChatClient(networking::Client& client);
 
 void HandleButtonClick(int& page, networking::Client& client, const std::string& buttonLabel);
 
+
+Element drawFrame(std::string message, float angle, std::string footer) {
+  const int radius = 10; 
+  int x = static_cast<int>(radius * cos(angle));
+  int y = static_cast<int>(radius * sin(angle));
+
+  // sets up the location of animated pixels
+  std::string circle(radius * 2 + 1, ' ');
+  circle[radius + x] = '*'; 
+
+  //return box
+  return vbox({
+    text(message) | center,
+    text(circle) | center,
+    text(footer) | center,
+  }) | border;
+}
+
+//animates box
+void RunAnimation(ScreenInteractive& screen, float& angle, std::atomic<bool>& running) {
+  // https://arthursonzogni.github.io/FTXUI/classftxui_1_1ScreenInteractive.html
+  while (running) {
+    //slows down animation
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // adjusts angle 
+    angle += 0.1f; 
+    //keeps angle in 2pi distance, to stop from floating off of screen
+    if (angle > 2 * M_PI) {
+      angle -= 2 * M_PI;
+    }
+    //renders every single movement cause by angle adjustment
+    screen.PostEvent(Event::Custom); 
+  }
+}
+
+void startAnimation() {
+  auto screen = ScreenInteractive::TerminalOutput();
+  std::string message = "WELCOME TO KLAH SOCIAL GAMING";
+  std::string footer = "Loading...";
+  // angle for animated pixels
+  float angle = 0.0f; 
+   // atomic boolean to stop thread execution
+   //https://stackoverflow.com/questions/62830569/boolean-stop-signal-between-threads
+  std::atomic<bool> running(true);
+
+  // draws back and forth animation
+  auto component = Renderer([&] {
+    return drawFrame(message, angle, footer);
+  });
+
+  // setup container component of animation
+  auto main_container = Container::Vertical({
+    component,
+  });
+
+  auto exit_loop = screen.ExitLoopClosure();
+
+  // thread running the animation
+  //Animator class in ftxui did not correspond when building
+  std::thread animation_thread([&] {
+    RunAnimation(screen, angle, running);
+  });
+
+  // timer thread running in parallel with animation
+  std::thread timer_thread([&] {
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    // stop  animation
+    running = false; 
+    exit_loop(); 
+  });
+
+  //loop on screen display/animation
+  screen.Loop(main_container);
+
+  // join up threads
+  if (animation_thread.joinable()) {
+    animation_thread.join(); 
+  }
+  if (timer_thread.joinable()) {
+    timer_thread.join();
+  }
+}
+
 int main(int argc, char* argv[]) {
   if (argc < 3) {
       std::cerr << "Usage: \n  " << argv[0] << " <ip address> <port>\n"
               << "  e.g. " << argv[0] << " localhost 4002\n";
   return 1;
   }
+
+  startAnimation();
 
   try {
     networking::Client client{argv[1], argv[2]};
@@ -53,7 +142,6 @@ void RunChatClient(networking::Client& client) {
     }
   };
 
-  using namespace ftxui;
 
   std::string entry;
   std::vector<Element> history;
