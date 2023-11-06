@@ -21,7 +21,6 @@ struct ButtonHandler {
     void operator()() {}
 };
 
-
 void RunChatClient(networking::Client& client);
 
 void HandleButtonClick(int& page, networking::Client& client, const std::string& buttonLabel);
@@ -42,7 +41,6 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
-
 
 Element RenderMainMenu(const std::vector<Element>& history, Component entryField, Component makeBtn, Component joinBtn, Component helpBtn) {
   return vbox({
@@ -65,6 +63,7 @@ Element RenderHelpPage(const std::vector<Element>& history, Component backBtn) {
   })) | yflex | color(Color::BlueLight);
 }
 
+
 Element RenderJoinGamePage(const std::vector<Element>& history, Component joinGameBtn, Component backBtn) {
   return vbox({
           window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
@@ -72,6 +71,7 @@ Element RenderJoinGamePage(const std::vector<Element>& history, Component joinGa
           window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
       }) | color(Color::RedLight);
 }
+
 
 Element RenderMakeGamePage(const std::vector<Element>& history, Component createGameBtn, Component backBtn) {
   return yframe(vbox({
@@ -148,57 +148,13 @@ void RunChatClient(networking::Client& client) {
         case 3: return RenderMakeGamePage(history, createGameBtn, backBtn);
         default: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
       }
-    //if page == 0 this is the main menu
-    // if (page == 0) {
-    //   return vbox({
-    //       window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
-    //       window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
-    //       window(text("Options"), hbox(
-    //           hflow(0.4, makeBtn->Render()), 
-    //           hflow(0.4, joinBtn->Render()), 
-    //           hflow(0.4, helpBtn->Render())
-    //       ) | size(HEIGHT, EQUAL, 3)
-    //       ) | size(HEIGHT, EQUAL, 5),
-    //   }) | color(Color::GreenLight);
-    //   //page 1 is the help page
-    // } else if (page == 1) {
-    //   return vbox({
-    //       window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-    //       window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
-    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-    //   }) | color(Color::BlueLight);
-    //   //page 2 is the join game page
-    // } else if (page == 2) {
-    //   return vbox({
-    //       window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-    //       window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
-    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-    //   }) | color(Color::RedLight);
-    //   //page 3 is the make game page
-    // } else if (page == 3) {
-    //   return vbox({
-    //       window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-    //       window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
-    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-    //   }) | color(Color::YellowLight);
-    // }
-    // return vbox({
-    //       window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
-    //       window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
-    //       window(text("Options"), hbox(
-    //           hflow(0.4, makeBtn->Render()), 
-    //           hflow(0.4, joinBtn->Render()), 
-    //           hflow(0.4, helpBtn->Render())
-    //       ) | size(HEIGHT, EQUAL, 3)
-    //       ) | size(HEIGHT, EQUAL, 5),
-    //   }) | color(Color::GreenLight);
   });
 
   auto screen = ScreenInteractive::Fullscreen();
 
   //handler for specific events caught in the chat windows
   auto handler = CatchEvent(renderer, [&entry, &onTextEntry, &page, &backHandler, &createGameHandler, &joinRequestHandler, &client](const Event& event) {
-    if (event == Event::Return) {
+    if (event == Event::Return && page == 0) {
       onTextEntry(std::move(entry));
       entry.clear();
       return true;
@@ -218,6 +174,7 @@ void RunChatClient(networking::Client& client) {
     } 
     else if (event == Event::F1) {
       // switch to the main page when 'b' is pressed.
+      entry.clear();
       page = 0;
       return true;
     }
