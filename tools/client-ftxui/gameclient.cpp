@@ -9,6 +9,9 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 
+using namespace ftxui;
+
+
 //callback struct to create actions for the buttons
 struct ButtonHandler {
     bool& done;
@@ -41,6 +44,45 @@ int main(int argc, char* argv[]) {
 }
 
 
+Element RenderMainMenu(const std::vector<Element>& history, Component entryField, Component makeBtn, Component joinBtn, Component helpBtn) {
+  return vbox({
+    window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
+    window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
+    window(text("Options"), hbox(
+        hflow(0.4, makeBtn->Render()), 
+        hflow(0.4, joinBtn->Render()), 
+        hflow(0.4, helpBtn->Render())
+    ) | size(HEIGHT, EQUAL, 3)
+    ) | size(HEIGHT, EQUAL, 5),
+  }) | color(Color::GreenLight);
+}
+
+Element RenderHelpPage(const std::vector<Element>& history, Component backBtn) {
+  return yframe(vbox({
+    // window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1)),
+    window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+    window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+  })) | yflex | color(Color::BlueLight);
+}
+
+Element RenderJoinGamePage(const std::vector<Element>& history, Component joinGameBtn, Component backBtn) {
+  return vbox({
+          window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+          window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
+          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+      }) | color(Color::RedLight);
+}
+
+Element RenderMakeGamePage(const std::vector<Element>& history, Component createGameBtn, Component backBtn) {
+  return yframe(vbox({
+    // window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1)),
+    window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
+    window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+  })) | yflex | color(Color::YellowLight);
+  
+}
+
+
 void RunChatClient(networking::Client& client) {
   int page = 0;
   bool done = false;
@@ -53,8 +95,6 @@ void RunChatClient(networking::Client& client) {
     }
   };
 
-  using namespace ftxui;
-
   std::string entry;
   std::vector<Element> history;
   Component entryField = Input(&entry, "Type Here.");
@@ -64,26 +104,27 @@ void RunChatClient(networking::Client& client) {
   //https://github.com/ArthurSonzogni/FTXUI/discussions/323
   //buttons that won't click through
   auto helpHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component helpBtn = Button("Help Me!! [h]", [helpHandler] { (*helpHandler)(); });
+  Component helpBtn = Button("Help Me!! [F2]", [helpHandler] { (*helpHandler)(); });
 
   //button on main menu to signify joining menu
   auto joinHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component joinBtn = Button("Join Game [j]", [joinHandler] { (*joinHandler)();});
+  Component joinBtn = Button("Join Game [F3]", [joinHandler] { (*joinHandler)();});
 
   //make button showcased on main menu to launch into make game menu
   auto makeHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component makeBtn = Button("Make Game [m]", [makeHandler] { (*makeHandler)(); });
+  Component makeBtn = Button("Make Game [F4]", [makeHandler] { (*makeHandler)(); });
 
   //universal back button
   auto backHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component backBtn = Button("Back [b]", [backHandler] { (*backHandler)(); });
+  Component backBtn = Button("Back [F1]", [backHandler] { (*backHandler)(); });
+
 
 
   /*outer menu buttons*/
 
   //located in create game menu, strike c to create a game request from the server
   auto createGameHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component createGameBtn = Button("Create Game [c]", [createGameHandler] { 
+  Component createGameBtn = Button("Create Game [F5]", [createGameHandler] { 
       (*createGameHandler)(); 
       // std::string gameRequest = "gamerequest";
       // client.send(gameRequest);
@@ -91,58 +132,66 @@ void RunChatClient(networking::Client& client) {
 
   //located in the join game menu, strike g to join a current game
   auto joinRequestHandler = std::make_shared<ButtonHandler>(ButtonHandler{done, client, entry});
-  Component joinGameBtn = Button("Join Game [r]", [joinRequestHandler] { 
+  Component joinGameBtn = Button("Join Game [F6]", [joinRequestHandler] { 
       (*joinRequestHandler)(); 
       // std::string joinRequest = "joinrequest";
       // client.send(joinRequest);
   });
 
  
+
   auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &page] {
+      switch (page) {
+        case 0: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
+        case 1: return RenderHelpPage(history, backBtn);
+        case 2: return RenderJoinGamePage(history, joinGameBtn, backBtn);
+        case 3: return RenderMakeGamePage(history, createGameBtn, backBtn);
+        default: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
+      }
     //if page == 0 this is the main menu
-    if (page == 0) {
-      return vbox({
-          window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
-          window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
-          window(text("Options"), hbox(
-              hflow(0.4, makeBtn->Render()), 
-              hflow(0.4, joinBtn->Render()), 
-              hflow(0.4, helpBtn->Render())
-          ) | size(HEIGHT, EQUAL, 3)
-          ) | size(HEIGHT, EQUAL, 5),
-      }) | color(Color::GreenLight);
-      //page 1 is the help page
-    } else if (page == 1) {
-      return vbox({
-          window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-          window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
-          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-      }) | color(Color::BlueLight);
-      //page 2 is the join game page
-    } else if (page == 2) {
-      return vbox({
-          window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-          window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
-          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-      }) | color(Color::RedLight);
-      //page 3 is the make game page
-    } else if (page == 3) {
-      return vbox({
-          window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
-          window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
-          window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
-      }) | color(Color::YellowLight);
-    }
-    return vbox({
-          window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
-          window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
-          window(text("Options"), hbox(
-              hflow(0.4, makeBtn->Render()), 
-              hflow(0.4, joinBtn->Render()), 
-              hflow(0.4, helpBtn->Render())
-          ) | size(HEIGHT, EQUAL, 3)
-          ) | size(HEIGHT, EQUAL, 5),
-      }) | color(Color::GreenLight);
+    // if (page == 0) {
+    //   return vbox({
+    //       window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
+    //       window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
+    //       window(text("Options"), hbox(
+    //           hflow(0.4, makeBtn->Render()), 
+    //           hflow(0.4, joinBtn->Render()), 
+    //           hflow(0.4, helpBtn->Render())
+    //       ) | size(HEIGHT, EQUAL, 3)
+    //       ) | size(HEIGHT, EQUAL, 5),
+    //   }) | color(Color::GreenLight);
+    //   //page 1 is the help page
+    // } else if (page == 1) {
+    //   return vbox({
+    //       window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+    //       window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+    //   }) | color(Color::BlueLight);
+    //   //page 2 is the join game page
+    // } else if (page == 2) {
+    //   return vbox({
+    //       window(text("Join Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+    //       window(text("Join Game Content"), joinGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
+    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+    //   }) | color(Color::RedLight);
+    //   //page 3 is the make game page
+    // } else if (page == 3) {
+    //   return vbox({
+    //       window(text("Make Game"), vbox(history) | focusPositionRelative(0, 1) | yflex),
+    //       window(text("Create Game Request"), createGameBtn->Render() | size(HEIGHT, EQUAL, 3)),
+    //       window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
+    //   }) | color(Color::YellowLight);
+    // }
+    // return vbox({
+    //       window(text("Main Menu"), yframe(vbox(history) | focusPositionRelative(0, 1)) | yflex),
+    //       window(text("Welcome"), entryField->Render() | size(HEIGHT, EQUAL, 3)),
+    //       window(text("Options"), hbox(
+    //           hflow(0.4, makeBtn->Render()), 
+    //           hflow(0.4, joinBtn->Render()), 
+    //           hflow(0.4, helpBtn->Render())
+    //       ) | size(HEIGHT, EQUAL, 3)
+    //       ) | size(HEIGHT, EQUAL, 5),
+    //   }) | color(Color::GreenLight);
   });
 
   auto screen = ScreenInteractive::Fullscreen();
@@ -172,15 +221,15 @@ void RunChatClient(networking::Client& client) {
       page = 0;
       return true;
     }
-    else if (event == Event::Character('c')) {
+    else if (event == Event::F5) {
       // send game request through
-      (*createGameHandler)();
+      // (*createGameHandler)();
       page = 0;
       return true;
     }
-    else if (event == Event::Character('g')) {
+    else if (event == Event::F6) {
       // send game request through
-      (*joinRequestHandler)();
+      // (*joinRequestHandler)();
       page = 0;
       return true;
     }
