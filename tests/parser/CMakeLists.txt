@@ -1,3 +1,4 @@
+enable_testing()
 # Build and configure parser_test
 add_executable(parser_test parser_test.cpp)
 add_executable(rule_test rule_test.cpp)
@@ -21,8 +22,7 @@ target_link_libraries(parser_test
 target_link_libraries(rule_test
         tree-sitter-socialgaming
         cpp-tree-sitter
-        ${GTEST_BOTH_LIBRARIES}
-        gmock
+        gmock gtest gtest_main
         pthread
         rules
         parser
