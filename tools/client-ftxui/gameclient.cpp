@@ -58,7 +58,29 @@ Element RenderMainMenu(const std::vector<Element>& history, Component entryField
 Element RenderHelpPage(const std::vector<Element>& history, Component backBtn) {
   return yframe(vbox({
     // window(text("Help Page"), vbox(history) | focusPositionRelative(0, 1)),
-    window(text("Help Content"), text("This is the help content. Press 'Back' to return.") | size(HEIGHT, EQUAL, 3)),
+    window(text("Help Content"), vbox({
+      text("Getting Started:"),
+      text(" - Select 'Join Game' to see a list of available games."),
+      text(" - Select 'Make Game' to start a new game session."),
+      text(" - Use F1 to return to the Main Menu."),
+      text(" - Use F3 to join a game, F4 to create a new game."),
+      separator(),
+      text("Gameplay:"),
+      text("Currently, we are developing rock paper scissors functionality"),
+      text("You will be asked depending on game server configuration to pick which choice, and you will see the winner as such.")
+      separator(),
+      text("Troubleshooting:"),
+      text(" - If you encounter issues, try restarting the client."),
+      text(" - Check Readme for further instruction."),
+      separator(),
+      text("Contact Us:"),
+      text(" - Email: klah@socialgaming.com"),
+      text(" - Discord: discord.gg/teamklah"),
+      separator(),
+      text("Credits:"),
+      text(" - Developed by Team Klah."),
+    }) | size(HEIGHT, GREATER_THAN, 10)),
+    
     window(text("Options"), backBtn->Render() | size(HEIGHT, EQUAL, 3))
   })) | yflex | color(Color::BlueLight);
 }
