@@ -55,6 +55,8 @@ MessageResult
 processMessages(Server& server, const std::deque<Message>& incoming) {
   std::ostringstream result;
   bool quit = false;
+  //created deque of response messages
+  std::deque<Message> responseMessages;
   for (const auto& message : incoming) {
     if (message.text == "q") {
       server.disconnect(message.connection);
@@ -63,9 +65,26 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
       quit = true;
     } else if (message.text == "create_game") {
       std::string code = generateFourDigitNumber();
-      std::cout << "created game.\n";
-      std::cout << "Your code is" + code + ".\n";
-      result << message.connection.id << "> " << message.text << "\n";
+      std::cout << "Created game with code: " << code << "\n";
+      // Construct a response message
+      std::string response = "Game created. Your code is: " + code;
+      responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
+      server.send(responseMessages);
+      // Optionally, you can log the message to the server's console or result stream
+      // result << message.connection.id << "> " << response << "\n";
+    } else if (message.text == "join_game") {
+      std::cout << "Attempting to join game with such code: \n";
+      //find a game with such a game code id
+      
+      //complete proper response here
+      // Construct a response message
+      std::string response = "There is no game with code: ";
+      responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
+      server.send(responseMessages);
+      // Optionally, you can log the message to the server's console or result stream
+      // result << message.connection.id << "> " << response << "\n";
     } else {
       result << message.connection.id << "> " << message.text << "\n";
     }

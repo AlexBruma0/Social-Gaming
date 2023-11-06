@@ -21,9 +21,16 @@ struct ButtonHandler {
     void operator()() {}
 };
 
+enum class Page {
+  MainMenu,
+  JoinGame,
+  CreateGame,
+  HelpMenu
+};
+
 void RunChatClient(networking::Client& client);
 
-void HandleButtonClick(int& page, networking::Client& client, const std::string& buttonLabel);
+void HandleButtonClick(Page& page, networking::Client& client, const std::string& buttonLabel);
 
 int main(int argc, char* argv[]) {
   if (argc < 3) {
@@ -112,7 +119,7 @@ Element RenderMakeGamePage(const std::vector<Element>& history, Component create
 
 
 void RunChatClient(networking::Client& client) {
-  int page = 0;
+  Page page = Page::MainMenu;
   bool done = false;
 
   auto onTextEntry = [&done, &client](std::string text) {
@@ -125,6 +132,8 @@ void RunChatClient(networking::Client& client) {
 
   std::string entry;
   std::vector<Element> history;
+  std::vector<Element> joinGameHistory;
+  std::vector<Element> createGameHistory;
   Component entryField = Input(&entry, "Type Here.");
 
   std::vector<std::string> menuItems = {"Help", "Join Game", "Make Game"};
@@ -168,12 +177,12 @@ void RunChatClient(networking::Client& client) {
 
  
 
-  auto renderer = Renderer(entryField, [&history, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &page] {
+  auto renderer = Renderer(entryField, [&history, &createGameHistory, &joinGameHistory, &entryField, &makeBtn, &joinBtn, &helpBtn, &backBtn, &createGameBtn, &joinGameBtn, &page] {
       switch (page) {
-        case 0: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
-        case 1: return RenderHelpPage(history, backBtn);
-        case 2: return RenderJoinGamePage(history, joinGameBtn, backBtn);
-        case 3: return RenderMakeGamePage(history, createGameBtn, backBtn);
+        case Page::MainMenu: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
+        case Page::HelpMenu: return RenderHelpPage(joinGameHistory, backBtn);
+        case Page::JoinGame: return RenderJoinGamePage(history, joinGameBtn, backBtn);
+        case Page::CreateGame: return RenderMakeGamePage(createGameHistory, createGameBtn, backBtn);
         default: return RenderMainMenu(history, entryField, makeBtn, joinBtn, helpBtn);
       }
   });
@@ -188,28 +197,27 @@ void RunChatClient(networking::Client& client) {
       return true;
     } else if (event == Event::F2) {
       // Switch to help page when 'h' is pressed.
-      page = 1;
+      page = Page::HelpMenu;
       return true;
     } 
     else if (event == Event::F3) {
       //  join game page when 'j' is pressed.
-      page = 2;
+      page = Page::JoinGame;
       return true;
     } else if (event == Event::F4) {
       //  to the make game page when 'm' is pressed.
-      page = 3;
+      page = Page::CreateGame;
       return true;
     } 
     else if (event == Event::Escape) {
       // switch to the main page when 'b' is pressed.
       entry.clear();
-      page = 0;
+      page = Page::MainMenu;
       return true;
     }
     else if (event == Event::F5) {
       // send game request through
       // (*createGameHandler)();
-      page = 0;
       SendCreateGameRequest(client);
       return true;
     }
@@ -237,6 +245,7 @@ void RunChatClient(networking::Client& client) {
     if (!response.empty()) {
       history.push_back(paragraphAlignLeft(response));
       screen.RequestAnimationFrame();
+      
     }
 
     loop.RunOnce();
