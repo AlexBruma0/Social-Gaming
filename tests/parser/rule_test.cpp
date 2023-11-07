@@ -158,6 +158,14 @@ class ForNodeMock :public ForNodeImpl{
 };
 
 
+ts::Node getEmptyTSNode(){
+    std::string noStringSourcecode = "";
+    ts::Tree noStringTree = string_to_tree(noStringSourcecode);
+
+    ts::Node noStringNode = noStringTree.getRootNode();
+    return noStringNode;
+}
+
 // Temp commented out because we need to change the gameState to a pointer or a reference
 
 TEST (RuleTests, forNodeWriteTest){
@@ -183,15 +191,17 @@ TEST (RuleTests, forNodeWriteTest){
 
     GameState gs{&j};
 
+    ts::Node tsNode = getEmptyTSNode();
+
     // Test if two childs are being executed
     std::string type = "child1";
     auto writer = std::make_unique<writeNode> (&gs, indexes, identifiers);
-    auto child = std::make_unique<childNode>(type, "child1",&gs, std::move(writer));
+    auto child = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(writer));
     ASSERT_EQ(child->getType(), type);
 
     type = "child2";
     auto reader = std::make_unique<readNode> (&gs, indexes, identifiers);
-    auto child2 = std::make_unique<childNode>(type, "child2",&gs, std::move(reader));
+    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(reader));
     ASSERT_EQ(child2->getType(), type);
 
     ForNodeMock fNode(&gs, std::move(child));
@@ -239,17 +249,19 @@ TEST (RuleTests, forNodeTwoChild){
 
     GameState gs{&j};
 
+    ts::Node tsNode = getEmptyTSNode();
+
     // Test if two childs are being executed
     std::string type = "child1";
     auto dummy = std::make_unique<dummyNode> (&gs, indexes);
     dummy->setIdentifierData(identifiers);
-    auto child = std::make_unique<childNode>(type, "child1",&gs, std::move(dummy));
+    auto child = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(dummy));
     ASSERT_EQ(child->getType(), type);
 
     type = "child2";
     auto dummy2 = std::make_unique<dummyNode> (&gs, indexes);
     dummy2->setIdentifierData(identifiers);
-    auto child2 = std::make_unique<childNode>(type, "child2",&gs, std::move(dummy2));
+    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(dummy2));
     ASSERT_EQ(child2->getType(), type);
 
     ForNodeMock fNode(&gs, std::move(child));
