@@ -147,7 +147,7 @@ class ForNodeMock :public ForNodeImpl{
             addChild(std::move(t));
         }
 
-        childNode* getC(int index){
+        childNode* getChild(int index){
             return dynamic_cast<childNode*>( ForNodeImpl::children[index].get());
         }
 
@@ -208,8 +208,8 @@ TEST (RuleTests, forNodeWriteTest){
     // Ensures that the dummy node incremeted its index vecSize times
     // Should be the case since the forNode will execute for every element in the dummy data
     // Dummy Node will sum up all elements in the vector so the counter is checking that
-    auto counter = fNode.getC(1)->getReader()->getCounter();
-    auto index = fNode.getC(1)->getReader()->getIndex();
+    auto counter = fNode.getChild(1)->getReader()->getCounter();
+    auto index = fNode.getChild(1)->getReader()->getIndex();
     ASSERT_EQ(counter, sum);
     ASSERT_EQ(index, vecSize);
 
@@ -255,9 +255,23 @@ TEST(RuleTests, multiChildTest){
     parentNode.addChild(cNode2);
     parentNode.addChild(cNode3);
 
+    //Execute for loop
+    EXPECT_CALL(parentNode, execute()).Times(1).WillOnce([&parentNode]
+        { return parentNode.ForNodeImpl::execute(); 
+        }
+    );
+
     //get each dummy node sum
 
-    auto cVal1 = cNode1
+    auto cVal1 = cNode1->getImpl()->getCounter();
+    auto cVal2 = cNode2->getImpl()->getCounter();
+    auto cVal3 = cNode3->getImpl()->getCounter();
+
+    //Verfy each Node value is equal to SUM
+    ASSERT_EQ(sum, cVal1);
+    ASSERT_EQ(sum, cVal2);
+    ASSERT_EQ(sum, cVal3);
+
 
 }
 
@@ -311,13 +325,13 @@ TEST (RuleTests, forNodeTwoChild){
     // Ensures that the dummy node incremeted its index vecSize times
     // Should be the case since the forNode will execute for every element in the dummy data
     // Dummy Node will sum up all elements in the vector so the counter is checking that
-    auto counter = fNode.getC(0)->getImpl()->getCounter();
-    auto index = fNode.getC(0)->getImpl()->getIndex();
+    auto counter = fNode.getChild(0)->getImpl()->getCounter();
+    auto index = fNode.getChild(0)->getImpl()->getIndex();
     ASSERT_EQ(counter, sum);
     ASSERT_EQ(index, vecSize);
 
-    counter = fNode.getC(1)->getImpl()->getCounter();
-    index = fNode.getC(1)->getImpl()->getIndex();
+    counter = fNode.getChild(1)->getImpl()->getCounter();
+    index = fNode.getChild(1)->getImpl()->getIndex();
     ASSERT_EQ(counter, sum);
     ASSERT_EQ(index, vecSize);
 }
