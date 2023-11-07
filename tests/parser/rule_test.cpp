@@ -216,6 +216,51 @@ TEST (RuleTests, forNodeWriteTest){
 
 }
 
+TEST(RuleTests, multiChildTest){
+    //Data Setup
+
+
+    std::vector<int> dummyVec = {1,2,3,4,5};
+    std::reverse(dummyVec.begin(), dummyVec.end());
+    auto sum = std::accumulate(dummyVec);
+
+
+    json j;
+    j[ARRAY_ID] = dummyVec;
+    json identifiers;
+    identifiers[ARRAY_ID] = vecData;
+    json indexes;
+    indexes[ARRAY_ID] = 0;
+
+    GameState gs[&j];
+
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy2 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy3 = std::make_unique<dummyNode>(&gs, indexes);
+
+
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
+    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(dummy2));
+    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(dummy3));
+
+    ForNodeMock parentNode(&gs, std::move(cNode1));
+
+    //ASSERT that nodes have been properly setup
+    ASSERT_EQ(cNode1->getType(), "child1");
+    ASSERT_EQ(cNode2->getType(), "child2");
+    ASSERT_EQ(cNode3->getType(), "child3");
+
+    //attempt adding children to parentNode
+
+    parentNode.addChild(cNode2);
+    parentNode.addChild(cNode3);
+
+    //get each dummy node sum
+
+    auto cVal1 = cNode1
+
+}
+
 TEST (RuleTests, forNodeTwoChild){
     // Setting up a vector labeled 1,2,3,4......
     int vecSize = 6;
