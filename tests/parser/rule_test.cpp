@@ -216,7 +216,7 @@ TEST (RuleTests, forNodeWriteTest){
 
 }
 
-TEST(RuleTests, multiChildTest){
+TEST(RuleTests, multiChildReadWriteTest){
     //Data Setup
 
 
@@ -234,26 +234,39 @@ TEST(RuleTests, multiChildTest){
 
     GameState gs[&j];
 
-    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes);
-    auto dummy2 = std::make_unique<dummyNode>(&gs, indexes);
-    auto dummy3 = std::make_unique<dummyNode>(&gs, indexes);
+    auto wdummy1 = std::make_unique<writeNode>(&gs, indexes);
+    auto wdummy2 = std::make_unique<writeNode>(&gs, indexes);
+    auto wdummy3 = std::make_unique<writeNode>(&gs, indexes);
 
+    auto rdummy1 = std::make_unique<writeNode>(&gs, indexes);
+    auto rdummy2 = std::make_unique<writeNode>(&gs, indexes);
+    auto rdummy3 = std::make_unique<writeNode>(&gs, indexes);
 
-    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
-    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(dummy2));
-    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(dummy3));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy2));
+    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy3));
 
-    ForNodeMock parentNode(&gs, std::move(cNode1));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child5", "child5", &gs, std::move(rdummy2));
+    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child6", "child6", &gs, std::move(rdummy3));
+
+    ForNodeMock parentNode(&gs, std::move(wcNode1));
 
     //ASSERT that nodes have been properly setup
-    ASSERT_EQ(cNode1->getType(), "child1");
-    ASSERT_EQ(cNode2->getType(), "child2");
-    ASSERT_EQ(cNode3->getType(), "child3");
+    ASSERT_EQ(wcNode1->getType(), "child1");
+    ASSERT_EQ(wcNode2->getType(), "child2");
+    ASSERT_EQ(wcNode3->getType(), "child3");
+    ASSERT_EQ(rcNode1->getType(), "child4");
+    ASSERT_EQ(rcNode2->getType(), "child5");
+    ASSERT_EQ(rcNode3->getType(), "child6");
 
     //attempt adding children to parentNode
 
-    parentNode.addChild(cNode2);
-    parentNode.addChild(cNode3);
+    parentNode.addChild(wcNode2);
+    parentNode.addChild(wcNode3);
+    parentNode.addChild(rcNode1);
+    parentNode.addChild(rcNode2);
+    parentNode.addChild(rcNode3);
 
     //Execute for loop
     EXPECT_CALL(parentNode, execute()).Times(1).WillOnce([&parentNode]
@@ -263,16 +276,50 @@ TEST(RuleTests, multiChildTest){
 
     //get each dummy node sum
 
-    auto cVal1 = cNode1->getImpl()->getCounter();
-    auto cVal2 = cNode2->getImpl()->getCounter();
-    auto cVal3 = cNode3->getImpl()->getCounter();
+    auto cVal1 = rcNode1->getImpl()->getCounter();
+    auto cVal2 = rcNode2->getImpl()->getCounter();
+    auto cVal3 = rcNode3->getImpl()->getCounter();
 
-    //Verfy each Node value is equal to SUM
-    ASSERT_EQ(sum, cVal1);
-    ASSERT_EQ(sum, cVal2);
-    ASSERT_EQ(sum, cVal3);
+    //3 writes so 3*arrsize
+    int addition = 3*5;
+    //Verfy each Node value is equal to SUM + Write values
+    ASSERT_EQ(sum+addition, cVal1);
+    ASSERT_EQ(sum+addition, cVal2);
+    ASSERT_EQ(sum+addition, cVal3);
 
 
+}
+
+TEST(RuleTests, multiChildDummyTest){
+    // Data Setup
+
+    std::vector<int> dummyVec = {1, 2, 3, 4, 5};
+    std::reverse(dummyVec.begin(), dummyVec.end());
+    auto sum = std::accumulate(dummyVec);
+
+    json j;
+    j[ARRAY_ID] = dummyVec;
+    json identifiers;
+    identifiers[ARRAY_ID] = vecData;
+    json indexes;
+    indexes[ARRAY_ID] = 0;
+
+    GameState gs[&j];
+
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy2 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy3 = std::make_unique<dummyNode>(&gs, indexes);
+
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
+    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(dummy2));
+    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(dummy3));
+
+    ForNodeMock parentNode(&gs, std::move(cNode1));
+
+    // ASSERT that nodes have been properly setup
+    ASSERT_EQ(cNode1->getType(), "child1");
+    ASSERT_EQ(cNode2->getType(), "child2");
+    ASSERT_EQ(cNode3->getType(), "child3");
 }
 
 TEST (RuleTests, forNodeTwoChild){
