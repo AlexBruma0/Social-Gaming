@@ -36,11 +36,13 @@ extern "C" {
 // Overrides the other classes so we can test that something happens
 class dummyNode: public TreeNodeImpl{
     public:
-        dummyNode(GameState* gameState, json& indexes): TreeNodeImpl("dummy", gameState){
+        dummyNode(GameState* gameState, json& indexes, json& identifiers): TreeNodeImpl("dummy", gameState){
             idIndexes = indexes;
+            setIdentifierData(identifiers);
         }
         void execute(){
-            testCounter += idIndexes[ARRAY_ID].get<size_t>();
+            auto idData = getIdentifierData();
+            testCounter += idData[ARRAY_ID][getIndex()].get<size_t>();
         }
 
         size_t getCounter(){
@@ -320,9 +322,9 @@ TEST(RuleTests, multiChildDummyTest){
 
     // Node Setup
 
-    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes);
-    auto dummy2 = std::make_unique<dummyNode>(&gs, indexes);
-    auto dummy3 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
+    auto dummy2 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
+    auto dummy3 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
 
     dummy1->setIdentifierData(identifiers);
     dummy2->setIdentifierData(identifiers);
@@ -383,7 +385,7 @@ TEST(RuleTests, multiTypeNodeTest){
     GameState gs{&j};
 
     //Child Node Setup
-    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes);
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
     auto wdummy1 = std::make_unique<writeNode>(&gs, indexes, identifiers);
     auto wdummy2 = std::make_unique<writeNode>(&gs, indexes, identifiers);
     auto rdummy1 = std::make_unique<readNode>(&gs, indexes, identifiers);
@@ -417,7 +419,7 @@ TEST(RuleTests, multiTypeNodeTest){
     auto rcVal2 = parentNode.getChild(4)->getReader()->getCounter();
 
     ASSERT_EQ(cVal1, sum);
-    ASSERT_EQ(rcVal2, sum+vecSize);
+    ASSERT_EQ(rcVal1, sum+vecSize);
     ASSERT_EQ(rcVal2, sum+2*vecSize);
 
     // get indexs of for loop to check behaviour
@@ -454,13 +456,13 @@ TEST (RuleTests, forNodeTwoChild){
 
     // Test if two childs are being executed
     std::string type = "child1";
-    auto dummy = std::make_unique<dummyNode> (&gs, indexes);
+    auto dummy = std::make_unique<dummyNode> (&gs, indexes, identifiers);
     dummy->setIdentifierData(identifiers);
     auto child = std::make_unique<childNode>(type, "child1",&gs, std::move(dummy));
     ASSERT_EQ(child->getType(), type);
 
     type = "child2";
-    auto dummy2 = std::make_unique<dummyNode> (&gs, indexes);
+    auto dummy2 = std::make_unique<dummyNode> (&gs, indexes, identifiers);
     dummy2->setIdentifierData(identifiers);
     auto child2 = std::make_unique<childNode>(type, "child2",&gs, std::move(dummy2));
     ASSERT_EQ(child2->getType(), type);
