@@ -86,10 +86,10 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
 }
 
 
-void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState& gameState) {
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState) {
     // list of stuff we need to implement, operation nodes defined by the language
     std::vector<std::string_view> allowedTypes = {
-            "for", "loop", "parallel_for", "in_parallel", "match", "extend", "reverse", "shuffle",
+            "for", "loop", "parallel_for", "in_parallel", "match", "match_entry", "extend", "reverse", "shuffle",
             "sort", "deal", "discard", "assignment", "timer", "input_choice", "input_text", "input_vote",
             "input_range", "message", "scores"
     };
@@ -97,10 +97,8 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
     std::string nodeType = std::string(node.getType());
 
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
-    if (it != allowedTypes.end()) {
-        std::string input = getSubstringForNode(node, source_code);
-
-        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(input, nodeType, &gameState);
+    if (it != allowedTypes.end() && node.getNumChildren() > 0) {
+        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(node, nodeType, source_code, gameState);
 
         TreeNode& childRef = *child;
         parentNode.addChild(std::move(child));
@@ -139,8 +137,8 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     //std::cout << gs.getState().dump();
 
 
-    TreeNode parent("root", "root", &gs);
-    identifyOperations(syntaxTree, source_code, parent, gs);
+    TreeNode parent(root, "root", source_code, &gs);
+    identifyOperations(syntaxTree, source_code, parent, &gs);
     //parent.printTree();
 
     return parent;
