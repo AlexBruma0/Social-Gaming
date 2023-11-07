@@ -12,7 +12,7 @@
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
 #include "../../gameState/include/GameState.h"
-
+#include "cpp-tree-sitter.h"
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
@@ -40,7 +40,7 @@ using jsonReturnFormat = std::variant<std::vector<std::string>, std::vector<size
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
-        TreeNode(std::string node, std::string type, GameState* gameState);
+        TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState* gameState);
 
         TreeNode(TreeNode&& other) noexcept;
 
@@ -59,12 +59,11 @@ class TreeNode {
 
         virtual void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const std::string& node, GameState* gameState);
+        std::unique_ptr<TreeNodeImpl> parseNode(const ts::Node tsNode, GameState *gameState, const std::string &source_code);
 
     protected:
         std::unique_ptr<TreeNodeImpl> impl;
         std::string nodeType;
-        
 };
 
 class TreeNodeImpl { 
@@ -143,5 +142,41 @@ public:
     ~InputChoiceNodeImpl(){}
     void execute();
 };
+
+class ScoresNodeImpl: public TreeNodeImpl{
+public:
+    ScoresNodeImpl(std::string id, GameState* gameState);
+    ~ScoresNodeImpl(){}
+    void execute();
+};
+
+class AssignmentNodeImpl: public TreeNodeImpl{
+public:
+    AssignmentNodeImpl(std::string id, GameState* gameState);
+    ~AssignmentNodeImpl(){}
+    void execute();
+};
+
+class MatchNodeImpl: public TreeNodeImpl{
+public:
+    MatchNodeImpl(std::string id, GameState* gameState);
+    ~MatchNodeImpl(){}
+    void execute();
+};
+
+class MatchEntryNodeImpl: public TreeNodeImpl{
+public:
+    MatchEntryNodeImpl(std::string id, GameState* gameState);
+    ~MatchEntryNodeImpl(){}
+    void execute();
+};
+
+class ExtendNodeImpl: public TreeNodeImpl{
+public:
+    ExtendNodeImpl(std::string id, GameState* gameState);
+    ~ExtendNodeImpl(){}
+    void execute();
+};
+
 
 #endif //SOCIAL_GAMING_RULENODE_H
