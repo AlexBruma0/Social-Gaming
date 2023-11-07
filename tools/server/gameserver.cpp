@@ -6,7 +6,6 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
-#include <random>
 
 
 using networking::Server;
@@ -14,82 +13,50 @@ using networking::Connection;
 using networking::Message;
 
 
-// //placeholder for game struct, will change to just invite code maybe
-// struct GameInfo {
-//     std::string owner;
-//     // shared 4-digit invite code for the game
-//     std::string sharedInviteCode; 
-// };
-
-// // vector for all game instances
-// std::vector<GameInfo> gameDatabase;
-
-// // generates new 4 digit code from 1000-9999
-// std::string inviteGeneration() {
-//     std::random_device rd;
-//     std::mt19937 mt(rd());
-//     std::uniform_int_distribution<int> dist(1000, 9999);
-
-//     int inviteCodeNumber = dist(mt);
-//     return std::to_string(inviteCodeNumber);
-// }
-
-// //placeholder code for game class (I think LEx is working on that)
-// std::string create(const std::string& owner) {
-//     std::string inviteCode = inviteGeneration();
-
-//     GameInfo newGame;
-//     newGame.owner = owner;
-//     newGame.inviteCode = inviteCode;
-//     gameDatabase.push_back(newGame);
-    
-//     return inviteCode;
-// }
-
-// // somewhat placeholder for when user joins after takiing in input, will call from MessageResult
-// bool join(const std::string& inviteCode, const std::string& username) {
-//     for (const auto& game : gameDatabase) {
-//         if (game.inviteCode == inviteCode) {
-//             std::string owner = game.owner;
-
-//             std::cout << "User " << username << " joined the game owned by '" << owner << "'.\n";
-//             return true;
-//         }
-//     }
-
-//     std::cout << "Game with invite code '" << sharedInviteCode << "' not found.\n";
-//     return false;
-// }
-
-//for multiple sessions
-// std::vector<Server> gameServers;
-
 std::vector<Connection> clients;
-//temporary until we fully get game logic object
-std::vector<int> codes;
+std::vector<std::string> codes;
 
 
+std::string generateFourDigitNumber() {
+    // random num generator seed
+    static bool seedInitialized = false;
+    if (!seedInitialized) {
+      // uses current time as seed 
+        std::srand(time(nullptr)); 
+        seedInitialized = true;
+    }
 
-int createCode() {
-    int result = 1 + (std::rand() % (99999));
-    codes.push_back(result);
-    return result;
+    // Random number between 1000 and 9999
+    int randomNumber = 1000 + std::rand() % 9000; 
+    return std::to_string(randomNumber);
 }
 
-void handleGameRequest(Server& server, const Message& message) {
-  //create 4-character long code
-      std::deque<networking::Message> responseMessages;
-      int code = createCode();
-      std::string response = "Create Game Request received." + code;
+
+void handleCreateRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
+      std::string code = generateFourDigitNumber();
+      codes.push_back(code);
+      std::cout << "Created game with code: " << code << "\n";
+      // Construct a response message
+      std::string response = "Game created. Your code is: " + code;
       responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
       server.send(responseMessages);
+      // result << message.connection.id << "> " << response << "\n";
 }
 
-void handleJoinRequest(Server& server, const Message& message) {
-    std::deque<networking::Message> responseMessages;
-    std::string response = "Join game request received, enter your 4 letter code.";
-    responseMessages.push_back({message.connection, response});
-    server.send(responseMessages);
+void handleJoinRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
+      std::cout << "Attempting to join game with such code: \n";
+      //find a game with such a game code id
+
+      // for(std::string c : codes) {
+      //   if()
+      // }
+      // Construct a response message
+      std::string response = "There is no game with code: ";
+      responseMessages.push_back({message.connection, response});
+      // Send the deque of response messages back to the client
+      server.send(responseMessages);
+      // result << message.connection.id << "> " << response << "\n";
 }
 
 void
@@ -117,19 +84,21 @@ MessageResult
 processMessages(Server& server, const std::deque<Message>& incoming) {
   std::ostringstream result;
   bool quit = false;
-  std::deque<networking::Message> responseMessages;
+  //created deque of response messages
+  std::deque<Message> responseMessages;
   for (const auto& message : incoming) {
-    if (message.text == "quit") {
+    if (message.text == "q") {
       server.disconnect(message.connection);
     } else if (message.text == "shutdown") {
       std::cout << "Shutting down.\n";
       quit = true;
-    } else if (message.text == "gamerequest") {
-        handleGameRequest(server, message);
-    } else if (message.text == "joinrequest") {
-        handleJoinRequest(server, message);
-    } 
-    else {
+      
+    } else if (message.text == "create_game") {
+        handleCreateRequest(server, message, responseMessages);
+
+    } else if (message.text == "join_game") {
+        handleJoinRequest(server, message, responseMessages);
+    } else {
       result << message.connection.id << "> " << message.text << "\n";
     }
   }
@@ -160,10 +129,7 @@ getHTTPMessage(const char* htmlLocation) {
             << htmlLocation << "\n";
   std::exit(-1);
 }
-void StartGameServer(unsigned short port, const char* htmlLocation) {
-  Server server{port, getHTTPMessage(htmlLocation), onConnect, onDisconnect};
-  // gameServers.push_back(server);
-}
+
 
 int
 main(int argc, char* argv[]) {
@@ -175,13 +141,6 @@ main(int argc, char* argv[]) {
 
   const unsigned short port = std::stoi(argv[1]);
   Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
-
-  //parse with for loop, create new
-  for (int i = 1; i < argc; i += 2) {
-    unsigned short port = std::stoi(argv[i]);
-    const char* htmlLocation = argv[i + 1];
-    StartGameServer(port, htmlLocation);
-  }
 
   while (true) {
     bool errorWhileUpdating = false;
