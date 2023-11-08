@@ -15,6 +15,7 @@ using networking::Message;
 
 std::vector<Connection> clients;
 std::vector<std::string> codes;
+std::deque<Connection> playerOrder;
 
 namespace networking {
 
@@ -137,10 +138,31 @@ void handleCodeRequest(Server& server, const Message &message, std::deque<Messag
     server.send(responseMessages);   */
 } 
 
+void handleGameChoiceRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
+    if (!playerOrder.empty() && playerOrder.front().id == message.connection.id) {
+        // Logic for the player to choose a game
+        // For example, extracting the game choice from the message and setting up the game
+
+        // Remove the player from the order queue after making a choice
+        playerOrder.pop_front();
+
+        // Send confirmation message to the player
+        std::string response = "You have chosen a game.";
+        responseMessages.push_back({message.connection, response});
+    } else {
+        // Player is not the first in the queue or the queue is empty
+        std::string response = "You are not eligible to choose a game at this moment.";
+        responseMessages.push_back({message.connection, response});
+    }
+
+    server.send(responseMessages);
+}
+
 void
 onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
   clients.push_back(c);
+  playerOrder.push_back(c); // Add the player to the order queue
 }
 
 
