@@ -16,6 +16,52 @@ using networking::Message;
 std::vector<Connection> clients;
 std::vector<std::string> codes;
 
+namespace networking {
+
+// Forward declaration
+struct Connection;
+
+// Player class
+class Player {
+public:
+    Player(Connection conn) : connection(conn) {}
+
+    // Getters and setters for player information
+    Connection getConnection() const { return connection; }
+    // Additional player-related methods can be added here
+
+private:
+    Connection connection;
+    // Additional player-related data members can be added here
+};
+
+// Game class
+class Game {
+public:
+    Game(std::string gameID, std::string gameFile) 
+        : id(gameID), file(gameFile) {}
+
+    // Function to add a player to the game
+    void addPlayer(const Player& player) {
+        players.push_back(player);
+    }
+
+    // Getters and setters for game information
+    std::string getID() const { return id; }
+    std::string getFile() const { return file; }
+    const std::vector<Player>& getPlayers() const { return players; }
+    // Additional game-related methods can be added here
+
+private:
+    std::string id;
+    std::string file;
+    std::vector<Player> players;
+    // Additional game-related data members can be added here
+};
+
+} // namespace networking
+
+
 
 std::string generateFourDigitNumber() {
     // random num generator seed
