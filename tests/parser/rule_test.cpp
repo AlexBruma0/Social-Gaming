@@ -432,6 +432,141 @@ TEST(RuleTests, multiTypeNodeTest){
     ASSERT_EQ(index3, vecSize);
 }
 
+TEST (RuleTests, emptyDataTest){
+    // Data Setup
+
+    std::vector<int> dummyVec = {};
+    int vecSize = dummyVec.size();
+    std::reverse(dummyVec.begin(), dummyVec.end());
+    auto sum = 0;
+
+    json j;
+    j[ARRAY_ID] = dummyVec;
+    json identifiers;
+    identifiers[ARRAY_ID] = dummyVec;
+    json indexes;
+    indexes[ARRAY_ID] = 0;
+
+    GameState gs{&j};
+
+    // Child Node Setup
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
+    auto wdummy1 = std::make_unique<writeNode>(&gs, indexes, identifiers);
+    auto wdummy2 = std::make_unique<writeNode>(&gs, indexes, identifiers);
+    auto rdummy1 = std::make_unique<readNode>(&gs, indexes, identifiers);
+    auto rdummy2 = std::make_unique<readNode>(&gs, indexes, identifiers);
+
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy2));
+
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>("child5", "child5", &gs, std::move(rdummy2));
+
+    // Parent Node Setup
+    ForNodeMock parentNode(&gs);
+    parentNode.setIdentifierData(j);
+    parentNode.addChild(std::move(wcNode1));
+    parentNode.addChild(std::move(rcNode1));
+    parentNode.addChild(std::move(cNode1));
+    parentNode.addChild(std::move(wcNode2));
+    parentNode.addChild(std::move(rcNode2));
+
+    // Execute for loop
+    EXPECT_CALL(parentNode, execute()).Times(1).WillOnce([&parentNode]
+        { return parentNode.ForNodeImpl::execute(); });
+    parentNode.execute();
+
+    // get each dummy node value
+
+    auto cVal1 = parentNode.getChild(2)->getImpl()->getCounter();
+    auto rcVal1 = parentNode.getChild(1)->getReader()->getCounter();
+    auto rcVal2 = parentNode.getChild(4)->getReader()->getCounter();
+
+    //Make sure each value is equal to 0
+
+    ASSERT_EQ(cVal1, sum);
+    ASSERT_EQ(rcVal1, sum);
+    ASSERT_EQ(rcVal2, sum);
+
+    // get indexs of for loop to check behaviour
+    auto index1 = parentNode.getChild(2)->getImpl()->getIndex();
+    auto index2 = parentNode.getChild(1)->getReader()->getIndex();
+    auto index3 = parentNode.getChild(4)->getReader()->getIndex();
+
+    //make sure each index remains at 0
+
+    ASSERT_EQ(index1, vecSize);
+    ASSERT_EQ(index2, vecSize);
+    ASSERT_EQ(index3, vecSize);
+}
+
+TEST(RuleTests, ConsecutiveWriteTest){
+    // Data Setup
+
+    std::vector<int> dummyVec = {1, 1, 1};
+    int vecSize = dummyVec.size();
+    std::reverse(dummyVec.begin(), dummyVec.end());
+    auto sum = std::accumulate(dummyVec.begin(), dummyVec.end(), 0);
+
+    json j;
+    j[ARRAY_ID] = dummyVec;
+    json identifiers;
+    identifiers[ARRAY_ID] = dummyVec;
+    json indexes;
+    indexes[ARRAY_ID] = 0;
+
+    GameState gs{&j};
+
+    // Child Node Setup
+    auto wdummy1 = std::make_unique<writeNode>(&gs, indexes, identifiers);
+    auto wdummy2 = std::make_unique<writeNode>(&gs, indexes, identifiers);
+    auto rdummy1 = std::make_unique<readNode>(&gs, indexes, identifiers);
+    auto wdummy3 = std::make_unique<writeNode>(&gs, indexes, identifiers);
+    auto dummy1 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
+
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy2));
+    std::unique_ptr<childNode> wcNode3 = std::make_unique<childNode>("child5", "child5", &gs, std::move(wdummy3));
+
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
+
+    // Parent Node Setup
+    ForNodeMock parentNode(&gs);
+    parentNode.setIdentifierData(j);
+    parentNode.addChild(std::move(wcNode1));
+    parentNode.addChild(std::move(wcNode2));
+    parentNode.addChild(std::move(wcNode3));
+    parentNode.addChild(std::move(cNode1));
+    parentNode.addChild(std::move(rcNode1));
+
+    // Execute for loop
+    EXPECT_CALL(parentNode, execute()).Times(1).WillOnce([&parentNode]
+        { return parentNode.ForNodeImpl::execute(); });
+    parentNode.execute();
+
+    // get each dummy node value
+
+    auto cVal1 = parentNode.getChild(3)->getImpl()->getCounter();
+    auto rcVal1 = parentNode.getChild(4)->getReader()->getCounter();
+
+    // Make sure each value is equal to the sum plus 3 writes
+    int writes = vecSize;
+
+    ASSERT_EQ(cVal1, vecSize);
+    ASSERT_EQ(rcVal1, sum + 3*writes);
+
+    // get indexs of for loop to check behaviour
+    auto index1 = parentNode.getChild(3)->getImpl()->getIndex();
+    auto index2 = parentNode.getChild(4)->getReader()->getIndex();
+
+    // make sure each index remains at 0
+
+    ASSERT_EQ(index1, vecSize);
+    ASSERT_EQ(index2, vecSize);
+}
+
 TEST (RuleTests, forNodeTwoChild){
     // Setting up a vector labeled 1,2,3,4......
     int vecSize = 6;
