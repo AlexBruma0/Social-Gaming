@@ -111,6 +111,31 @@ void handleJoinRequest(Server& server, const Message &message, std::deque<Messag
     server.send(responseMessages);
 }
 
+void handleCodeRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) { /*
+    // Extract game identifier from the message
+    std::string gameIdentifier = // Logic to extract game identifier from message.text 
+
+    // Find the game using the identifier
+    auto it = gameCodeMap.find(gameIdentifier);
+    if (it != gameCodeMap.end()) {
+        // Check if the player is eligible to receive the game code
+        bool isEligible = // Logic to determine if the player is eligible 
+        
+        if (isEligible) {
+            std::string gameCode = it->first; // The game code
+            std::string response = "The game code is: " + gameCode;
+            responseMessages.push_back({message.connection, response});
+        } else {
+            std::string response = "You are not eligible to receive the game code.";
+            responseMessages.push_back({message.connection, response});
+        }
+    } else {
+        std::string response = "No game found with the provided identifier.";
+        responseMessages.push_back({message.connection, response});
+    }
+
+    server.send(responseMessages);   */
+} 
 
 void
 onConnect(Connection c) {
