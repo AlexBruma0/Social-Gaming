@@ -95,7 +95,7 @@ void handleCreateRequest(Server& server, const Message &message, std::deque<Mess
 }
 
 void handleJoinRequest(Server& server, const Message &message, std::deque<Message>& responseMessages) {
-    std::string code = /* extract code from message.text */;
+    std::string code = "1111"; /* Sample Place Holder code, should extract code from message.text instead*/
     
     auto it = gameCodeMap.find(code);
     if (it != gameCodeMap.end()) {
