@@ -45,3 +45,100 @@ TEST_F(GameServerTest, HandleCreateRequestBehavior) {
     // ASSERT_FALSE(responseMessages.empty());
     // EXPECT_EQ(responseMessages.front().text, "Game created. Your code is: " + codes.back());
 }
+
+TEST_F(GameServerTest, HandleJoinRequestValid) {
+    Server mockServer;
+    Connection mockConnection;
+    std::deque<Message> responseMessages;
+    Message joinMessage{mockConnection, "join_game"};
+    handleJoinRequest(mockServer, joinMessage, responseMessages);
+
+    // Verify player added to game
+    EXPECT_EQ(games.front().getPlayers().size(), 1);
+
+    // Verify response message
+    EXPECT_FALSE(responseMessages.empty());
+    EXPECT_EQ(responseMessages.front().text, "Joined game with code: 1111");
+}
+
+
+TEST_F(GameServerTest, HandleJoinRequestInvalid) {
+    Server mockServer;
+    Connection mockConnection;
+    std::deque<Message> responseMessages;
+    Message joinMessage{mockConnection, "join_game"};
+    handleJoinRequest(mockServer, joinMessage, responseMessages);
+
+    // Verify no player added to game
+    EXPECT_TRUE(games.empty() || games.front().getPlayers().empty());
+
+    // Verify response message
+    EXPECT_FALSE(responseMessages.empty());
+    EXPECT_EQ(responseMessages.front().text, "There is no game with code: 1111");
+}
+
+TEST_F(GameServerTest, HandleGameChoiceRequest) {
+    Server mockServer;
+    Connection mockConnection;
+    std::deque<Message> responseMessages;
+    Message choiceMessage{mockConnection, "game_choice"};
+    playerOrder.push_back(mockConnection); // Simulate a player in queue
+
+    handleGameChoiceRequest(mockServer, choiceMessage, responseMessages);
+
+    // Verify player removed from queue
+    EXPECT_TRUE(playerOrder.empty());
+
+    // Verify response message
+    EXPECT_FALSE(responseMessages.empty());
+    EXPECT_EQ(responseMessages.front().text, "You have chosen a game.");
+}
+
+TEST_F(GameServerTest, OnConnect) {
+    Connection newConnection;
+    onConnect(newConnection);
+
+    // Verify connection added
+    EXPECT_FALSE(clients.empty());
+    EXPECT_FALSE(playerOrder.empty());
+    EXPECT_EQ(clients.back(), newConnection);
+    EXPECT_EQ(playerOrder.back(), newConnection);
+}
+
+TEST_F(GameServerTest, OnDisconnect) {
+    Connection lostConnection;
+    clients.push_back(lostConnection); // Simulate existing connection
+    onDisconnect(lostConnection);
+
+    // Verify connection removed
+    EXPECT_TRUE(clients.empty());
+}
+
+TEST_F(GameServerTest, ProcessMessagesCommandHandling) {
+    Server mockServer;
+    std::deque<Message> incomingMessages;
+    incomingMessages.push_back({Connection(), "create_game"});
+
+    auto result = processMessages(mockServer, incomingMessages);
+
+    // Verify appropriate action taken
+    EXPECT_FALSE(games.empty());
+    EXPECT_EQ(result.result, "");
+    EXPECT_FALSE(result.shouldShutdown);
+}
+
+
+TEST_F(GameServerTest, BuildOutgoingMessages) {
+    Connection client1, client2;
+    clients.push_back(client1);
+    clients.push_back(client2);
+    std::string log = "Test Log";
+
+    auto outgoing = buildOutgoing(log);
+
+    // Verify outgoing messages for each client
+    EXPECT_EQ(outgoing.size(), clients.size());
+    for (const auto& message : outgoing) {
+        EXPECT_EQ(message.text, log);
+    }
+}
