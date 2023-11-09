@@ -258,13 +258,15 @@ TEST(RuleTests, multiChildReadWriteTest){
     auto rdummy2 = std::make_unique<readNode>(&gs, indexes, identifiers);
     auto rdummy3 = std::make_unique<readNode>(&gs, indexes, identifiers);
 
-    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(wdummy1));
-    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy2));
-    std::unique_ptr<childNode> wcNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy3));
+    ts::Node tsNode = getEmptyTSNode();
+    std::string empString = "";
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>(tsNode, "child1", empString, &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>(tsNode, "child2", empString, &gs, std::move(wdummy2));
+    std::unique_ptr<childNode> wcNode3 = std::make_unique<childNode>(tsNode, "child3", empString, &gs, std::move(wdummy3));
 
-    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
-    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>("child5", "child5", &gs, std::move(rdummy2));
-    std::unique_ptr<childNode> rcNode3 = std::make_unique<childNode>("child6", "child6", &gs, std::move(rdummy3));
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>(tsNode, "child4", empString, &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>(tsNode, "child5", empString, &gs, std::move(rdummy2));
+    std::unique_ptr<childNode> rcNode3 = std::make_unique<childNode>(tsNode, "child6", empString, &gs, std::move(rdummy3));
 
     ForNodeMock parentNode(&gs, std::move(wcNode1));
     parentNode.setIdentifierData(j);
@@ -321,6 +323,7 @@ TEST(RuleTests, multiChildDummyTest){
     int vecSize = dummyVec.size();
     std::reverse(dummyVec.begin(), dummyVec.end());
     auto sum = std::accumulate(dummyVec.begin(), dummyVec.end(), 0);
+    ts::Node tsNode = getEmptyTSNode();
 
     json j;
     j[ARRAY_ID] = dummyVec;
@@ -340,11 +343,11 @@ TEST(RuleTests, multiChildDummyTest){
     dummy1->setIdentifierData(identifiers);
     dummy2->setIdentifierData(identifiers);
     dummy3->setIdentifierData(identifiers);
+    std::string empString = "";
 
-    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
-    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>("child2", "child2", &gs, std::move(dummy2));
-    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>("child3", "child3", &gs, std::move(dummy3));
-    
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>(tsNode, "child1", empString, &gs, std::move(dummy1));
+    std::unique_ptr<childNode> cNode2 = std::make_unique<childNode>(tsNode, "child2", empString, &gs, std::move(dummy2));
+    std::unique_ptr<childNode> cNode3 = std::make_unique<childNode>(tsNode, "child3", empString, &gs, std::move(dummy3));
 
     ForNodeMock parentNode(&gs, std::move(cNode1));
     parentNode.setIdentifierData(j);
@@ -385,6 +388,7 @@ TEST(RuleTests, multiTypeNodeTest){
     int vecSize = dummyVec.size();
     std::reverse(dummyVec.begin(), dummyVec.end());
     auto sum = std::accumulate(dummyVec.begin(), dummyVec.end(), 0);
+    ts::Node tsNode = getEmptyTSNode();
 
     json j;
     j[ARRAY_ID] = dummyVec;
@@ -402,12 +406,14 @@ TEST(RuleTests, multiTypeNodeTest){
     auto rdummy1 = std::make_unique<readNode>(&gs, indexes, identifiers);
     auto rdummy2 = std::make_unique<readNode>(&gs, indexes, identifiers);
 
-    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
-    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy1));
-    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy2));
+    std::string empString = "";
 
-    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
-    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>("child5", "child5", &gs, std::move(rdummy2));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>(tsNode, "child1", empString, &gs, std::move(dummy1));
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>(tsNode, "child2", empString, &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>(tsNode, "child3", empString, &gs, std::move(wdummy2));
+
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>(tsNode, "child4", empString, &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>(tsNode, "child5", empString, &gs, std::move(rdummy2));
 
     //Parent Node Setup
     ForNodeMock parentNode(&gs);
@@ -450,6 +456,7 @@ TEST (RuleTests, emptyDataTest){
     int vecSize = dummyVec.size();
     std::reverse(dummyVec.begin(), dummyVec.end());
     auto sum = 0;
+    ts::Node tsNode = getEmptyTSNode();
 
     json j;
     j[ARRAY_ID] = dummyVec;
@@ -467,12 +474,14 @@ TEST (RuleTests, emptyDataTest){
     auto rdummy1 = std::make_unique<readNode>(&gs, indexes, identifiers);
     auto rdummy2 = std::make_unique<readNode>(&gs, indexes, identifiers);
 
-    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
-    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy1));
-    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy2));
+    std::string empString = "";
 
-    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
-    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>("child5", "child5", &gs, std::move(rdummy2));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>(tsNode, "child1", empString, &gs, std::move(dummy1));
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>(tsNode, "child2", empString, &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>(tsNode, "child3", empString, &gs, std::move(wdummy2));
+
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>(tsNode, "child4", empString, &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> rcNode2 = std::make_unique<childNode>(tsNode, "child5", empString, &gs, std::move(rdummy2));
 
     // Parent Node Setup
     ForNodeMock parentNode(&gs);
@@ -519,6 +528,7 @@ TEST(RuleTests, ConsecutiveWriteTest){
     int vecSize = dummyVec.size();
     std::reverse(dummyVec.begin(), dummyVec.end());
     auto sum = std::accumulate(dummyVec.begin(), dummyVec.end(), 0);
+    ts::Node tsNode = getEmptyTSNode();
 
     json j;
     j[ARRAY_ID] = dummyVec;
@@ -536,12 +546,14 @@ TEST(RuleTests, ConsecutiveWriteTest){
     auto wdummy3 = std::make_unique<writeNode>(&gs, indexes, identifiers);
     auto dummy1 = std::make_unique<dummyNode>(&gs, indexes, identifiers);
 
-    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>("child2", "child2", &gs, std::move(wdummy1));
-    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>("child3", "child3", &gs, std::move(wdummy2));
-    std::unique_ptr<childNode> wcNode3 = std::make_unique<childNode>("child5", "child5", &gs, std::move(wdummy3));
+    std::string empString = "";
 
-    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>("child4", "child4", &gs, std::move(rdummy1));
-    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>("child1", "child1", &gs, std::move(dummy1));
+    std::unique_ptr<childNode> wcNode1 = std::make_unique<childNode>(tsNode, "child2", empString, &gs, std::move(wdummy1));
+    std::unique_ptr<childNode> wcNode2 = std::make_unique<childNode>(tsNode, "child3", empString, &gs, std::move(wdummy2));
+    std::unique_ptr<childNode> wcNode3 = std::make_unique<childNode>(tsNode, "child5", empString, &gs, std::move(wdummy3));
+
+    std::unique_ptr<childNode> rcNode1 = std::make_unique<childNode>(tsNode, "child4", empString, &gs, std::move(rdummy1));
+    std::unique_ptr<childNode> cNode1 = std::make_unique<childNode>(tsNode, "child1", empString, &gs, std::move(dummy1));
 
     // Parent Node Setup
     ForNodeMock parentNode(&gs);
