@@ -369,3 +369,23 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     //node.execute();
 }
+
+TEST(ParserTests, CustomGameFileTest) {
+    std::string sourcecode = file_to_string("path_to_custom_game_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Perform various ASSERT or EXPECT checks
+    ASSERT_FALSE(root.isNull());
+    // Additional checks based on expected structure of custom game file
+}
+
+TEST(ParserTests, InvalidFileFormatTest) {
+    std::string sourcecode = file_to_string("path_to_invalid_format_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Check for error handling
+    ASSERT_TRUE(root.isNull() || root.getType() == "ERROR");
+}
+
