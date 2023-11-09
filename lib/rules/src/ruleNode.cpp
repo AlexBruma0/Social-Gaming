@@ -127,23 +127,36 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id
 }
 
 void ForNodeImpl::update(){
-    std::cout << "updating" <<std::endl;
+    //std::cout << "updating" <<std::endl;
 }
 
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
     json gameJson = getIdentifierData();
+    json gameStateTemp = *gameState->getState();
 
     // Gets the first element
     // Assuming that it will be parsed and contain only one array
     // Temporary until the id are decided
     auto array = gameJson[TreeNodeImpl::COLLECTION_ID];
-    
-    //std::cout<< "executing for" <<std::endl;
+
+    // create a new object in the game state to hold information about the current item being being executed
+    auto freshVariable = gameJson["var"].dump();
 
     // For all the elements in the array execute the child code
-    size_t index = 0;
+    //std:: cout << "array: " << array << "\n"; 
+    int index = 0;
     for (auto el: array) {
+        if(array.is_array()){
+            gameStateTemp[freshVariable] = array[index];
+            //std::cout << "game state temp " << gameStateTemp.dump() << "\n";
+            gameState->setState(&gameStateTemp);
+        }
+        json gs = *gameState->getState();
+        // for debugging
+        std::cout << "for " << freshVariable << " in "<< array << "\n";
+        std::cout << "updated gamestate: \n" << gs.dump() << "\n\n";
+        
         for (const auto& child : children) {
             
             child->execute();
@@ -151,6 +164,7 @@ void ForNodeImpl::execute(){
         }
         index ++;
     }
+    gameJson.erase(freshVariable);
     
 }
 
@@ -159,7 +173,7 @@ DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNo
 }
 
 void DiscardNodeImpl::execute(){
-    std::cout<< "executing discard" <<std::endl;
+    //std::cout<< "executing discard" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -172,7 +186,7 @@ MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNo
 }
 
 void MessageNodeImpl::execute(){
-    std::cout<< "executing message" <<std::endl;
+   // std::cout<< "executing message" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -185,7 +199,7 @@ ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) 
 }
 
 void ParallelForNodeImpl::execute(){
-    std::cout<< "executing parallel for" <<std::endl;
+   // std::cout<< "executing parallel for" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -196,7 +210,7 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) 
 }
 
 void InputChoiceNodeImpl::execute(){
-    std::cout<< "executing input choice" <<std::endl;
+    //std::cout<< "executing input choice" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -209,7 +223,7 @@ ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState) : TreeNode
 }
 
 void ScoresNodeImpl::execute(){
-    std::cout<< "executing scores" <<std::endl;
+    //std::cout<< "executing scores" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -222,7 +236,7 @@ AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : 
 }
 
 void AssignmentNodeImpl::execute(){
-    std::cout<< "executing assignment" <<std::endl;
+   // std::cout<< "executing assignment" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -235,7 +249,7 @@ MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState) : TreeNodeIm
 }
 
 void MatchNodeImpl::execute(){
-    std::cout<< "executing match" <<std::endl;
+   // std::cout<< "executing match" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -248,7 +262,7 @@ MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState) : 
 }
 
 void MatchEntryNodeImpl::execute(){
-    std::cout<< "executing match entry" <<std::endl;
+   // std::cout<< "executing match entry" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -261,7 +275,7 @@ ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState) : TreeNode
 }
 
 void ExtendNodeImpl::execute(){
-    std::cout<< "executing extend" <<std::endl;
+    //std::cout<< "executing extend" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }

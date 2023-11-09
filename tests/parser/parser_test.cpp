@@ -365,7 +365,7 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     TreeNode node = buildRuleTree(root, sourcecode);
 
-    node.printTree();
+    //node.printTree();
 
     //node.execute();
 }
