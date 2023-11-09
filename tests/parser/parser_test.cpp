@@ -370,6 +370,64 @@ TEST(ParserTests, OP_TREE_TEST) {
     //node.execute();
 }
 
+
+TEST(UtilsTest, GetSubstringByByteRange) {
+    std::string testString = "Hello, World!";
+
+    // Test: Extracting a substring from the middle
+    std::string expectedSubstring = "World";
+    std::string substring = getSubstringByByteRange(testString, 7, 12); // "World" starts at index 7 and ends before index 12
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a substring from the beginning
+    expectedSubstring = "Hello";
+    substring = getSubstringByByteRange(testString, 0, 5); // "Hello" starts at index 0 and ends before index 5
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a single character
+    expectedSubstring = "W";
+    substring = getSubstringByByteRange(testString, 7, 8); // "W" is a single character at index 7
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a substring with special characters
+    testString = "¡Hola, Mundo!";
+    expectedSubstring = "Mundo";
+    substring = getSubstringByByteRange(testString, 8, 13); // "Mundo" in the string with special characters
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Attempting to extract an empty substring
+    expectedSubstring = "";
+    substring = getSubstringByByteRange(testString, 5, 5); // No characters between index 5 and 5
+    EXPECT_EQ(substring, expectedSubstring);
+    
+    // Additional edge cases...
+}
+
+
+TEST(UtilsTest, IsPunctuation) {
+    // Test with a comma
+    EXPECT_TRUE(isPunctuation(','));
+
+    // Test with a period
+    EXPECT_TRUE(isPunctuation('.'));
+
+    // Test with a question mark
+    EXPECT_TRUE(isPunctuation('?'));
+
+    // Test with an exclamation mark
+    EXPECT_TRUE(isPunctuation('!'));
+
+    // Test with a character that is not punctuation
+    EXPECT_FALSE(isPunctuation('a'));
+
+    // Test with a number
+    EXPECT_FALSE(isPunctuation('1'));
+
+    // Test with a space
+    EXPECT_FALSE(isPunctuation(' '));
+}
+
+
 TEST(ParserTests, CustomGameFileTest) {
     std::string sourcecode = file_to_string("path_to_custom_game_file");
     ts::Tree tree = string_to_tree(sourcecode);
