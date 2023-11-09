@@ -142,3 +142,31 @@ TEST_F(GameServerTest, BuildOutgoingMessages) {
         EXPECT_EQ(message.text, log);
     }
 }
+
+// The following two are cases we should plan for in the future. 
+
+TEST_F(GameServerTest, HandleClientReconnection) { 
+    /*
+    Server mockServer;
+    Connection mockConnection;
+    onConnect(mockConnection); // Simulate a connection
+    onDisconnect(mockConnection); // Simulate disconnection
+    onConnect(mockConnection); // Simulate reconnection
+    */
+    // Verify the client is properly handled on reconnection
+    // This might include checking if the client's state is restored
+    // EXPECT_TRUE(/* check client's state or presence in the server */);
+}
+
+TEST_F(GameServerTest, HandleInvalidMessages) {
+    /*
+    Server mockServer;
+    Connection mockConnection;
+    std::deque<Message> responseMessages;
+    Message invalidMessage{mockConnection, "invalid content"};
+
+    handleInvalidRequest(mockServer, invalidMessage, responseMessages);
+    */
+    // Verify appropriate response or error handling for invalid messages
+    // EXPECT_TRUE(/* check response or error handling logic */);
+}
