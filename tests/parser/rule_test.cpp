@@ -32,7 +32,7 @@ extern "C" {
     TSLanguage *tree_sitter_socialgaming();
 }
 
-// Dummy Node class 
+// Dummy Node class
 // Overrides the other classes so we can test that something happens
 class dummyNode: public TreeNodeImpl{
     public:
@@ -69,7 +69,7 @@ class readNode: public TreeNodeImpl{
         void execute(){
             //std::cout<<"reading"<<std::endl;
             json* j = gameState->getState();
-            
+
             testCounter += (*j)[ARRAY_ID][getIndex()].get<int>();
         }
 
@@ -85,7 +85,7 @@ class readNode: public TreeNodeImpl{
         int getIndex(){
             return idIndexes[ARRAY_ID].get<int>();
         }
-    
+
     private:
         size_t testCounter = 0;
 };
@@ -97,14 +97,14 @@ class writeNode: public TreeNodeImpl{
             idIndexes = indexes;
             setIdentifierData(data);
 
-            
+
         }
         void execute(){
             //std::cout<<"writing"<<std::endl;
             json* j = gameState->getState();
             (*j)[ARRAY_ID][getIndex()] = (*j)[ARRAY_ID][getIndex()].get<int>() +1;
         }
-        
+
         void update(){
             // Temporary will be changed when parser IDs are decided
             idIndexes.front() = idIndexes.front().get<size_t>() + 1;
@@ -115,12 +115,13 @@ class writeNode: public TreeNodeImpl{
         }
 };
 
-// ChildNode wrapper 
+// ChildNode wrapper
 // Need to check how many times it executes and for mocks
 // Also needed to change the impl
 class childNode: public TreeNode{
     public:
-        childNode(std::string node, std::string type, GameState* gameState, std::unique_ptr<TreeNodeImpl> d): TreeNode(node, type, gameState){
+        childNode(const ts::Node& node, std::string type, std::string& sourceCode, GameState* gameState, std::unique_ptr<TreeNodeImpl> d):
+            TreeNode(node, type, sourceCode, gameState){
             impl = std::move(d);
         }
 
@@ -135,7 +136,7 @@ class childNode: public TreeNode{
         std::string getType(){
             return  nodeType;
         }
-        
+
         MOCK_METHOD(void, execute, (), ());
 };
 
@@ -144,7 +145,7 @@ class childNode: public TreeNode{
 class ForNodeMock :public ForNodeImpl{
     public:
         ForNodeMock(GameState* gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
-       
+
 
             addChild(std::move(t));
         }
@@ -160,6 +161,14 @@ class ForNodeMock :public ForNodeImpl{
 };
 
 
+ts::Node getEmptyTSNode(){
+    std::string noStringSourcecode = "";
+    ts::Tree noStringTree = string_to_tree(noStringSourcecode);
+
+    ts::Node noStringNode = noStringTree.getRootNode();
+    return noStringNode;
+}
+
 // Temp commented out because we need to change the gameState to a pointer or a reference
 
 TEST (RuleTests, forNodeWriteTest){
@@ -173,8 +182,8 @@ TEST (RuleTests, forNodeWriteTest){
     auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
     sum += vecSize;
 
-    // Passing in dummy data 
-    json j; 
+    // Passing in dummy data
+    json j;
     j[ARRAY_ID] = vecData;
 
     // Passing in the dummy indexes which will be incremented by the forNode
@@ -182,30 +191,32 @@ TEST (RuleTests, forNodeWriteTest){
     identifiers[ARRAY_ID] = vecData;
     json indexes;
     indexes[ARRAY_ID] =0;
-    
+
     GameState gs{&j};
+
+    ts::Node tsNode = getEmptyTSNode();
 
     // Test if two childs are being executed
     std::string type = "child1";
     auto writer = std::make_unique<writeNode> (&gs, indexes, identifiers);
-    auto child = std::make_unique<childNode>(type, "child1",&gs, std::move(writer));
+    auto child = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(writer));
     ASSERT_EQ(child->getType(), type);
 
     type = "child2";
     auto reader = std::make_unique<readNode> (&gs, indexes, identifiers);
-    auto child2 = std::make_unique<childNode>(type, "child2",&gs, std::move(reader));
+    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(reader));
     ASSERT_EQ(child2->getType(), type);
 
     ForNodeMock fNode(&gs, std::move(child));
     fNode.addChild(std::move(child2));
     fNode.setIdentifierData(j);
-    
+
     // Triggers the actual function call
     // Also checks it triggers once
     EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
         return fNode.ForNodeImpl::execute();
     });
-    
+
     fNode.execute();
 
     // Ensures that the dummy node incremeted its index vecSize times
@@ -577,8 +588,8 @@ TEST (RuleTests, forNodeTwoChild){
     // Get the total sum of 1+2+3+4....+(n-1)+n
     auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
 
-    // Passing in dummy data 
-    json j; 
+    // Passing in dummy data
+    json j;
     j[ARRAY_ID] = vecData;
 
     // Passing in the dummy indexes which will be incremented by the forNode
@@ -586,32 +597,34 @@ TEST (RuleTests, forNodeTwoChild){
     identifiers[ARRAY_ID] = vecData;
     json indexes;
     indexes[ARRAY_ID] =0;
-    
+
     GameState gs{&j};
+
+    ts::Node tsNode = getEmptyTSNode();
 
     // Test if two childs are being executed
     std::string type = "child1";
     auto dummy = std::make_unique<dummyNode> (&gs, indexes, identifiers);
     dummy->setIdentifierData(identifiers);
-    auto child = std::make_unique<childNode>(type, "child1",&gs, std::move(dummy));
+    auto child = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(dummy));
     ASSERT_EQ(child->getType(), type);
 
     type = "child2";
     auto dummy2 = std::make_unique<dummyNode> (&gs, indexes, identifiers);
     dummy2->setIdentifierData(identifiers);
-    auto child2 = std::make_unique<childNode>(type, "child2",&gs, std::move(dummy2));
+    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(dummy2));
     ASSERT_EQ(child2->getType(), type);
 
     ForNodeMock fNode(&gs, std::move(child));
     fNode.addChild(std::move(child2));
     fNode.setIdentifierData(j);
-    
+
     // Triggers the actual function call
     // Also checks it triggers once
     EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
         return fNode.ForNodeImpl::execute();
     });
-    
+
     fNode.execute();
 
     // Ensures that the dummy node incremeted its index vecSize times
