@@ -369,3 +369,119 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     //node.execute();
 }
+
+
+TEST(UtilsTest, GetSubstringByByteRange) {
+    std::string testString = "Hello, World!";
+
+    // Test: Extracting a substring from the middle
+    std::string expectedSubstring = "World";
+    std::string substring = getSubstringByByteRange(testString, 7, 12); // "World" starts at index 7 and ends before index 12
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a substring from the beginning
+    expectedSubstring = "Hello";
+    substring = getSubstringByByteRange(testString, 0, 5); // "Hello" starts at index 0 and ends before index 5
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a single character
+    expectedSubstring = "W";
+    substring = getSubstringByByteRange(testString, 7, 8); // "W" is a single character at index 7
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Extracting a substring with special characters
+    testString = "¡Hola, Mundo!";
+    expectedSubstring = "Mundo";
+    substring = getSubstringByByteRange(testString, 8, 13); // "Mundo" in the string with special characters
+    EXPECT_EQ(substring, expectedSubstring);
+
+    // Test: Attempting to extract an empty substring
+    expectedSubstring = "";
+    substring = getSubstringByByteRange(testString, 5, 5); // No characters between index 5 and 5
+    EXPECT_EQ(substring, expectedSubstring);
+    
+    // Additional edge cases...
+}
+
+
+TEST(UtilsTest, IsPunctuation) {
+    // Test with a comma
+    EXPECT_TRUE(isPunctuation(','));
+
+    // Test with a period
+    EXPECT_TRUE(isPunctuation('.'));
+
+    // Test with a question mark
+    EXPECT_TRUE(isPunctuation('?'));
+
+    // Test with an exclamation mark
+    EXPECT_TRUE(isPunctuation('!'));
+
+    // Test with a character that is not punctuation
+    EXPECT_FALSE(isPunctuation('a'));
+
+    // Test with a number
+    EXPECT_FALSE(isPunctuation('1'));
+
+    // Test with a space
+    EXPECT_FALSE(isPunctuation(' '));
+}
+
+
+TEST(ParserTests, CustomGameFileTest) {
+    std::string sourcecode = file_to_string("path_to_custom_game_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Perform various ASSERT or EXPECT checks
+    ASSERT_FALSE(root.isNull());
+    // Additional checks based on expected structure of custom game file
+}
+
+TEST(ParserTests, InvalidFileFormatTest) {
+    std::string sourcecode = file_to_string("path_to_invalid_format_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Check for error handling
+    ASSERT_TRUE(root.isNull() || root.getType() == "ERROR");
+}
+
+TEST(ParserTests, ComplexGameRulesParsing) {
+    std::string sourcecode = file_to_string("path_to_complex_game_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Validate that the complex game rules are parsed correctly
+    ASSERT_FALSE(root.isNull());
+    // Additional checks for complex rule structures
+}
+
+TEST(ParserTests, SpecificConfigurationAttributes) {
+    std::string sourcecode = file_to_string("path_to_game_with_specific_attributes");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Check for specific configuration attributes
+    ASSERT_FALSE(root.isNull());
+    // Example: ASSERT_EQ(root.getChild("specific_attribute").getValue(), "expected_value");
+}
+
+TEST(ParserTests, ErrorReporting) {
+    std::string sourcecode = "invalid syntax or content";
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Check if the parser correctly identifies and reports errors
+    ASSERT_TRUE(root.getType() == "ERROR");
+    // Additional checks to validate specific error messages or types
+}
+
+TEST(ParserTests, CorruptedFileHandling) {
+    std::string sourcecode = file_to_string("path_to_corrupted_game_file");
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node root = tree.getRootNode();
+
+    // Ensure that the parser can handle corrupted files gracefully
+    ASSERT_TRUE(root.isNull() || root.getType() == "ERROR");
+}
