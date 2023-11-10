@@ -111,12 +111,16 @@ json TreeNodeImpl::getIdentifierData() const {
     return identifiers;
 }
 
+json* TreeNodeImpl::getGameStateData(){
+    return gameState->getState();
+}
+
 void TreeNodeImpl::update(){
 
 }
 
 void TreeNodeImpl::execute(){
-    std::cout << children.size() << "\n";
+    //std::cout << children.size() << "\n";
     for (const auto& child : children) {
         child->execute();
     }
@@ -132,39 +136,37 @@ void ForNodeImpl::update(){
 
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
-    json gameJson = getIdentifierData();
-    json gameStateTemp = *gameState->getState();
+    json identifierMap = getIdentifierData();
+    json* gameStateMap = getGameStateData();
 
     // Gets the first element
     // Assuming that it will be parsed and contain only one array
     // Temporary until the id are decided
-    auto array = gameJson[TreeNodeImpl::COLLECTION_ID];
+    auto array = identifierMap[TreeNodeImpl::COLLECTION_ID];
 
     // create a new object in the game state to hold information about the current item being being executed
-    auto freshVariable = gameJson["var"].dump();
+    auto freshVariable = identifierMap[TreeNodeImpl::VARIABLE_ID].dump();
+    //std::cout<<freshVariable<<std::endl;
 
     // For all the elements in the array execute the child code
     //std:: cout << "array: " << array << "\n"; 
-    int index = 0;
     for (auto el: array) {
         if(array.is_array()){
-            gameStateTemp[freshVariable] = array[index];
-            //std::cout << "game state temp " << gameStateTemp.dump() << "\n";
-            gameState->setState(&gameStateTemp);
+            (*gameStateMap)[freshVariable] = el;
+            //std::cout << "game state temp " << gameStateMap.dump() << "\n";
         }
-        json gs = *gameState->getState();
+        
         // for debugging
-        std::cout << "for " << freshVariable << " in "<< array << "\n";
-        std::cout << "updated gamestate: \n" << gs.dump() << "\n\n";
+        //json gs = *gameState->getState();
+        //std::cout << "for " << freshVariable << " in "<< array << "\n";
+        //std::cout << "updated gamestate: \n" << gs.dump() << "\n\n";
         
         for (const auto& child : children) {
-            
             child->execute();
             child->update();
         }
-        index ++;
     }
-    gameJson.erase(freshVariable);
+    identifierMap.erase(freshVariable);
     
 }
 
@@ -172,13 +174,31 @@ DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNo
     identifiers = json::parse(R"({"_type": "discard"})");
 }
 
+// Checking if the array should be fully wiped
+// Appreciate feedback on this
+bool DiscardNodeImpl::extractSize(const std::string_view operand){
+    return  std::string_view::npos != operand.find(".size()");
+}
+
 void DiscardNodeImpl::execute(){
     //std::cout<< "executing discard" <<std::endl;
+
+    auto gameData = getGameStateData();
+    auto idData = getIdentifierData();
+
+    // TODO: Change json to a map format
+    auto arrayId = idData[TreeNodeImpl::VARIABLE_ID].get<std::string>();
+    auto array = (*gameData)[arrayId];
+    auto size = idData[TreeNodeImpl::OPERAND_ID].dump();
+
+    // TODO: account for when only a portion of array should be wiped
+    if(extractSize(size)){
+        (*gameData)[arrayId].clear();
+    }
+
     for (const auto& child : children) {
         child->execute();
     }
-
-    //TODO: read the collection from the gamestate, then find the item and drop it
 }
 
 MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
@@ -237,11 +257,21 @@ AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : 
 
 void AssignmentNodeImpl::execute(){
    // std::cout<< "executing assignment" <<std::endl;
+
+    auto gameData = getGameStateData();
+    auto idData = getIdentifierData();
+
+    // TODO: Change json to a map format
+    auto targetId = idData[TreeNodeImpl::TARGET_ID].get<std::string>();
+    auto value = idData[TreeNodeImpl::VALUE_ID].dump();
+
+    // TODO: figure out variants and mapping
+    // Currently just assign value
+    (*gameData)[targetId] = value;
+
     for (const auto& child : children) {
         child->execute();
     }
-
-    //TODO: get the variable (or make one, if needed), write the value, then write it to the game state
 }
 
 MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {

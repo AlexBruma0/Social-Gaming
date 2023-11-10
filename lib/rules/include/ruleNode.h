@@ -48,14 +48,9 @@ class TreeNode {
 
         void printTree(int depth = 0) const;
 
-
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
-        // Update the indexes
-        // Needs to be here because the TreeNodeImpls access treeNodes
         void update();
-
-        // Function to update the identifier value if something changes
 
         virtual void execute() const;
 
@@ -69,8 +64,12 @@ class TreeNode {
 class TreeNodeImpl { 
 
     public:
-        // Needs to be a string for accessing json
-        const std::string COLLECTION_ID = "collection";
+        // Will change to string view when refactors are made
+        inline const static std::string COLLECTION_ID = "collection";
+        inline const static std::string VARIABLE_ID = "var";
+        inline const static std::string OPERAND_ID = "operand";
+        inline const static std::string TARGET_ID = "target";
+        inline const static std::string VALUE_ID = "value";
 
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
@@ -83,6 +82,8 @@ class TreeNodeImpl {
         void setIdentifierData(const json& data);
 
         json getIdentifierData() const;
+
+        json* getGameStateData();
 
         virtual void update();
 
@@ -120,6 +121,9 @@ public:
     DiscardNodeImpl(std::string id, GameState* gameState);
     ~DiscardNodeImpl(){}
     void execute();
+
+private:
+    bool extractSize(const std::string_view operand);
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
