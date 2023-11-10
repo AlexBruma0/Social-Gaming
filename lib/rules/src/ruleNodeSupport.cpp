@@ -67,7 +67,7 @@ std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState* game
 
         json data = implPtr->getIdentifierData();
         data["var"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
-        data["collection"] = extractListExpression(tsNode.getChild(3), sourceCode, *gameState->getState());
+        data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
 
         return implPtr;
@@ -83,7 +83,7 @@ std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState* 
 
         json data = implPtr->getIdentifierData();
         data["operand"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
-        data["collection"] = extractListExpression(tsNode.getChild(3), sourceCode, *gameState->getState());
+        data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
 
         return implPtr;
@@ -115,7 +115,7 @@ std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameSta
 
         json data = implPtr->getIdentifierData();
         data["var"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
-        data["collection"] = extractListExpression(tsNode.getChild(3), sourceCode, *gameState->getState());
+        data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
 
         return implPtr;
