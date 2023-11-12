@@ -231,6 +231,12 @@ json createJsonData(ts::Node root, const std::string& sourcecode) {
 
     return json_data;
 }
+
+// TODO: make a GameVariables map out of the json that already exists
+// we can probably just brute force it
+//GameVariables createGameVariables(json jsonData) {
+//}
+
 // prints the node type and number of children for the current node of a cursor
 void printCursor(const ts::Cursor& c) {
     ts::Node node = c.getCurrentNode();

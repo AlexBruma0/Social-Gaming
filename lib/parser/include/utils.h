@@ -31,6 +31,10 @@ std::string formatString(std::string& input);
 
 json createJsonData(ts::Node root, const std::string& sourceCode);
 
+// TODO: make a GameVariables map out of the json that already exists
+// we can probably just brute force it
+//GameVariables createGameVariables(ts::Node root, const std::string& sourcecode);
+
 json generateNumbersList(int start, int end);
 
 std::string getSubstringByByteRange(const std::string &input, size_t startByte, size_t endByte);

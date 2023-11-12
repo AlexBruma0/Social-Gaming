@@ -1,15 +1,29 @@
 #include <string>
 #include <nlohmann/json.hpp>
+#include <variant>
 #pragma once
 
 using json = nlohmann::json;
 
+class GameVariables {
+public:
+    using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>>;
+    void insert(const std::string& key, const GameValue& value);
+    GameValue getValue(const std::string& key);
+    void print() const;
+private:
+    std::map<std::string, GameValue> map;
+};
+
 class GameState{
-    private:
+private:
     json* gameState;
-    public:
+    GameVariables* variables;
+public:
     json* getState() const;
     void setState(json* gameState);
+    GameVariables* getVars() const;
     GameState(json* gameState);
     GameState();
 };
+

@@ -77,10 +77,14 @@ NODE CLASSES
 
 TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState): content(id), gameState(_gameState) {
     identifiers = json::parse("{}");
+    GameVariables gv;
+    gv.insert("_type", std::string("generic"));
+    nodeVariables = gv;
 }
 
 TreeNodeImpl::TreeNodeImpl() : content("") {
     identifiers = json::parse("{}");
+    nodeVariables = GameVariables();
     gameState = nullptr;
 }
 
@@ -95,7 +99,10 @@ void TreeNodeImpl::printTree(int depth) const{
         std::cout << "  ";
     }
 
-    std::cout << "identifiers: " << identifiers << std::endl;
+    //std::cout << "identifiers: " << identifiers << std::endl;
+    std::cout << "node vars: ";
+    nodeVariables.print();
+    std::cout << std::endl;
 
     for (const auto& child : children) {
         child->printTree(depth + 1);
@@ -122,8 +129,19 @@ void TreeNodeImpl::execute(){
     }
 }
 
+void TreeNodeImpl::setNodeVariables(const GameVariables &data) {
+    nodeVariables = data;
+}
+
+GameVariables TreeNodeImpl::getNodeVariables() const {
+    return nodeVariables;
+}
+
 ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "for"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("for"));
+    nodeVariables = gv;
 }
 
 void ForNodeImpl::update(){
@@ -170,6 +188,9 @@ void ForNodeImpl::execute(){
 
 DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "discard"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("discard"));
+    nodeVariables = gv;
 }
 
 void DiscardNodeImpl::execute(){
@@ -183,6 +204,9 @@ void DiscardNodeImpl::execute(){
 
 MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "message"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("message"));
+    nodeVariables = gv;
 }
 
 void MessageNodeImpl::execute(){
@@ -196,6 +220,9 @@ void MessageNodeImpl::execute(){
 
 ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "parallel_for"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("parallel_for"));
+    nodeVariables = gv;
 }
 
 void ParallelForNodeImpl::execute(){
@@ -207,6 +234,9 @@ void ParallelForNodeImpl::execute(){
 
 InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "input_choice"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("input_choice"));
+    nodeVariables = gv;
 }
 
 void InputChoiceNodeImpl::execute(){
@@ -220,6 +250,9 @@ void InputChoiceNodeImpl::execute(){
 
 ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "scores"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("scores"));
+    nodeVariables = gv;
 }
 
 void ScoresNodeImpl::execute(){
@@ -233,6 +266,9 @@ void ScoresNodeImpl::execute(){
 
 AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "assignment"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("assignment"));
+    nodeVariables = gv;
 }
 
 void AssignmentNodeImpl::execute(){
@@ -246,6 +282,9 @@ void AssignmentNodeImpl::execute(){
 
 MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "match"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("match"));
+    nodeVariables = gv;
 }
 
 void MatchNodeImpl::execute(){
@@ -259,6 +298,9 @@ void MatchNodeImpl::execute(){
 
 MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "match_entry"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("match_entry"));
+    nodeVariables = gv;
 }
 
 void MatchEntryNodeImpl::execute(){
@@ -272,6 +314,9 @@ void MatchEntryNodeImpl::execute(){
 
 ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "extend"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("extend"));
+    nodeVariables = gv;
 }
 
 void ExtendNodeImpl::execute(){
