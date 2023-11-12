@@ -25,7 +25,7 @@
 #define EMPTY_GAME_LOCATION "resources/games/empty.game"
 
 #define DUMMY_ID "DUMMY"
-#define ARRAY_ID "collection"
+#define TEMP_ID "TEMP"
 
 extern "C" {
 //TSLanguage *tree_sitter_json();
@@ -41,8 +41,10 @@ class dummyNode: public TreeNodeImpl{
             setIdentifierData(identifiers);
         }
         void execute(){
+            auto gameData = getGameStateData();
             auto idData = getIdentifierData();
-            testCounter += idData[ARRAY_ID][getIndex()].get<size_t>();
+            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
+            testCounter += (*gameData)[idName].get<size_t>();
         }
 
         size_t getCounter(){
@@ -50,7 +52,7 @@ class dummyNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[ARRAY_ID].get<size_t>();
+            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<size_t>();
         }
         void update(){
             // Temporary will be changed when parser IDs are decided
@@ -67,10 +69,10 @@ class readNode: public TreeNodeImpl{
             setIdentifierData(data);
         }
         void execute(){
-            //std::cout<<"reading"<<std::endl;
-            json* j = gameState->getState();
-
-            testCounter += (*j)[ARRAY_ID][getIndex()].get<int>();
+            auto gameData = getGameStateData();
+            auto idData = getIdentifierData();
+            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
+            testCounter += (*gameData)[idName].get<size_t>();
         }
 
         size_t getCounter(){
@@ -83,7 +85,7 @@ class readNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[ARRAY_ID].get<int>();
+            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
         }
 
     private:
@@ -101,8 +103,10 @@ class writeNode: public TreeNodeImpl{
         }
         void execute(){
             //std::cout<<"writing"<<std::endl;
-            json* j = gameState->getState();
-            (*j)[ARRAY_ID][getIndex()] = (*j)[ARRAY_ID][getIndex()].get<int>() +1;
+            auto gameData = getGameStateData();
+            auto idData = getIdentifierData();
+            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
+            (*gameData)[idName] = (*gameData)[idName].get<size_t>() +1;
         }
 
         void update(){
@@ -111,7 +115,7 @@ class writeNode: public TreeNodeImpl{
         }
 
         int getIndex(){
-            return idIndexes[ARRAY_ID].get<int>();
+            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
         }
 };
 
@@ -169,8 +173,73 @@ ts::Node getEmptyTSNode(){
     return noStringNode;
 }
 
-// Temp commented out because we need to change the gameState to a pointer or a reference
 
+
+TEST (RuleTests, discardTest){
+    // Setting up a vector labeled 1,2,3,4......
+    int vecSize = 6;
+    auto vecData = std::vector<int>(vecSize);
+    std::iota(vecData.begin(), vecData.end(),0);
+    // Reversing data to ensure results are correct
+    std::reverse(vecData.begin(), vecData.end());
+    // Get the total sum of 1+2+3+4....+(n-1)+n
+    auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
+    sum += vecSize;
+
+    // Passing in dummy data
+    json j;
+    j[TEMP_ID] = vecData;
+
+    // Passing in the dummy indexes which will be incremented by the forNode
+    json identifiers;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = vecData;
+    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
+    identifiers[TreeNodeImpl::OPERAND_ID] = "winners.size()";
+
+    json forIdentifiers;
+    forIdentifiers[TreeNodeImpl::COLLECTION_ID] = std::vector<size_t>(1);
+    forIdentifiers[TreeNodeImpl::VARIABLE_ID] = DUMMY_ID;
+
+
+    GameState gs{&j};
+
+    ts::Node tsNode = getEmptyTSNode();
+
+    std::string type = "child2";
+    auto discard = std::make_unique<DiscardNodeImpl> (type, &gs);
+    discard->setIdentifierData(identifiers);
+    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(discard));
+    ASSERT_EQ(child2->getType(), type);
+
+    ForNodeMock fNode(&gs, std::move(child2));
+    fNode.setIdentifierData(forIdentifiers);
+
+    // Triggers the actual function call
+    // Also checks it triggers once
+    EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
+        return fNode.ForNodeImpl::execute();
+    });
+
+    fNode.execute();
+
+    // Check if the global state has been wiped by the discard node
+    ASSERT_TRUE((*(gs.getState()))[TEMP_ID].empty());
+
+    json assignIdentifiers;
+    assignIdentifiers[TreeNodeImpl::TARGET_ID] = TEMP_ID;
+    assignIdentifiers[TreeNodeImpl::VALUE_ID] = vecData;
+
+    auto assignment = std::make_unique<AssignmentNodeImpl> (type, &gs);
+    assignment->setIdentifierData(assignIdentifiers);
+    assignment->execute();
+    json comparison;
+    comparison["test"] = vecData;
+
+    ASSERT_EQ((*(gs.getState()))[TEMP_ID], comparison["test"].dump());
+
+}
+
+// Temp commented out because we need to change the gameState to a pointer or a reference
 TEST (RuleTests, forNodeWriteTest){
     // Setting up a vector labeled 1,2,3,4......
     int vecSize = 6;
@@ -184,13 +253,15 @@ TEST (RuleTests, forNodeWriteTest){
 
     // Passing in dummy data
     json j;
-    j[ARRAY_ID] = vecData;
+    j[TreeNodeImpl::COLLECTION_ID] = vecData;
+    j[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
 
     // Passing in the dummy indexes which will be incremented by the forNode
     json identifiers;
-    identifiers[ARRAY_ID] = vecData;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = vecData;
+    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
     json indexes;
-    indexes[ARRAY_ID] =0;
+    indexes[TreeNodeImpl::COLLECTION_ID] =0;
 
     GameState gs{&j};
 
@@ -226,8 +297,6 @@ TEST (RuleTests, forNodeWriteTest){
     auto index = fNode.getChild(1)->getReader()->getIndex();
     ASSERT_EQ(counter, sum);
     ASSERT_EQ(index, vecSize);
-
-
 }
 
 TEST(RuleTests, multiChildReadWriteTest){
@@ -240,11 +309,14 @@ TEST(RuleTests, multiChildReadWriteTest){
 
 
     json j;
-    j[ARRAY_ID] = dummyVec;
+    j[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    j[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
+
     json identifiers;
-    identifiers[ARRAY_ID] = dummyVec;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
     json indexes;
-    indexes[ARRAY_ID] = 0;
+    indexes[TreeNodeImpl::COLLECTION_ID] = 0;
 
     GameState gs{&j};
 
@@ -326,11 +398,11 @@ TEST(RuleTests, multiChildDummyTest){
     ts::Node tsNode = getEmptyTSNode();
 
     json j;
-    j[ARRAY_ID] = dummyVec;
+    j[TreeNodeImpl::COLLECTION_ID] = dummyVec;
     json identifiers;
-    identifiers[ARRAY_ID] = dummyVec;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = dummyVec;
     json indexes;
-    indexes[ARRAY_ID] = 0;
+    indexes[TreeNodeImpl::COLLECTION_ID] = 0;
 
     GameState gs{&j};
 
@@ -391,11 +463,14 @@ TEST(RuleTests, multiTypeNodeTest){
     ts::Node tsNode = getEmptyTSNode();
 
     json j;
-    j[ARRAY_ID] = dummyVec;
+    j[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    j[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
+
     json identifiers;
-    identifiers[ARRAY_ID] = dummyVec;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
     json indexes;
-    indexes[ARRAY_ID] = 0;
+    indexes[TreeNodeImpl::COLLECTION_ID] = 0;
 
     GameState gs{&j};
 
@@ -435,7 +510,7 @@ TEST(RuleTests, multiTypeNodeTest){
     auto rcVal1 = parentNode.getChild(1)->getReader()->getCounter();
     auto rcVal2 = parentNode.getChild(4)->getReader()->getCounter();
 
-    ASSERT_EQ(cVal1, sum);
+    ASSERT_EQ(cVal1, sum+vecSize);
     ASSERT_EQ(rcVal1, sum+vecSize);
     ASSERT_EQ(rcVal2, sum+2*vecSize);
 
@@ -459,11 +534,11 @@ TEST (RuleTests, emptyDataTest){
     ts::Node tsNode = getEmptyTSNode();
 
     json j;
-    j[ARRAY_ID] = dummyVec;
+    j[TreeNodeImpl::COLLECTION_ID] = dummyVec;
     json identifiers;
-    identifiers[ARRAY_ID] = dummyVec;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = dummyVec;
     json indexes;
-    indexes[ARRAY_ID] = 0;
+    indexes[TreeNodeImpl::COLLECTION_ID] = 0;
 
     GameState gs{&j};
 
@@ -531,11 +606,14 @@ TEST(RuleTests, ConsecutiveWriteTest){
     ts::Node tsNode = getEmptyTSNode();
 
     json j;
-    j[ARRAY_ID] = dummyVec;
+    j[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    j[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
+
     json identifiers;
-    identifiers[ARRAY_ID] = dummyVec;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = dummyVec;
+    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
     json indexes;
-    indexes[ARRAY_ID] = 0;
+    indexes[TreeNodeImpl::COLLECTION_ID] = 0;
 
     GameState gs{&j};
 
@@ -577,7 +655,7 @@ TEST(RuleTests, ConsecutiveWriteTest){
     // Make sure each value is equal to the sum plus 3 writes
     int writes = vecSize;
 
-    ASSERT_EQ(cVal1, vecSize);
+    ASSERT_EQ(cVal1, sum + 3*writes);
     ASSERT_EQ(rcVal1, sum + 3*writes);
 
     // get indexs of for loop to check behaviour
@@ -602,13 +680,13 @@ TEST (RuleTests, forNodeTwoChild){
 
     // Passing in dummy data
     json j;
-    j[ARRAY_ID] = vecData;
+    j[TreeNodeImpl::COLLECTION_ID] = vecData;
 
     // Passing in the dummy indexes which will be incremented by the forNode
     json identifiers;
-    identifiers[ARRAY_ID] = vecData;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = vecData;
     json indexes;
-    indexes[ARRAY_ID] =0;
+    indexes[TreeNodeImpl::COLLECTION_ID] =0;
 
     GameState gs{&j};
 
@@ -654,40 +732,4 @@ TEST (RuleTests, forNodeTwoChild){
 }
 
 
-TEST (RuleTests, BASE_CLASS_INSTANTIATE) {
-    // std::string nodeTest = "test";
-    // TreeNode t (nodeTest, nodeTest);
-    // ASSERT_EQ(t.impl->identifier, "bad");
-}
-// need to rewrite tests to work with the addchild() method
-TEST (RuleTests, TREE_NODE_CHILDREN) {
-    // TreeNode parent("parent", "dummy");
-    // ASSERT_EQ(parent.impl->children.size(), 0);
-
-    // std::string childS = "childString";
-    // TreeNode c1 ("parent2", "dummy");
-    // auto child = std::make_unique<ForNodeImpl>(childS);
-    // c1.impl = std::move(child);
-    // parent.addChild(&c1);
-
-    // std::string childS2 = "childString2";
-    // TreeNode c2 ("parent3", "dummy");
-    // auto child2 = std::make_unique<ForNodeImpl>(childS2);
-    // c2.impl = std::move(child2);
-    // parent.addChild(&c2);
-
-
-    // ASSERT_EQ(parent.impl->children.size(), 2);
-
-    // ASSERT_EQ(parent.impl->children[0]->impl->identifier, childS);
-    // ASSERT_EQ(parent.impl->children[1]->impl->identifier, childS2);
-
-    // // Dynamic testing
-    // // Will probably create a convert function
-    // // dynamic casting does not appear to work with other types of nodes yet.
-    // auto ruleNodePtr = dynamic_cast<ForNodeImpl*>(parent.impl->children[0]->impl.get());
-    // ASSERT_NE(ruleNodePtr, nullptr);
-
-
-}
 
