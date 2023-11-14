@@ -363,12 +363,46 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     ts::Node root = tree.getRootNode();
 
-    TreeNode node = buildRuleTree(root, sourcecode);
+    // TreeNode node = buildRuleTree(root, sourcecode);
 
     //node.printTree();
 
     //node.execute();
 }
+TEST(UtilsTest, createGameVariables) {
+    json j{};
+    j["name"] = "Niels";
+    GameVariables emptyGV;
+    createGameVariables(j, emptyGV);
+    emptyGV.print();
+}
+
+TEST(UtilsTest, createGameVariables_RPS) {
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    const int num_players = 2;
+    const int num_rounds = 2;
+
+    ts::Tree tree = string_to_tree(sourcecode);
+
+    // Access the root node of the AST
+    ts::Node root = tree.getRootNode();
+
+
+    json jsonData = createJsonData(root, sourcecode);
+
+    jsonData["configuration"]["rounds"] = num_rounds;
+    jsonData["players"][0] = jsonData["per-player"];
+    jsonData["players"][0]["name"] = "Alice";
+
+    jsonData["players"][1] = jsonData["per-player"];
+    jsonData["players"][1]["name"] = "Bob";
+    GameVariables emptyGameVar;
+    createGameVariables(jsonData, emptyGameVar);
+
+    emptyGameVar.print();
+}
+
+
 
 
 TEST(UtilsTest, GetSubstringByByteRange) {
