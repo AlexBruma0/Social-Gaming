@@ -326,3 +326,60 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
 
     return output;
 }
+using ArrayType = std::variant<int, std::string, GameVariables>;
+
+using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
+std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
+
+GameValue convertToPrimitiveType(json& jsonObj){
+    if(jsonObj.is_number()){
+        return jsonObj.get<int>();
+
+    }else if(jsonObj.is_string()){
+        return jsonObj.get<std::string>();
+    }
+}
+std::vector<ArrayType> convertToArray(json& jsonArr){
+    std::vector<ArrayType> copyArray;
+
+    for(auto el : jsonArr){
+        if(el.is_number()){
+                copyArray.emplace_back(el.get<int>());
+
+            }else if(el.is_string()){
+                copyArray.emplace_back(el.get<std::string>());
+
+            }else if(el.is_object()){
+                GameVariables parentGameVariables;
+                GameVariables gs =  createGameVariables(el, parentGameVariables);
+                copyArray.emplace_back(gs);
+            }
+    }
+    return copyArray;
+}
+
+GameVariables createGameVariables(json& jsonObj, GameVariables& parentGameVariables){
+    GameVariables newGameVariables;
+
+    json::iterator itStart = jsonObj.begin();
+
+    for (json::iterator it = jsonObj.begin(); it != jsonObj.end(); ++it) {
+
+        if(!it.value().is_object()){
+
+            if(it.value().is_array()){
+                newGameVariables.insert(it.key(), convertToArray(it.value()));
+            } else{
+                newGameVariables.insert(it.key(), convertToPrimitiveType(it.value()));
+            }
+             
+        }
+        else{
+            createGameVariables(it.value(), newGameVariables);
+        }
+    
+        std::cout << it.key() << " : " << it.value() << "\n";
+    }
+    parentGameVariables.insert(itStart.key(), newGameVariables);
+    
+}

@@ -133,13 +133,16 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
 
     jsonData["players"][1] = jsonData["per-player"];
     jsonData["players"][1]["name"] = "Bob";
+    GameVariables emptyGameVar{};
+    GameVariables gv = createGameVariables(jsonData, emptyGameVar);
+    //gv.print();
     GameState gs{&jsonData};
     //std::cout << gs.getState().dump();
 
 
     TreeNode parent(root, "root", source_code, &gs);
-    identifyOperations(syntaxTree, source_code, parent, &gs);
-    parent.printTree();
+    // identifyOperations(syntaxTree, source_code, parent, &gs);
+    // parent.printTree();
     // parent.execute();
 
     return parent;

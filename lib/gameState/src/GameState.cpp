@@ -5,7 +5,11 @@
 #include <iostream>
 
 using json = nlohmann::json;
-using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>>;
+
+    using ArrayType = std::variant<int, std::string, GameVariables>;
+
+    using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
+    std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
 
 GameState::GameState(json* gameState){
     this->gameState = gameState;
@@ -27,7 +31,7 @@ void GameState::setState(json* gameState){
     this->gameState = gameState;
 }
 
-std::variant<int, std::string, std::vector<int>, std::vector<std::string>>
+GameValue
 GameVariables::getValue(const std::string &key) {
     auto it = map.find(key);
     if (it != map.end()) {
