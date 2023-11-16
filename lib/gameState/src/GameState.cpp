@@ -9,7 +9,7 @@ using json = nlohmann::json;
     using ArrayType = std::variant<int, std::string, GameVariables>;
 
     using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
-    std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
+        std::vector<GameVariables>, std::vector<ArrayType>, GameVariables>;
 
 GameState::GameState(json* gameState){
     this->gameState = gameState;
@@ -31,8 +31,7 @@ void GameState::setState(json* gameState){
     this->gameState = gameState;
 }
 
-GameValue
-GameVariables::getValue(const std::string &key) {
+GameValue GameVariables::getValue(const std::string &key) {
     auto it = map.find(key);
     if (it != map.end()) {
         return it->second;
@@ -83,4 +82,43 @@ void GameVariables::print() const {
         }, it->second);
     }
     std::cout << "}" << std::endl;
+}
+
+std::pair<std::vector<std::string>, std::vector<std::string>> splitString(const std::string& s, const std::string delimiters) {
+    std::vector<std::string> result;
+    size_t start = 0;
+    size_t end = s.find_first_of(delimiters);
+
+    std::vector<std::string> delimiterOrder;
+
+    while (end != std::string::npos) {
+        auto temp =s.substr(start, end - start);
+
+        //Get the Delimiter here
+        auto d =s.substr(end, 1);
+        delimiterOrder.push_back(d);
+
+        // Trim strings
+        temp.erase(std::remove_if(temp.begin(), temp.end(), ::isspace), temp.end());
+        result.push_back(temp);
+        start = end + 1;
+        end = s.find_first_of(delimiters, start);
+    }
+    result.push_back(s.substr(start));
+
+    return {result, delimiterOrder};
+}
+
+GameValue GameVariables::getNestedMap(const std::string& id){
+    auto tokens= splitString(id, ".").first;
+    GameValue gameData = getValue(tokens[0]);
+    for (int i = 0; i < tokens.size(); i++) {
+        if (std::holds_alternative<GameVariables>(gameData)) {
+            gameData = std::get<GameVariables>(gameData).getValue(tokens[i]);
+        } else {
+            return gameData;
+        }
+    }
+
+    return gameData;
 }

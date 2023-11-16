@@ -10,6 +10,10 @@ target_include_directories(gameState
 )
 
 
-target_link_libraries(gameState nlohmann_json)
+target_link_libraries(
+        gameState
+        nlohmann_json
+        rules
+)
 
 install(TARGETS gameState ARCHIVE DESTINATION lib)
