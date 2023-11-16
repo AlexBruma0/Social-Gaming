@@ -336,8 +336,10 @@ GameValue convertToPrimitiveType(json& jsonObj){
     if(jsonObj.is_number()){
         return jsonObj.get<int>();
 
-    }else if(jsonObj.is_string()){
+    } else if(jsonObj.is_string()){
         return jsonObj.get<std::string>();
+    } else {
+        return {};
     }
 }
 std::vector<ArrayType> convertToArray(json& jsonArr){

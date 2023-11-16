@@ -122,3 +122,7 @@ GameValue GameVariables::getNestedMap(const std::string& id){
 
     return gameData;
 }
+
+void GameVariables::erase(const std::string &key) {
+    map.erase(key);
+}

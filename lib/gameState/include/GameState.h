@@ -13,12 +13,13 @@ public:
         std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
 
     void insert(const std::string& key, const GameValue& value);
+    void erase(const std::string& key);
     GameValue getValue(const std::string& key);
     GameValue getNestedMap(const std::string& id);
 
     void print() const;
 private:
-    std::map<std::string, GameValue> map;
+    std::map<const std::string, GameValue> map;
 };
 
 class GameState{
