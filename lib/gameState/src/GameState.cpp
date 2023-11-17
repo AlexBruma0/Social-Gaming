@@ -110,9 +110,9 @@ std::pair<std::vector<std::string>, std::vector<std::string>> splitString(const 
 }
 
 GameValue GameVariables::getNestedMap(const std::string& id){
-    auto tokens= splitString(id, ".").first;
+    auto tokens = splitString(id, ".").first;
     GameValue gameData = getValue(tokens[0]);
-    for (int i = 0; i < tokens.size(); i++) {
+    for (int i = 1; i < tokens.size(); i++) {
         if (std::holds_alternative<GameVariables>(gameData)) {
             gameData = std::get<GameVariables>(gameData).getValue(tokens[i]);
         } else {

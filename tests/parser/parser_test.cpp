@@ -399,7 +399,7 @@ TEST(UtilsTest, createGameVariables_RPS) {
     GameVariables emptyGameVar;
     createGameVariables(jsonData, emptyGameVar);
 
-    emptyGameVar.print();
+    //emptyGameVar.print();
 }
 
 
