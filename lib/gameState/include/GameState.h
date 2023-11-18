@@ -25,11 +25,12 @@ private:
 class GameState{
 private:
     json* gameState;
-    GameVariables* variables;
+    GameVariables variables;
 public:
     json* getState() const;
     void setState(json* gameState);
-    GameVariables* getVars() const;
+    GameVariables* getVars();
+    void setVars(GameVariables gv);
     GameState(json* gameState);
     GameState();
 };

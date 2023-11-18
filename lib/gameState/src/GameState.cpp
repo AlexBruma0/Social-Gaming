@@ -23,12 +23,16 @@ json* GameState::getState() const{
     return this->gameState;
 }
 
-GameVariables* GameState::getVars() const{
-    return this->variables;
+GameVariables* GameState::getVars() {
+    return &this->variables;
 }
 
 void GameState::setState(json* gameState){
     this->gameState = gameState;
+}
+
+void GameState::setVars(GameVariables gv) {
+    this->variables = gv;
 }
 
 GameValue GameVariables::getValue(const std::string &key) {
