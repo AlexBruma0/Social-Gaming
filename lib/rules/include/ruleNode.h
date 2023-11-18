@@ -79,11 +79,15 @@ class TreeNodeImpl {
 
         void addChild(std::unique_ptr<TreeNode> child);
 
+        // old data storage
         void setIdentifierData(const json& data);
-
         json getIdentifierData() const;
 
         json* getGameStateData();
+
+        // new data storage
+        void setNodeVariables(const GameVariables& data);
+        GameVariables getNodeVariables() const;
 
         virtual void update();
 
@@ -95,6 +99,8 @@ class TreeNodeImpl {
         std::vector<std::unique_ptr<TreeNode>> children;
         // json object to store the necessary data for each node
         json identifiers;
+
+        GameVariables nodeVariables;
 
         // Contains the indexes for how to access the json objects
         // Ex json["players"][0]

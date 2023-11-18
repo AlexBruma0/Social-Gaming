@@ -33,6 +33,8 @@ target_link_libraries(utils
         nlohmann_json
         tree-sitter-socialgaming
         cpp-tree-sitter
+        gameState
+
 )
 
 install(TARGETS parser
