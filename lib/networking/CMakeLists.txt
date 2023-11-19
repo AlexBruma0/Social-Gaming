@@ -1,4 +1,4 @@
-add_library(networking src/Server.cpp src/Client.cpp)
+add_library(networking src/Server.cpp src/Client.cpp src/MessageQueue.cpp)
 
 target_include_directories(networking
         PUBLIC

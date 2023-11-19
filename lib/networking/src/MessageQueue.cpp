@@ -3,6 +3,7 @@
 
 MessageQueue & MessageQueue::operator=(const MessageQueue &mq){
     this->messages = mq.messages;
+    return *this;
 }
 
 int MessageQueue::add(std::string s){

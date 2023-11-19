@@ -1,7 +1,8 @@
 enable_testing()
 
 add_executable(messageQueue_test messageQueue_test.cpp)
-set_property(TARGET messageQueue_test  PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/parser)
+set_property(TARGET messageQueue_test  PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/networking)
+target_link_libraries(messageQueue_test networking ${GTEST_BOTH_LIBRARIES} pthread)
 add_test(NAME messageQueue_test COMMAND parser_test)
 
 add_executable(networking_test networking_test.cpp)
