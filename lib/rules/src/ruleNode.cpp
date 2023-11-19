@@ -37,8 +37,8 @@ void TreeNode::printTree(int depth) const {
     impl->printTree(depth);
 }
 
-void TreeNode::update(){
-    impl->update();
+std::string TreeNode::getType(){
+    return nodeType;
 }
 
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code) {
@@ -122,12 +122,8 @@ json* TreeNodeImpl::getGameStateData(){
     return gameState->getState();
 }
 
-void TreeNodeImpl::update(){
-
-}
-
 void TreeNodeImpl::execute(){
-    //std::cout << children.size() << "\n";
+    //std::cout<<"treenode executing" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
@@ -159,10 +155,6 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id
     nodeVariables = gv;
 }
 
-void ForNodeImpl::update(){
-    //std::cout << "updating" <<std::endl;
-}
-
 // Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
     json identifierMap = getIdentifierData();
@@ -192,7 +184,6 @@ void ForNodeImpl::execute(){
         
         for (const auto& child : children) {
             child->execute();
-            child->update();
         }
     }
     identifierMap.erase(freshVariable);
@@ -264,14 +255,16 @@ void ParallelForNodeImpl::execute(){
     auto gameVars = gameState->getVars();
     auto collection = gameVars->getNestedMap(collectionID);
 
+    // Map of what to do after executing a node in parallel
+    std::unordered_map<std::string, std::function<void(ParallelForNodeImpl*, size_t )>> visitParallelMap;
+    visitParallelMap["input_choice"] = visitParallelInput;
+
     // Only works with inputNodes
     // Can be refactored to work when a child is an input node 
-    std::visit([this, &gameVars, &freshID](const auto& value) {
-
+    std::visit([this, &gameVars, &freshID, &visitParallelMap](const auto& value) {
         // First check if its an array
         using T = std::decay_t<decltype(value)>;
         if constexpr (std::is_same_v<T, std::vector<ArrayType>> ) {
-
             // Pass all elements into the temp variable so the child can use
             for(const auto& el: value){
                 gameVars->insert(freshID, el);
@@ -279,21 +272,15 @@ void ParallelForNodeImpl::execute(){
                     child->execute();
                 }
             }
-            
-            // Wait for all responses from the input node child
-            // TODO the timeout
-            int tracking =0;
-            while(tracking < value.size()){
-                if(getMessage() != TreeNodeImpl::NULL_STRING){
-                    eraseMessage();
-                    tracking++;
-                }
+
+            // Depending on what child is what handle the outcomes
+            // Right now only inputNode is programmed into the map
+            for (const auto& child : children){
+                (visitParallelMap[child->getType()](this, value.size()));
             }
+            
         } 
     }, collection);
-    
-    
-    
 }
 
 InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {

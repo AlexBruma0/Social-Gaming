@@ -50,7 +50,7 @@ class TreeNode {
 
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
-        void update();
+        std::string getType();
 
         virtual void execute() const;
 
@@ -94,10 +94,8 @@ class TreeNodeImpl {
         std::string getMessage();
         void eraseMessage();
 
-        virtual void update();
-
         virtual void execute();
-
+        
 
     protected:
         // Node list of children 

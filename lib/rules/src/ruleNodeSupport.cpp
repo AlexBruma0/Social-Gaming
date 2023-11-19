@@ -280,3 +280,16 @@ std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameStat
         return std::make_unique<TreeNodeImpl>("", gameState);
     }
 }
+
+
+void visitParallelInput(ParallelForNodeImpl* parent, size_t size){
+    // Wait for all responses from the input node child
+    // TODO the timeout
+    int tracking =0;
+    while(tracking < size){
+        if(parent->getMessage() != TreeNodeImpl::NULL_STRING){
+            parent->eraseMessage();
+            tracking++;
+        }
+    }
+}
