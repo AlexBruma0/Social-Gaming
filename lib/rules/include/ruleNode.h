@@ -71,6 +71,8 @@ class TreeNodeImpl {
         inline const static std::string TARGET_ID = "target";
         inline const static std::string VALUE_ID = "value";
 
+        inline const static std::string NULL_STRING = "";
+
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
@@ -88,6 +90,9 @@ class TreeNodeImpl {
         // new data storage
         void setNodeVariables(const GameVariables& data);
         GameVariables getNodeVariables() const;
+
+        std::string getMessage();
+        void eraseMessage();
 
         virtual void update();
 

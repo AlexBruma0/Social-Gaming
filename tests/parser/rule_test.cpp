@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <gmock/gmock.h>
+#include <type_traits>
+#include <variant>
 
 // Wrapper API
 #include <cpp-tree-sitter.h>
@@ -14,6 +16,10 @@
 
 // Game Parser functionality
 #include "gameParser.h"
+
+// utils for parser
+#include "utils.h"
+#include "GameState.h"
 
 // Rule Library
 #include "ruleNode.h"
@@ -173,6 +179,39 @@ ts::Node getEmptyTSNode(){
     return noStringNode;
 }
 
+TEST(RuleTests, parallelTest){
+    int vecSize = 6;
+    auto vecData = std::vector<int>(vecSize);
+    std::iota(vecData.begin(), vecData.end(),0);
+    std::reverse(vecData.begin(), vecData.end());
+    auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
+    sum += vecSize;
+
+    json j;
+    j["players"] = vecData;
+
+    // Passing in the dummy indexes which will be incremented by the forNode
+    json identifiers;
+    identifiers[TreeNodeImpl::COLLECTION_ID] = "players";
+    identifiers[TreeNodeImpl::VARIABLE_ID] = "player";
+
+    GameVariables idVars;
+    createGameVariables(identifiers, idVars);
+
+    GameVariables gameVars;
+    createGameVariables(j, gameVars);
+
+    GameState gs{&j};
+    gs.setVars(gameVars);
+
+    std::string type = "child";
+    auto assignment = std::make_unique<ParallelForNodeImpl> (type, &gs);
+    assignment->setNodeVariables(idVars);
+
+    assignment->execute();
+    
+
+}
 
 
 TEST (RuleTests, discardTest){

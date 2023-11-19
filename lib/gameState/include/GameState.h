@@ -3,15 +3,18 @@
 #include <variant>
 #pragma once
 
+class GameVariables;
+
+
 using json = nlohmann::json;
 
-class GameVariables {
-public:
     using ArrayType = std::variant<int, std::string, GameVariables>;
 
     using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
-        std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
+        std::vector<GameVariables>, std::vector<ArrayType>, GameVariables, ArrayType>;
 
+class GameVariables {
+public:
     void insert(const std::string& key, const GameValue& value);
     void erase(const std::string& key);
     GameValue getValue(const std::string& key);

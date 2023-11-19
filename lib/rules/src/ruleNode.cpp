@@ -141,6 +141,17 @@ GameVariables TreeNodeImpl::getNodeVariables() const {
     return nodeVariables;
 }
 
+std::string TreeNodeImpl::getMessage(){
+    // Temporary function for getting a message
+    // Will be changed to use Lex's message queue
+    return "string";
+}
+
+void TreeNodeImpl::eraseMessage(){
+    // TODO 
+    // Implement this will the queue
+}
+
 ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "for"})");
     GameVariables gv;
@@ -246,10 +257,43 @@ ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) 
 }
 
 void ParallelForNodeImpl::execute(){
-   // std::cout<< "executing parallel for" <<std::endl;
-    for (const auto& child : children) {
-        child->execute();
-    }
+    auto idVars = getNodeVariables();
+    auto freshID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::VARIABLE_ID));
+    auto collectionID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::COLLECTION_ID));
+
+    auto gameVars = gameState->getVars();
+    auto collection = gameVars->getNestedMap(collectionID);
+
+    // Only works with inputNodes
+    // Can be refactored to work when a child is an input node 
+    std::visit([this, &gameVars, &freshID](const auto& value) {
+
+        // First check if its an array
+        using T = std::decay_t<decltype(value)>;
+        if constexpr (std::is_same_v<T, std::vector<ArrayType>> ) {
+
+            // Pass all elements into the temp variable so the child can use
+            for(const auto& el: value){
+                gameVars->insert(freshID, el);
+                for (const auto& child : children) {
+                    child->execute();
+                }
+            }
+            
+            // Wait for all responses from the input node child
+            // TODO the timeout
+            int tracking =0;
+            while(tracking < value.size()){
+                if(getMessage() != TreeNodeImpl::NULL_STRING){
+                    eraseMessage();
+                    tracking++;
+                }
+            }
+        } 
+    }, collection);
+    
+    
+    
 }
 
 InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {

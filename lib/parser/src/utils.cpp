@@ -326,11 +326,6 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
 
     return output;
 }
-using ArrayType = std::variant<int, std::string, GameVariables>;
-
-using GameValue = 
-std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
-std::vector<GameVariables>,std::vector<ArrayType>, GameVariables>;
 
 GameValue convertToPrimitiveType(json& jsonObj){
     if(jsonObj.is_number()){
