@@ -50,7 +50,7 @@ class TreeNode {
 
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
-        void update();
+        std::string getType();
 
         virtual void execute() const;
 
@@ -71,6 +71,8 @@ class TreeNodeImpl {
         inline const static std::string TARGET_ID = "target";
         inline const static std::string VALUE_ID = "value";
 
+        inline const static std::string NULL_STRING = "";
+
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
@@ -89,10 +91,11 @@ class TreeNodeImpl {
         void setNodeVariables(const GameVariables& data);
         GameVariables getNodeVariables() const;
 
-        virtual void update();
+        std::string getMessage();
+        void eraseMessage();
 
         virtual void execute();
-
+        
 
     protected:
         // Node list of children 
