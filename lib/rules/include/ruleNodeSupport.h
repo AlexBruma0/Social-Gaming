@@ -19,4 +19,6 @@ std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState* ga
 std::unique_ptr<TreeNodeImpl> processMatchEntry(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode);
 std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode);
 
+void visitParallelInput(ParallelForNodeImpl* parent, size_t size);
+
 #endif //SOCIAL_GAMING_RULENODESUPPORT_H

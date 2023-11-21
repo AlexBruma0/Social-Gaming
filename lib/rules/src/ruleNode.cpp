@@ -37,8 +37,8 @@ void TreeNode::printTree(int depth) const {
     impl->printTree(depth);
 }
 
-void TreeNode::update(){
-    impl->update();
+std::string TreeNode::getType(){
+    return nodeType;
 }
 
 std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code) {
@@ -77,10 +77,14 @@ NODE CLASSES
 
 TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState): content(id), gameState(_gameState) {
     identifiers = json::parse("{}");
+    GameVariables gv;
+    gv.insert("_type", std::string("generic"));
+    nodeVariables = gv;
 }
 
 TreeNodeImpl::TreeNodeImpl() : content("") {
     identifiers = json::parse("{}");
+    nodeVariables = GameVariables();
     gameState = nullptr;
 }
 
@@ -95,7 +99,10 @@ void TreeNodeImpl::printTree(int depth) const{
         std::cout << "  ";
     }
 
-    std::cout << "identifiers: " << identifiers << std::endl;
+    //std::cout << "identifiers: " << identifiers << std::endl;
+    std::cout << "node vars: ";
+    nodeVariables.print();
+    std::cout << std::endl;
 
     for (const auto& child : children) {
         child->printTree(depth + 1);
@@ -115,23 +122,37 @@ json* TreeNodeImpl::getGameStateData(){
     return gameState->getState();
 }
 
-void TreeNodeImpl::update(){
-
-}
-
 void TreeNodeImpl::execute(){
-    //std::cout << children.size() << "\n";
+    //std::cout<<"treenode executing" <<std::endl;
     for (const auto& child : children) {
         child->execute();
     }
 }
 
-ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
-    identifiers = json::parse(R"({"_type": "for"})");
+void TreeNodeImpl::setNodeVariables(const GameVariables &data) {
+    nodeVariables = data;
 }
 
-void ForNodeImpl::update(){
-    //std::cout << "updating" <<std::endl;
+GameVariables TreeNodeImpl::getNodeVariables() const {
+    return nodeVariables;
+}
+
+std::string TreeNodeImpl::getMessage(){
+    // Temporary function for getting a message
+    // Will be changed to use Lex's message queue
+    return "string";
+}
+
+void TreeNodeImpl::eraseMessage(){
+    // TODO 
+    // Implement this will the queue
+}
+
+ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
+    identifiers = json::parse(R"({"_type": "for"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("for"));
+    nodeVariables = gv;
 }
 
 // Same as RuleNode Temp for testing
@@ -163,7 +184,6 @@ void ForNodeImpl::execute(){
         
         for (const auto& child : children) {
             child->execute();
-            child->update();
         }
     }
     identifierMap.erase(freshVariable);
@@ -172,6 +192,9 @@ void ForNodeImpl::execute(){
 
 DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "discard"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("discard"));
+    nodeVariables = gv;
 }
 
 // Checking if the array should be fully wiped
@@ -203,6 +226,9 @@ void DiscardNodeImpl::execute(){
 
 MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "message"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("message"));
+    nodeVariables = gv;
 }
 
 void MessageNodeImpl::execute(){
@@ -216,17 +242,52 @@ void MessageNodeImpl::execute(){
 
 ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "parallel_for"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("parallel_for"));
+    nodeVariables = gv;
 }
 
 void ParallelForNodeImpl::execute(){
-   // std::cout<< "executing parallel for" <<std::endl;
-    for (const auto& child : children) {
-        child->execute();
-    }
+    auto idVars = getNodeVariables();
+    auto freshID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::VARIABLE_ID));
+    auto collectionID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::COLLECTION_ID));
+
+    auto gameVars = gameState->getVars();
+    auto collection = gameVars->getNestedMap(collectionID);
+
+    // Map of what to do after executing a node in parallel
+    std::unordered_map<std::string, std::function<void(ParallelForNodeImpl*, size_t )>> visitParallelMap;
+    visitParallelMap["input_choice"] = visitParallelInput;
+
+    // Only works with inputNodes
+    // Can be refactored to work when a child is an input node 
+    std::visit([this, &gameVars, &freshID, &visitParallelMap](const auto& value) {
+        // First check if its an array
+        using T = std::decay_t<decltype(value)>;
+        if constexpr (std::is_same_v<T, std::vector<ArrayType>> ) {
+            // Pass all elements into the temp variable so the child can use
+            for(const auto& el: value){
+                gameVars->insert(freshID, el);
+                for (const auto& child : children) {
+                    child->execute();
+                }
+            }
+
+            // Depending on what child is what handle the outcomes
+            // Right now only inputNode is programmed into the map
+            for (const auto& child : children){
+                (visitParallelMap[child->getType()](this, value.size()));
+            }
+            
+        } 
+    }, collection);
 }
 
 InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "input_choice"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("input_choice"));
+    nodeVariables = gv;
 }
 
 void InputChoiceNodeImpl::execute(){
@@ -240,6 +301,9 @@ void InputChoiceNodeImpl::execute(){
 
 ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "scores"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("scores"));
+    nodeVariables = gv;
 }
 
 void ScoresNodeImpl::execute(){
@@ -253,6 +317,9 @@ void ScoresNodeImpl::execute(){
 
 AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "assignment"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("assignment"));
+    nodeVariables = gv;
 }
 
 void AssignmentNodeImpl::execute(){
@@ -276,6 +343,9 @@ void AssignmentNodeImpl::execute(){
 
 MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "match"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("match"));
+    nodeVariables = gv;
 }
 
 void MatchNodeImpl::execute(){
@@ -289,6 +359,9 @@ void MatchNodeImpl::execute(){
 
 MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "match_entry"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("match_entry"));
+    nodeVariables = gv;
 }
 
 void MatchEntryNodeImpl::execute(){
@@ -302,6 +375,9 @@ void MatchEntryNodeImpl::execute(){
 
 ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
     identifiers = json::parse(R"({"_type": "extend"})");
+    GameVariables gv;
+    gv.insert("_type", std::string("extend"));
+    nodeVariables = gv;
 }
 
 void ExtendNodeImpl::execute(){

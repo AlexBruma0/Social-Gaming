@@ -70,6 +70,12 @@ std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState* game
         data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
 
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("var", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        vars.insert("collection", std::string(getNodeStringValue(tsNode.getChild(3), sourceCode)));
+        implPtr->setNodeVariables(vars);
+
         return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
@@ -85,6 +91,12 @@ std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState* 
         data["operand"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
         data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
+
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("operand", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        vars.insert("collection", std::string(getNodeStringValue(tsNode.getChild(3), sourceCode)));
+        implPtr->setNodeVariables(vars);
 
         return implPtr;
     } else {
@@ -102,6 +114,12 @@ std::unique_ptr<TreeNodeImpl> processMessage(const ts::Node& tsNode, GameState* 
         data["message"] = getNodeStringValue(tsNode.getChild(2), sourceCode);
         implPtr->setIdentifierData(data);
 
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("target", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        vars.insert("message", std::string(getNodeStringValue(tsNode.getChild(2), sourceCode)));
+        implPtr->setNodeVariables(vars);
+
         return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
@@ -117,6 +135,12 @@ std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameSta
         data["var"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
         data["collection"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
         implPtr->setIdentifierData(data);
+
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("var", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        vars.insert("collection", std::string(getNodeStringValue(tsNode.getChild(3), sourceCode)));
+        implPtr->setNodeVariables(vars);
 
         return implPtr;
     } else {
@@ -137,6 +161,15 @@ std::unique_ptr<TreeNodeImpl> processInputChoice(const ts::Node& tsNode, GameSta
         data["timeout"] = getNodeStringValue(tsNode.getChild(11), sourceCode);
         implPtr->setIdentifierData(data);
 
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("player", std::string(getNodeStringValue(tsNode.getChild(2), sourceCode)));
+        vars.insert("prompt", std::string(getNodeStringValue(tsNode.getChild(5), sourceCode)));
+        vars.insert("choices", std::string(getNodeStringValue(tsNode.getChild(7), sourceCode)));
+        vars.insert("target", std::string(getNodeStringValue(tsNode.getChild(9), sourceCode)));
+        vars.insert("timeout", std::string(getNodeStringValue(tsNode.getChild(11), sourceCode)));
+        implPtr->setNodeVariables(vars);
+
         return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
@@ -150,8 +183,12 @@ std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState* ga
 
         json data = implPtr->getIdentifierData();
         data["condition"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
-
         implPtr->setIdentifierData(data);
+
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("condition", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        implPtr->setNodeVariables(vars);
 
         return implPtr;
     } else {
@@ -167,6 +204,11 @@ std::unique_ptr<TreeNodeImpl> processMatchEntry(const ts::Node& tsNode, GameStat
         json data = implPtr->getIdentifierData();
         data["condition"] = getNodeStringValue(tsNode.getChild(0), sourceCode);
         implPtr->setIdentifierData(data);
+
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("condition", std::string(getNodeStringValue(tsNode.getChild(0), sourceCode)));
+        implPtr->setNodeVariables(vars);
 
         return implPtr;
     } else {
@@ -184,6 +226,11 @@ std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState* g
         data["keys"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
         implPtr->setIdentifierData(data);
 
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("keys", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        implPtr->setNodeVariables(vars);
+
         return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
@@ -198,8 +245,13 @@ std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState* g
         json data = implPtr->getIdentifierData();
         data["target"] = getNodeStringValue(tsNode.getChild(1), sourceCode);
         data["with"] = getNodeStringValue(tsNode.getChild(3), sourceCode);
-
         implPtr->setIdentifierData(data);
+
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("target", std::string(getNodeStringValue(tsNode.getChild(1), sourceCode)));
+        vars.insert("with", std::string(getNodeStringValue(tsNode.getChild(3), sourceCode)));
+        implPtr->setNodeVariables(vars);
 
         return implPtr;
     } else {
@@ -217,8 +269,27 @@ std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameStat
         data["value"] = getNodeStringValue(tsNode.getChild(2), sourceCode);
         implPtr->setIdentifierData(data);
 
+        // new data setting; delete the one above when transition is complete
+        GameVariables vars = implPtr->getNodeVariables();
+        vars.insert("target", std::string(getNodeStringValue(tsNode.getChild(0), sourceCode)));
+        vars.insert("value", std::string(getNodeStringValue(tsNode.getChild(2), sourceCode)));
+        implPtr->setNodeVariables(vars);
+
         return implPtr;
     } else {
         return std::make_unique<TreeNodeImpl>("", gameState);
+    }
+}
+
+
+void visitParallelInput(ParallelForNodeImpl* parent, size_t size){
+    // Wait for all responses from the input node child
+    // TODO the timeout
+    int tracking =0;
+    while(tracking < size){
+        if(parent->getMessage() != TreeNodeImpl::NULL_STRING){
+            parent->eraseMessage();
+            tracking++;
+        }
     }
 }

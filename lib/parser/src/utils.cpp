@@ -231,6 +231,12 @@ json createJsonData(ts::Node root, const std::string& sourcecode) {
 
     return json_data;
 }
+
+// TODO: make a GameVariables map out of the json that already exists
+// we can probably just brute force it
+//GameVariables createGameVariables(json jsonData) {
+//}
+
 // prints the node type and number of children for the current node of a cursor
 void printCursor(const ts::Cursor& c) {
     ts::Node node = c.getCurrentNode();
@@ -319,4 +325,60 @@ json extractListExpression(const ts::Node &listExpressionNode, const std::string
     }
 
     return output;
+}
+
+GameValue convertToPrimitiveType(json& jsonObj){
+    if(jsonObj.is_number()){
+        return jsonObj.get<int>();
+
+    } else if(jsonObj.is_string()){
+        return jsonObj.get<std::string>();
+    } else {
+        return {};
+    }
+}
+std::vector<ArrayType> convertToArray(json& jsonArr){
+    std::vector<ArrayType> copyArray;
+
+    for(auto el : jsonArr){
+        if(el.is_number()){
+                copyArray.emplace_back(el.get<int>());
+
+            }else if(el.is_string()){
+                copyArray.emplace_back(el.get<std::string>());
+
+            }else if(el.is_object()){
+                GameVariables parentGameVariables;
+                createGameVariables(el, parentGameVariables);
+                copyArray.emplace_back(parentGameVariables);
+            }
+    }
+    return copyArray;
+}
+// transforms from json to GameVariable
+void createGameVariables(json& jsonObj, GameVariables& parentGameVariables){
+    
+    json::iterator itStart = jsonObj.begin();
+
+    for (json::iterator it = jsonObj.begin(); it != jsonObj.end(); ++it) {
+
+        if(!it.value().is_object()){
+
+            if(it.value().is_array()){
+                parentGameVariables.insert(it.key(), convertToArray(it.value()));
+            } else{
+                parentGameVariables.insert(it.key(), convertToPrimitiveType(it.value()));
+            }
+             
+        }
+        else{
+            GameVariables newGameVariables;
+            createGameVariables(it.value(), newGameVariables);
+            parentGameVariables.insert(it.key(), newGameVariables);
+        }
+    
+        //std::cout << it.key() << " : " << it.value() << "\n";
+    }
+    
+    
 }

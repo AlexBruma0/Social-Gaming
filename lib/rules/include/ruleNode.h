@@ -50,7 +50,7 @@ class TreeNode {
 
         void addChild(std::unique_ptr<TreeNode> child) const; 
 
-        void update();
+        std::string getType();
 
         virtual void execute() const;
 
@@ -71,6 +71,8 @@ class TreeNodeImpl {
         inline const static std::string TARGET_ID = "target";
         inline const static std::string VALUE_ID = "value";
 
+        inline const static std::string NULL_STRING = "";
+
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
@@ -79,22 +81,29 @@ class TreeNodeImpl {
 
         void addChild(std::unique_ptr<TreeNode> child);
 
+        // old data storage
         void setIdentifierData(const json& data);
-
         json getIdentifierData() const;
 
         json* getGameStateData();
 
-        virtual void update();
+        // new data storage
+        void setNodeVariables(const GameVariables& data);
+        GameVariables getNodeVariables() const;
+
+        std::string getMessage();
+        void eraseMessage();
 
         virtual void execute();
-
+        
 
     protected:
         // Node list of children 
         std::vector<std::unique_ptr<TreeNode>> children;
         // json object to store the necessary data for each node
         json identifiers;
+
+        GameVariables nodeVariables;
 
         // Contains the indexes for how to access the json objects
         // Ex json["players"][0]

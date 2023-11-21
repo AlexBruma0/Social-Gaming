@@ -5,6 +5,7 @@
 #include <cpp-tree-sitter.h>
 #include "parser.h"
 #include <string>
+#include "GameState.h"
 
 
 using json = nlohmann::json;
@@ -30,6 +31,10 @@ void deleteCommaInRegularExpression(std::string& str);
 std::string formatString(std::string& input);
 
 json createJsonData(ts::Node root, const std::string& sourceCode);
+
+// TODO: make a GameVariables map out of the json that already exists
+// we can probably just brute force it
+void createGameVariables(json& jsonObj, GameVariables& parentGameVariables);
 
 json generateNumbersList(int start, int end);
 
