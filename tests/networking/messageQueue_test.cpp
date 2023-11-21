@@ -5,18 +5,26 @@ TEST(messageQueue_tests, simpletest){
     MessageQueue mq = MessageQueue();
     std::string input = "input";
     std::string input2 = "input2";
-    mq.add(input);
-    mq.add(input2);
-    ASSERT_EQ(mq.remove(),input);
-    ASSERT_EQ(mq.remove(),input2);
+    networking::Connection con1{8888};
+    networking::Message msg1{con1, input};
+    networking::Connection con2{8888};
+    networking::Message msg2{con1, input2};
+    mq.add(msg1);
+    mq.add(msg2);
+    ASSERT_EQ(mq.remove().text,input);
+    ASSERT_EQ(mq.remove().text,input2);
 }
 
 TEST(messageQueue_tests, idTest){
     MessageQueue mq = MessageQueue();
     std::string input = "input";
     std::string input2 = "input2";
-    int id1 = mq.add(input);
-    int id2 = mq.add(input2);
-    ASSERT_EQ(mq.getMessageFromID(id1), input);
-    ASSERT_EQ(mq.getMessageFromID(id2), input2);
+    networking::Connection con1{8888};
+    networking::Message msg1{con1, input};
+    networking::Connection con2{9999};
+    networking::Message msg2{con2, input2};
+    mq.add(msg1);
+    mq.add(msg2);
+    ASSERT_EQ(mq.getMessageFromID(con1)[0].text, input);
+    ASSERT_EQ(mq.getMessageFromID(con2)[0].text, input2);
 }

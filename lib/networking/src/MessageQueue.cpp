@@ -6,20 +6,22 @@ MessageQueue & MessageQueue::operator=(const MessageQueue &mq){
     return *this;
 }
 
-int MessageQueue::add(std::string s){
-    messages.push_back(s);
+int MessageQueue::add(networking::Message message){
+    messages.push_back(message);
     return messages.size()-1;
 }
 
-std::string MessageQueue::remove(){
-    std::string message = messages.front();
+networking::Message MessageQueue::remove(){
+    networking::Message message = messages.front();
     messages.erase(messages.begin());
     return message;
 }
 
-std::string MessageQueue::getMessageFromID(int id){
-    if(id>=messages.size() || id < 0){
-        return "";
+std::vector<networking::Message> MessageQueue::getMessageFromID(networking::Connection connection){
+    uintptr_t id = connection.id;
+    std::vector<networking::Message> returnVec;
+    for(networking::Message msg:messages){
+        if(msg.connection.id == id) returnVec.push_back(msg);
     }
-    return messages[id];
+    return returnVec;
 }
