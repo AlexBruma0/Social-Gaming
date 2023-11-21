@@ -282,14 +282,25 @@ std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameStat
 }
 
 
-void visitParallelInput(ParallelForNodeImpl* parent, size_t size){
+ArrayType parseResponse(){
+    int response = 1;
+    return response;
+}
+
+void visitParallelInput(ParallelForNodeImpl* parent, const size_t& size, const std::string& responseName){
     // Wait for all responses from the input node child
     // TODO the timeout
+    std::vector<ArrayType> responses;
     int tracking =0;
     while(tracking < size){
-        if(parent->getMessage() != TreeNodeImpl::NULL_STRING){
+        auto message = parent->getMessage();
+        if( message != TreeNodeImpl::NULL_STRING){
+            auto response = parseResponse();
+
+            responses.push_back(response);
             parent->eraseMessage();
             tracking++;
         }
     }
+    parent->getGameStateData()->getVars()->insert(responseName+"Responses", responses);
 }

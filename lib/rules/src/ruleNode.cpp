@@ -118,8 +118,8 @@ json TreeNodeImpl::getIdentifierData() const {
     return identifiers;
 }
 
-json* TreeNodeImpl::getGameStateData(){
-    return gameState->getState();
+GameState* TreeNodeImpl::getGameStateData(){
+    return gameState;
 }
 
 void TreeNodeImpl::execute(){
@@ -155,38 +155,22 @@ ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id
     nodeVariables = gv;
 }
 
-// Same as RuleNode Temp for testing
 void ForNodeImpl::execute(){
-    json identifierMap = getIdentifierData();
-    json* gameStateMap = getGameStateData();
+    // json identifierMap = getIdentifierData();
+    // json* gameStateMap = getGameStateData();
+    // auto array = identifierMap[TreeNodeImpl::COLLECTION_ID];
 
-    // Gets the first element
-    // Assuming that it will be parsed and contain only one array
-    // Temporary until the id are decided
-    auto array = identifierMap[TreeNodeImpl::COLLECTION_ID];
-
-    // create a new object in the game state to hold information about the current item being being executed
-    auto freshVariable = identifierMap[TreeNodeImpl::VARIABLE_ID].dump();
-    //std::cout<<freshVariable<<std::endl;
-
-    // For all the elements in the array execute the child code
-    //std:: cout << "array: " << array << "\n"; 
-    for (auto el: array) {
-        if(array.is_array()){
-            (*gameStateMap)[freshVariable] = el;
-            //std::cout << "game state temp " << gameStateMap.dump() << "\n";
-        }
-        
-        // for debugging
-        //json gs = *gameState->getState();
-        //std::cout << "for " << freshVariable << " in "<< array << "\n";
-        //std::cout << "updated gamestate: \n" << gs.dump() << "\n\n";
+    // auto freshVariable = identifierMap[TreeNodeImpl::VARIABLE_ID].dump();
+    // for (auto el: array) {
+    //     if(array.is_array()){
+    //         (*gameStateMap)[freshVariable] = el;
+    //     }
         
         for (const auto& child : children) {
             child->execute();
         }
-    }
-    identifierMap.erase(freshVariable);
+    // }
+    // identifierMap.erase(freshVariable);
     
 }
 
@@ -204,20 +188,20 @@ bool DiscardNodeImpl::extractSize(const std::string_view operand){
 }
 
 void DiscardNodeImpl::execute(){
-    //std::cout<< "executing discard" <<std::endl;
+    // //std::cout<< "executing discard" <<std::endl;
 
-    auto gameData = getGameStateData();
-    auto idData = getIdentifierData();
+    // auto gameData = getGameStateData();
+    // auto idData = getIdentifierData();
 
-    // TODO: Change json to a map format
-    auto arrayId = idData[TreeNodeImpl::VARIABLE_ID].get<std::string>();
-    auto array = (*gameData)[arrayId];
-    auto size = idData[TreeNodeImpl::OPERAND_ID].dump();
+    // // TODO: Change json to a map format
+    // auto arrayId = idData[TreeNodeImpl::VARIABLE_ID].get<std::string>();
+    // auto array = (*gameData)[arrayId];
+    // auto size = idData[TreeNodeImpl::OPERAND_ID].dump();
 
-    // TODO: account for when only a portion of array should be wiped
-    if(extractSize(size)){
-        (*gameData)[arrayId].clear();
-    }
+    // // TODO: account for when only a portion of array should be wiped
+    // if(extractSize(size)){
+    //     (*gameData)[arrayId].clear();
+    // }
 
     for (const auto& child : children) {
         child->execute();
@@ -256,7 +240,7 @@ void ParallelForNodeImpl::execute(){
     auto collection = gameVars->getNestedMap(collectionID);
 
     // Map of what to do after executing a node in parallel
-    std::unordered_map<std::string, std::function<void(ParallelForNodeImpl*, size_t )>> visitParallelMap;
+    std::unordered_map<std::string, std::function<void(ParallelForNodeImpl*, const size_t& size, const std::string& )>> visitParallelMap;
     visitParallelMap["input_choice"] = visitParallelInput;
 
     // Only works with inputNodes
@@ -264,7 +248,7 @@ void ParallelForNodeImpl::execute(){
     std::visit([this, &gameVars, &freshID, &visitParallelMap](const auto& value) {
         // First check if its an array
         using T = std::decay_t<decltype(value)>;
-        if constexpr (std::is_same_v<T, std::vector<ArrayType>> ) {
+        if constexpr (std::is_same_v<T, std::vector<ArrayType>>) {
             // Pass all elements into the temp variable so the child can use
             for(const auto& el: value){
                 gameVars->insert(freshID, el);
@@ -276,7 +260,7 @@ void ParallelForNodeImpl::execute(){
             // Depending on what child is what handle the outcomes
             // Right now only inputNode is programmed into the map
             for (const auto& child : children){
-                (visitParallelMap[child->getType()](this, value.size()));
+                (visitParallelMap[child->getType()](this, value.size(), freshID));
             }
             
         } 
@@ -325,16 +309,16 @@ AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : 
 void AssignmentNodeImpl::execute(){
    // std::cout<< "executing assignment" <<std::endl;
 
-    auto gameData = getGameStateData();
-    auto idData = getIdentifierData();
+    // auto gameData = getGameStateData();
+    // auto idData = getIdentifierData();
 
-    // TODO: Change json to a map format
-    auto targetId = idData[TreeNodeImpl::TARGET_ID].get<std::string>();
-    auto value = idData[TreeNodeImpl::VALUE_ID].dump();
+    // // TODO: Change json to a map format
+    // auto targetId = idData[TreeNodeImpl::TARGET_ID].get<std::string>();
+    // auto value = idData[TreeNodeImpl::VALUE_ID].dump();
 
-    // TODO: figure out variants and mapping
-    // Currently just assign value
-    (*gameData)[targetId] = value;
+    // // TODO: figure out variants and mapping
+    // // Currently just assign value
+    // (*gameData)[targetId] = value;
 
     for (const auto& child : children) {
         child->execute();
