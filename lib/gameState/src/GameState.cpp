@@ -36,7 +36,7 @@ GameValue GameVariables::getValue(const std::string &key) {
         return it->second;
     } else {
         // return an empty value if nothing is found
-        return {};
+        return NotFoundTag();
     }
 }
 
