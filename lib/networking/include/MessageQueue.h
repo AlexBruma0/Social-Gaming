@@ -8,12 +8,12 @@
 
 class MessageQueue{
     private:
-    std::vector<networking::Message> messages;
+    std::vector<networking::Message2> messages;
     public:
     MessageQueue& operator=(const MessageQueue& mq);
-    int add(networking::Message message);
-    networking::Message remove();
-    std::vector<networking::Message> getMessageFromID(networking::Connection);
+    int add(networking::Message2 message);
+    networking::Message2 remove();
+    std::vector<networking::Message2> getMessageFromID(networking::Connection);
 };
 
 #endif // MESSAGE_QUEUE_H
