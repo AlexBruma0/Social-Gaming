@@ -11,6 +11,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "GameState.h"
+#include "MessageQueue.h"
 
 
 
@@ -115,7 +116,8 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
 
 }
 
-TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code) {
+TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code,
+                       const MessageQueue* in, const MessageQueue* out) {
     const int num_players = 2;
     const int num_rounds = 2;
 
@@ -143,7 +145,7 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     TreeNode parent(root, "root", source_code, &gs);
     identifyOperations(syntaxTree, source_code, parent, &gs);
     // parent.printTree();
-    // parent.execute();
+    parent.execute();
 
     return parent;
 }

@@ -3,6 +3,9 @@
 #include <string_view>
 #include "Server.h"
 
+#ifndef MESSAGE_QUEUE_H
+#define MESSAGE_QUEUE_H
+
 class MessageQueue{
     private:
     std::vector<networking::Message> messages;
@@ -12,3 +15,5 @@ class MessageQueue{
     networking::Message remove();
     std::vector<networking::Message> getMessageFromID(networking::Connection);
 };
+
+#endif // MESSAGE_QUEUE_H
