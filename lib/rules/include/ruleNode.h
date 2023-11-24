@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 #include "../../gameState/include/GameState.h"
 #include "cpp-tree-sitter.h"
+#include "MessageQueue.h"
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
@@ -42,7 +43,8 @@ class TreeNode {
     public:
         TreeNode() : impl(nullptr), nodeType("") {}
 
-        TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState* gameState);
+        TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode,
+                 GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
 
         TreeNode& operator=(const TreeNode& other);
 

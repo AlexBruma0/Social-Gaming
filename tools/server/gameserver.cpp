@@ -245,7 +245,9 @@ public:
     GameServer(unsigned short port, const std::string& htmlResponse,
                void (*onConnectCallback)(Connection),
                void (*onDisconnectCallback)(Connection))
-            : server(port, htmlResponse, onConnectCallback, onDisconnectCallback) {
+            : server(port, htmlResponse, onConnectCallback, onDisconnectCallback),
+            in(SendMessageQueue()),
+            out(ReceiveMessageQueue()) {
 
 
         // initialize the root of the rules
@@ -284,7 +286,6 @@ public:
 private:
     Server server;
 
-    // unitialized until it's more clear what we should do with the queues; waiting on Alex/Lex merge for updates
     SendMessageQueue in;
     ReceiveMessageQueue out;
 

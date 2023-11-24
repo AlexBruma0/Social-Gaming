@@ -19,8 +19,10 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState* gameState) : nodeType(type) {
+TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode,
+                   GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : nodeType(type) {
     impl = std::move(this->parseNode(tsNode, gameState, sourceCode));
+    // TODO: put the queues in parse, then put those in the impl
     //std::cout << impl->getIdentifierData().dump();
     //std::cout << "address of impl " << impl.get() << std::endl;
 }
