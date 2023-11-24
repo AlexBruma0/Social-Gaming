@@ -292,9 +292,9 @@ struct Message {
             {"playerID", playerID}
         };
     }
-    
+
     // used for debugging to print the contents of a Message type. 
-    std::string serializeMessage() {
+    std::string stringify() {
         json jsonOutput;
         this->to_json(jsonOutput);
         return jsonOutput.dump();
@@ -354,7 +354,7 @@ void InputChoiceNodeImpl::execute(){
     //const int PORT_ID = 8888;
     
     // for testing:
-    std::cout << InputMessage.serializeMessage() << std::endl;
+    std::cout << InputMessage.stringify() << std::endl;
     
     // Adding to the queue will look something like this. Queue is not yet instantiated globally
 
