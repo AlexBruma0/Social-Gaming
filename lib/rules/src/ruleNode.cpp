@@ -284,20 +284,15 @@ struct Message {
     std::string prompt;
     int playerID;
 
-    void to_json(json& j) const {
-        j = json{
+    // used for debugging to print the contents of a Message type. 
+    void print(){
+        json j = json{
             {"type", type},
             {"choices", choices},
             {"prompt", prompt},
             {"playerID", playerID}
         };
-    }
-
-    // used for debugging to print the contents of a Message type. 
-    std::string stringify() {
-        json jsonOutput;
-        this->to_json(jsonOutput);
-        return jsonOutput.dump();
+        std::cout << j.dump() << std::endl;
     }
 };
 
@@ -354,7 +349,7 @@ void InputChoiceNodeImpl::execute(){
     //const int PORT_ID = 8888;
     
     // for testing:
-    std::cout << InputMessage.stringify() << std::endl;
+    InputMessage.print();
     
     // Adding to the queue will look something like this. Queue is not yet instantiated globally
 
