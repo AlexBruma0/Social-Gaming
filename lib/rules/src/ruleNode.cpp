@@ -274,13 +274,97 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) 
     nodeVariables = gv;
 }
 
+using json = nlohmann::json;
+
+enum MessageType { SEND, RESPONSE };
+// tempory message type before Lex adds updates the message struct in networking
+struct Message {
+    MessageType type;
+    std::vector<int> choices;
+    std::string prompt;
+    int playerID;
+
+    void to_json(json& j) const {
+        j = json{
+            {"type", type},
+            {"choices", choices},
+            {"prompt", prompt},
+            {"playerID", playerID}
+        };
+    }
+};
+// used for debugging to print the contents of a Message type. 
+std::string serializeMessage(const Message& msg) {
+    json jsonOutput;
+    msg.to_json(jsonOutput);
+    return jsonOutput.dump();
+
+}
+
 void InputChoiceNodeImpl::execute(){
-    //std::cout<< "executing input choice" <<std::endl;
+
+    auto idVars = getNodeVariables();
+
+    auto targetID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::TARGET_ID));
+    auto promptID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::PROMPT_ID));
+    auto choicesID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::CHOICES_ID));
+
+    auto gameVars = gameState->getVars();
+    auto choices = gameVars->getNestedMap(choicesID);
+    auto target = gameVars->getNestedMap(targetID);
+    auto prompt = gameVars->getNestedMap(promptID);
+
+    Message InputMessage;
+    int intTarget;
+    std::string stringPrompt;
+    std::vector<int> intChoices;
+
+    std::visit([&prompt, &stringPrompt](auto&& e){
+            using T = std::decay_t<decltype(e)>;
+            if constexpr (std::is_same_v<T, std::string> ){
+                stringPrompt = std::get<std::string>(prompt);
+            }
+        }, prompt);
+
+ 
+    std::visit([&target, &intTarget](auto&& e){
+            using T = std::decay_t<decltype(e)>;
+            if constexpr (std::is_same_v<T, int> ){
+                intTarget = std::get<int>(target);
+            }
+        }, target);
+
+    std::visit([&choices, &intChoices ](auto&& elements){
+        using U = std::decay_t<decltype(elements)>;
+        if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
+            for(auto& el: elements){
+                std::visit([&el, &intChoices](auto&& e){
+                    using T = std::decay_t<decltype(e)>;
+                    if constexpr (std::is_same_v<T, int> ){
+                        auto intChoice = std::get<int>(el);
+                        intChoices.emplace_back(intChoice);
+                    }
+                }, el);
+            }
+        }
+    }, choices);
+
+    InputMessage = Message{ MessageType{SEND}, intChoices, stringPrompt, intTarget };
+    //const int PORT_ID = 8888;
+    
+    // for testing:
+    std::cout << serializeMessage(InputMessage) << std::endl;
+    
+    // Adding to the queue will look something like this. Queue is not yet instantiated globally
+
+    // networking::Connection con{PORT_ID};
+    // networking::Message networkingMessage{con, serializeMessage(InputMessage)};
+    // MessageQueue.add(networkingMessage);
+
+
     for (const auto& child : children) {
         child->execute();
     }
-
-    //TODO: once Arjun has the server I/O interface ready, call it here to send prompt and get answer (probably with IDs)
 }
 
 ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {

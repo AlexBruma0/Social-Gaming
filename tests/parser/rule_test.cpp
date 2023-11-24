@@ -237,6 +237,36 @@ TEST(RuleTests, parallelTest){
     }, elements);
 }
 
+TEST(RuleTests, InputTests){
+
+    std::vector<int> weapons = {1, 2, 3};
+
+    json j;
+    j["weapons"] = weapons;
+    j["player"] = 1;
+    j["prompt"] = "choose your weapon!";
+
+    json identifiersInput;
+    identifiersInput[TreeNodeImpl::CHOICES_ID] = "weapons";
+    identifiersInput[TreeNodeImpl::TARGET_ID] = "player";
+    identifiersInput[TreeNodeImpl::PROMPT_ID] = "prompt"; 
+
+    GameVariables idVarsInput;
+    createGameVariables(identifiersInput, idVarsInput);
+
+    GameVariables gameVars;
+    createGameVariables(j, gameVars);
+
+    GameState gs{&j};
+    gs.setVars(gameVars);
+
+    std::string type = "input_choice";
+    auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs);
+    inputNode->setNodeVariables(idVarsInput);
+
+    inputNode->execute();
+}
+
 
 // TEST (RuleTests, discardTest){
 //     // Setting up a vector labeled 1,2,3,4......
