@@ -87,7 +87,7 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
 }
 
 
-void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState) {
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
     // list of stuff we need to implement, operation nodes defined by the language
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "match_entry", "extend", "reverse", "shuffle",
@@ -99,25 +99,25 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
 
     auto it = std::find(allowedTypes.begin(), allowedTypes.end(), nodeType);
     if (it != allowedTypes.end() && node.getNumChildren() > 0) {
-        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(node, nodeType, source_code, gameState);
+        std::unique_ptr<TreeNode> child = std::make_unique<TreeNode>(node, nodeType, source_code, gameState, in, out);
 
         TreeNode& childRef = *child;
         parentNode.addChild(std::move(child));
 
 
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, childRef, gameState);
+            identifyOperations(node.getChild(i), source_code, childRef, gameState, in, out);
         }
     } else {
         for (uint32_t i = 0; i < node.getNumChildren(); ++i) {
-            identifyOperations(node.getChild(i), source_code, parentNode, gameState);
+            identifyOperations(node.getChild(i), source_code, parentNode, gameState, in, out);
         }
     }
 
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code,
-                       const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+                        const SendMessageQueue* in, const ReceiveMessageQueue* out) {
     const int num_players = 2;
     const int num_rounds = 2;
 
@@ -142,8 +142,8 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     //std::cout << gs.getState().dump();
 
 
-    TreeNode parent(root, "root", source_code, &gs);
-    identifyOperations(syntaxTree, source_code, parent, &gs);
+    TreeNode parent(root, "root", source_code, &gs, in, out);
+    identifyOperations(syntaxTree, source_code, parent, &gs, in, out);
     // parent.printTree();
     // parent.execute();
 

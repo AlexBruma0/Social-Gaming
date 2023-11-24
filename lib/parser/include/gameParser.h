@@ -21,8 +21,8 @@ std::string getSubstringUsingByteRange(const std::string& input, size_t startByt
 void printDfs(const ts::Node& node, const std::string& source_code, int depth);
 
 // creates a cleaner tree with nodes that store type-specific information for easier use
-void identifyOperations(const ts::Node& node, const std::string& source_code, const TreeNode& parentNode, int depth = 0);
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out);
 
-TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code, const SendMessageQueue* in, const ReceiveMessageQueue* out);
+TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code, const SendMessageQueue* in, const  ReceiveMessageQueue* out);
 
 #endif //SOCIAL_GAMING_GAMEPARSER_H
