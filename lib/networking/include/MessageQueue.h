@@ -6,14 +6,23 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
-class MessageQueue{
+class SendMessageQueue{
     private:
-    std::vector<networking::Message2> messages;
+    std::vector<networking::SendMessage> messages;
     public:
-    MessageQueue& operator=(const MessageQueue& mq);
-    int add(networking::Message2 message);
-    networking::Message2 remove();
-    std::vector<networking::Message2> getMessageFromID(networking::Connection);
+    SendMessageQueue& operator=(const SendMessageQueue& mq);
+    int add(networking::SendMessage message);
+    networking::SendMessage remove();
+};
+
+class ReceiveMessageQueue{
+private:
+    std::vector<networking::ReceiveMessage> messages;
+public:
+    ReceiveMessageQueue& operator=(const ReceiveMessageQueue& mq);
+    int add(networking::ReceiveMessage message);
+    networking::ReceiveMessage remove();
+    std::vector<networking::ReceiveMessage> getMessageFromID(networking::Connection);
 };
 
 #endif // MESSAGE_QUEUE_H

@@ -246,6 +246,8 @@ public:
                void (*onConnectCallback)(Connection),
                void (*onDisconnectCallback)(Connection))
             : server(port, htmlResponse, onConnectCallback, onDisconnectCallback) {
+
+
         // initialize the root of the rules
         std::string sourcecode = file_to_string(RPS_LOCATION);
         ts::Tree tree = string_to_tree(sourcecode);
@@ -283,8 +285,8 @@ private:
     Server server;
 
     // unitialized until it's more clear what we should do with the queues; waiting on Alex/Lex merge for updates
-    MessageQueue in;
-    MessageQueue out;
+    SendMessageQueue in;
+    ReceiveMessageQueue out;
 
     TreeNode root;
 };

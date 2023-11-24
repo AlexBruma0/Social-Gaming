@@ -117,7 +117,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code,
-                       const MessageQueue* in, const MessageQueue* out) {
+                       const SendMessageQueue* in, const ReceiveMessageQueue* out) {
     const int num_players = 2;
     const int num_rounds = 2;
 
