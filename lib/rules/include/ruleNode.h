@@ -40,7 +40,11 @@ using jsonReturnFormat = std::variant<std::vector<std::string>, std::vector<size
 // Based on Professor Sumner's client design in the networking class
 class TreeNode {
     public:
+        TreeNode() : impl(nullptr), nodeType("") {}
+
         TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState* gameState);
+
+        TreeNode& operator=(const TreeNode& other);
 
         TreeNode(TreeNode&& other) noexcept;
 
@@ -76,6 +80,8 @@ class TreeNodeImpl {
         TreeNodeImpl(std::string id, GameState* gameState);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
+        TreeNodeImpl(TreeNodeImpl&& other) noexcept;
+        TreeNodeImpl& operator=(TreeNodeImpl&& other) noexcept;
 
         void printTree(int depth = 0) const;
 

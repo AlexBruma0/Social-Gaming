@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "ruleNode.h"
 #include "ruleNodeSupport.h"
+#include <memory>
 #include <nlohmann/json.hpp>
 
 
@@ -66,6 +67,14 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
 void TreeNode::execute() const{
     //std::cout<< "executing" <<std::endl;
     impl->execute();
+}
+
+TreeNode& TreeNode::operator=(const TreeNode& other) {
+    if (this != &other) {
+        impl = std::make_unique<TreeNodeImpl>(std::move(*other.impl));
+        nodeType = other.nodeType;
+    }
+    return *this;
 }
 
 /*
@@ -146,6 +155,29 @@ std::string TreeNodeImpl::getMessage(){
 void TreeNodeImpl::eraseMessage(){
     // TODO 
     // Implement this will the queue
+}
+
+TreeNodeImpl::TreeNodeImpl(TreeNodeImpl&& other) noexcept
+        : identifiers(std::move(other.identifiers)),
+          nodeVariables(std::move(other.nodeVariables)),
+          idIndexes(std::move(other.idIndexes)),
+          children(std::move(other.children)),
+          content(std::move(other.content)),
+          gameState(other.gameState) {
+    other.gameState = nullptr;
+}
+
+TreeNodeImpl& TreeNodeImpl::operator=(TreeNodeImpl&& other) noexcept {
+    if (this != &other) {
+        identifiers = std::move(other.identifiers);
+        nodeVariables = std::move(other.nodeVariables);
+        idIndexes = std::move(other.idIndexes);
+        children = std::move(other.children);
+        content = std::move(other.content);
+        gameState = other.gameState;
+        other.gameState = nullptr;
+    }
+    return *this;
 }
 
 ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {

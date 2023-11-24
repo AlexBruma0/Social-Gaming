@@ -145,7 +145,7 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     TreeNode parent(root, "root", source_code, &gs);
     identifyOperations(syntaxTree, source_code, parent, &gs);
     // parent.printTree();
-    parent.execute();
+    // parent.execute();
 
     return parent;
 }

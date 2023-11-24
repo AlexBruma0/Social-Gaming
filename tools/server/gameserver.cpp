@@ -239,6 +239,56 @@ getHTTPMessage(const char* htmlLocation) {
 
 //TODO: pass message queue pointers into the nodes
 
+// wrapper class to the server to make interactions clearer
+class GameServer {
+public:
+    GameServer(unsigned short port, const std::string& htmlResponse,
+               void (*onConnectCallback)(Connection),
+               void (*onDisconnectCallback)(Connection))
+            : server(port, htmlResponse, onConnectCallback, onDisconnectCallback) {
+        // initialize the root of the rules
+        std::string sourcecode = file_to_string(RPS_LOCATION);
+        ts::Tree tree = string_to_tree(sourcecode);
+        ts::Node tsRoot = tree.getRootNode();
+
+        root = buildRuleTree(tsRoot, sourcecode, &in, &out);
+    }
+
+    void update() {
+        server.update();
+    }
+
+    std::deque<Message> receive() {
+        return server.receive();
+    }
+
+    void send(const std::deque<Message>& messages) {
+        server.send(messages);
+    }
+
+    void disconnect(Connection connection) {
+        server.disconnect(connection);
+    }
+
+    Server& getServer() {
+        return server;
+    }
+
+    std::string getMessage() {
+        // dummy string for now, just to make sure we can get data from the game
+        return root.getType();
+    }
+
+private:
+    Server server;
+
+    // unitialized until it's more clear what we should do with the queues; waiting on Alex/Lex merge for updates
+    MessageQueue in;
+    MessageQueue out;
+
+    TreeNode root;
+};
+
 int
 main(int argc, char* argv[]) {
   if (argc < 3) {
@@ -248,20 +298,12 @@ main(int argc, char* argv[]) {
   }
 
   const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
-
-  std::string sourcecode = file_to_string(RPS_LOCATION);
-  ts::Tree tree = string_to_tree(sourcecode);
-  ts::Node root = tree.getRootNode();
-  MessageQueue in;
-  MessageQueue out;
-
-  TreeNode node = buildRuleTree(root, sourcecode, &in, &out);
+  GameServer gameServer(port, getHTTPMessage(argv[2]), onConnect, onDisconnect);
 
   while (true) {
     bool errorWhileUpdating = false;
     try {
-      server.update();
+        gameServer.update();
     } catch (std::exception& e) {
       std::cerr << "Exception from Server update:\n"
                 << " " << e.what() << "\n\n";
@@ -269,13 +311,14 @@ main(int argc, char* argv[]) {
     }
 
     // instead of receiving and broadcasting from the server, we should receive messages from the in queue
-    const auto incoming = server.receive();
-    const auto [log, shouldQuit] = processMessages(server, incoming);
+    const auto incoming = gameServer.receive();
+    const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
     const auto outgoing = buildOutgoing(log);
-    server.send(outgoing);
+    gameServer.send(outgoing);
 
-    const auto test = buildOutgoing(std::string(root.getType()));
-    server.send(test);
+    // testing getting basic info from the game
+    const auto test = buildOutgoing(std::string(gameServer.getMessage()));
+    gameServer.send(test);
 
     if (shouldQuit || errorWhileUpdating) {
       break;
