@@ -91,7 +91,7 @@ class TreeNodeImpl {
         void setIdentifierData(const json& data);
         json getIdentifierData() const;
 
-        json* getGameStateData();
+        GameState* getGameStateData();
 
         // new data storage
         void setNodeVariables(const GameVariables& data);

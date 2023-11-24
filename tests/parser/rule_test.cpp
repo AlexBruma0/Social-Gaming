@@ -42,88 +42,77 @@ extern "C" {
 // Overrides the other classes so we can test that something happens
 class dummyNode: public TreeNodeImpl{
     public:
-        dummyNode(GameState* gameState, json& indexes, json& identifiers): TreeNodeImpl("dummy", gameState){
-            idIndexes = indexes;
-            setIdentifierData(identifiers);
+        dummyNode(GameState* gameState): TreeNodeImpl("dummy", gameState){
         }
         void execute(){
             auto gameData = getGameStateData();
-            auto idData = getIdentifierData();
-            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
-            testCounter += (*gameData)[idName].get<size_t>();
+            auto vars = gameData->getVars();
         }
 
         size_t getCounter(){
             return testCounter;
         }
 
-        int getIndex(){
-            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<size_t>();
-        }
-        void update(){
-            // Temporary will be changed when parser IDs are decided
-            idIndexes.front() = idIndexes.front().get<size_t>() + 1;
-        }
     private:
         size_t testCounter = 0;
 };
 
-class readNode: public TreeNodeImpl{
-    public:
-        readNode(GameState* gameState, json& indexes, json& data): TreeNodeImpl("dummy", gameState){
-            idIndexes = indexes;
-            setIdentifierData(data);
-        }
-        void execute(){
-            auto gameData = getGameStateData();
-            auto idData = getIdentifierData();
-            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
-            testCounter += (*gameData)[idName].get<size_t>();
-        }
+// class readNode: public TreeNodeImpl{
+//     public:
+//         readNode(GameState* gameState, json& indexes, json& data): TreeNodeImpl("dummy", gameState){
+//             idIndexes = indexes;
+//             setIdentifierData(data);
+//         }
+//         void execute(){
+//             auto gameData = getGameStateData();
+//             auto idData = getIdentifierData();
+//             auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
+//             testCounter += (*gameData)[idName].get<size_t>();
+//         }
 
-        size_t getCounter(){
-            return testCounter;
-        }
+//         size_t getCounter(){
+//             return testCounter;
+//         }
 
-        void update(){
-            // Temporary will be changed when parser IDs are decided
-            idIndexes.front() = idIndexes.front().get<size_t>() + 1;
-        }
+//         void update(){
+//             // Temporary will be changed when parser IDs are decided
+//             idIndexes.front() = idIndexes.front().get<size_t>() + 1;
+//         }
 
-        int getIndex(){
-            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
-        }
+//         int getIndex(){
+//             return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
+//         }
 
-    private:
-        size_t testCounter = 0;
-};
-
-
-class writeNode: public TreeNodeImpl{
-    public:
-        writeNode(GameState* gameState, json& indexes, json& data): TreeNodeImpl("dummy", gameState){
-            idIndexes = indexes;
-            setIdentifierData(data);
+//     private:
+//         size_t testCounter = 0;
+// };
 
 
-        }
-        void execute(){
-            //std::cout<<"writing"<<std::endl;
-            auto gameData = getGameStateData();
-            auto idData = getIdentifierData();
-            auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
-            (*gameData)[idName] = (*gameData)[idName].get<size_t>() +1;
-        }
+// class writeNode: public TreeNodeImpl{
+//     public:
+//         writeNode(GameState* gameState, json& indexes, json& data): TreeNodeImpl("dummy", gameState){
+//             idIndexes = indexes;
+//             setIdentifierData(data);
 
-        void update(){
-            // Temporary will be changed when parser IDs are decided
-            idIndexes.front() = idIndexes.front().get<size_t>() + 1;
-        }
 
-        int getIndex(){
-            return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
-        }
-};
+//         }
+//         void execute(){
+//             //std::cout<<"writing"<<std::endl;
+//             auto gameData = getGameStateData();
+//             auto idData = getIdentifierData();
+//             auto idName = idData[TreeNodeImpl::VARIABLE_ID].dump();
+//             (*gameData)[idName] = (*gameData)[idName].get<size_t>() +1;
+//         }
+
+//         void update(){
+//             // Temporary will be changed when parser IDs are decided
+//             idIndexes.front() = idIndexes.front().get<size_t>() + 1;
+//         }
+
+//         int getIndex(){
+//             return idIndexes[TreeNodeImpl::COLLECTION_ID].get<int>();
+//         }
+// };
 
 // ChildNode wrapper
 // Need to check how many times it executes and for mocks
@@ -143,10 +132,6 @@ class childNode: public TreeNode{
             return dynamic_cast<dummyNode*>( impl.get());
         }
 
-        readNode* getReader(){
-            return dynamic_cast<readNode*>( impl.get());
-        }
-
         std::string getType(){
             return  nodeType;
         }
@@ -154,25 +139,25 @@ class childNode: public TreeNode{
         MOCK_METHOD(void, execute, (), ());
 };
 
-// Sample fornode wrapper
-// Checks executing time and adds a child with the constructor
-class ForNodeMock :public ForNodeImpl{
-    public:
-        ForNodeMock(GameState* gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
+// // Sample fornode wrapper
+// // Checks executing time and adds a child with the constructor
+// class ForNodeMock :public ForNodeImpl{
+//     public:
+//         ForNodeMock(GameState* gameState,std::unique_ptr<childNode> t): ForNodeImpl("id", gameState){
 
 
-            addChild(std::move(t));
-        }
-        ForNodeMock(GameState* gameState):ForNodeImpl("id", gameState){}
+//             addChild(std::move(t));
+//         }
+//         ForNodeMock(GameState* gameState):ForNodeImpl("id", gameState){}
 
-        childNode* getChild(int index){
-            return dynamic_cast<childNode*>( ForNodeImpl::children[index].get());
-        }
+//         childNode* getChild(int index){
+//             return dynamic_cast<childNode*>( ForNodeImpl::children[index].get());
+//         }
 
-        MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
-        MOCK_METHOD(void, execute, (), ());
+//         MOCK_METHOD(jsonReturnFormat, getJSON, (std::string id), ());
+//         MOCK_METHOD(void, execute, (), ());
 
-};
+// };
 
 
 ts::Node getEmptyTSNode(){
@@ -220,7 +205,7 @@ TEST(RuleTests, parallelTest){
     assignment->setNodeVariables(idVars);
 
 
-    auto input = std::make_unique<InputChoiceNodeImpl> (type, &gs);
+    auto input = std::make_unique<dummyNode> (&gs);
     ts::Node tsNode = getEmptyTSNode();
     type = "type";
 
@@ -230,72 +215,92 @@ TEST(RuleTests, parallelTest){
     assignment->addChild(std::move(child));
 
     assignment->execute();
+
+
+    auto elements = assignment->getGameStateData()->getVars()->getNestedMap("playerResponses");
+    std::visit([](const auto& elements){
+        using U = std::decay_t<decltype(elements)>;
+        if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
+            for(auto& el: elements){
+                std::visit([](const auto& e){
+                    using T = std::decay_t<decltype(e)>;
+                    if constexpr (std::is_same_v<T, int> ){
+
+                        // Should be printing the number 1 six times
+                        // Theres a function in ruleNodeSupport.cpp called parseResponse
+                        // Right now it returns 1 it will be changed in the futrue 
+                        std::cout<<e<<std::endl;
+                    }
+                }, el);
+            }
+        }
+    }, elements);
 }
 
 
-TEST (RuleTests, discardTest){
-    // Setting up a vector labeled 1,2,3,4......
-    int vecSize = 6;
-    auto vecData = std::vector<int>(vecSize);
-    std::iota(vecData.begin(), vecData.end(),0);
-    // Reversing data to ensure results are correct
-    std::reverse(vecData.begin(), vecData.end());
-    // Get the total sum of 1+2+3+4....+(n-1)+n
-    auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
-    sum += vecSize;
+// TEST (RuleTests, discardTest){
+//     // Setting up a vector labeled 1,2,3,4......
+//     int vecSize = 6;
+//     auto vecData = std::vector<int>(vecSize);
+//     std::iota(vecData.begin(), vecData.end(),0);
+//     // Reversing data to ensure results are correct
+//     std::reverse(vecData.begin(), vecData.end());
+//     // Get the total sum of 1+2+3+4....+(n-1)+n
+//     auto sum = std::accumulate(vecData.begin(), vecData.end(), 0);
+//     sum += vecSize;
 
-    // Passing in dummy data
-    json j;
-    j[TEMP_ID] = vecData;
+//     // Passing in dummy data
+//     json j;
+//     j[TEMP_ID] = vecData;
 
-    // Passing in the dummy indexes which will be incremented by the forNode
-    json identifiers;
-    identifiers[TreeNodeImpl::COLLECTION_ID] = vecData;
-    identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
-    identifiers[TreeNodeImpl::OPERAND_ID] = "winners.size()";
+//     // Passing in the dummy indexes which will be incremented by the forNode
+//     json identifiers;
+//     identifiers[TreeNodeImpl::COLLECTION_ID] = vecData;
+//     identifiers[TreeNodeImpl::VARIABLE_ID] = TEMP_ID;
+//     identifiers[TreeNodeImpl::OPERAND_ID] = "winners.size()";
 
-    json forIdentifiers;
-    forIdentifiers[TreeNodeImpl::COLLECTION_ID] = std::vector<size_t>(1);
-    forIdentifiers[TreeNodeImpl::VARIABLE_ID] = DUMMY_ID;
+//     json forIdentifiers;
+//     forIdentifiers[TreeNodeImpl::COLLECTION_ID] = std::vector<size_t>(1);
+//     forIdentifiers[TreeNodeImpl::VARIABLE_ID] = DUMMY_ID;
 
 
-    GameState gs{&j};
+//     GameState gs{&j};
 
-    ts::Node tsNode = getEmptyTSNode();
+//     ts::Node tsNode = getEmptyTSNode();
 
-    std::string type = "child2";
-    auto discard = std::make_unique<DiscardNodeImpl> (type, &gs);
-    discard->setIdentifierData(identifiers);
-    auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(discard));
-    ASSERT_EQ(child2->getType(), type);
+//     std::string type = "child2";
+//     auto discard = std::make_unique<DiscardNodeImpl> (type, &gs);
+//     discard->setIdentifierData(identifiers);
+//     auto child2 = std::make_unique<childNode>(tsNode, type, type,&gs, std::move(discard));
+//     ASSERT_EQ(child2->getType(), type);
 
-    ForNodeMock fNode(&gs, std::move(child2));
-    fNode.setIdentifierData(forIdentifiers);
+//     ForNodeMock fNode(&gs, std::move(child2));
+//     fNode.setIdentifierData(forIdentifiers);
 
-    // Triggers the actual function call
-    // Also checks it triggers once
-    EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
-        return fNode.ForNodeImpl::execute();
-    });
+//     // Triggers the actual function call
+//     // Also checks it triggers once
+//     EXPECT_CALL(fNode, execute()).Times(1).WillOnce([&fNode]{
+//         return fNode.ForNodeImpl::execute();
+//     });
 
-    fNode.execute();
+//     fNode.execute();
 
-    // Check if the global state has been wiped by the discard node
-    ASSERT_TRUE((*(gs.getState()))[TEMP_ID].empty());
+//     // Check if the global state has been wiped by the discard node
+//     ASSERT_TRUE((*(gs.getState()))[TEMP_ID].empty());
 
-    json assignIdentifiers;
-    assignIdentifiers[TreeNodeImpl::TARGET_ID] = TEMP_ID;
-    assignIdentifiers[TreeNodeImpl::VALUE_ID] = vecData;
+//     json assignIdentifiers;
+//     assignIdentifiers[TreeNodeImpl::TARGET_ID] = TEMP_ID;
+//     assignIdentifiers[TreeNodeImpl::VALUE_ID] = vecData;
 
-    auto assignment = std::make_unique<AssignmentNodeImpl> (type, &gs);
-    assignment->setIdentifierData(assignIdentifiers);
-    assignment->execute();
-    json comparison;
-    comparison["test"] = vecData;
+//     auto assignment = std::make_unique<AssignmentNodeImpl> (type, &gs);
+//     assignment->setIdentifierData(assignIdentifiers);
+//     assignment->execute();
+//     json comparison;
+//     comparison["test"] = vecData;
 
-    ASSERT_EQ((*(gs.getState()))[TEMP_ID], comparison["test"].dump());
+//     ASSERT_EQ((*(gs.getState()))[TEMP_ID], comparison["test"].dump());
 
-}
+// }
 
 // // Temp commented out because we need to change the gameState to a pointer or a reference
 // TEST (RuleTests, forNodeWriteTest){

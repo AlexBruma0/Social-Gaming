@@ -9,9 +9,10 @@ class GameVariables;
 using json = nlohmann::json;
 
     using ArrayType = std::variant<int, std::string, GameVariables>;
+    struct NotFoundTag {};
 
     using GameValue = std::variant<int, std::string, std::vector<int>, std::vector<std::string>, 
-        std::vector<GameVariables>, std::vector<ArrayType>, GameVariables, ArrayType>;
+        std::vector<GameVariables>, std::vector<ArrayType>, GameVariables, ArrayType, NotFoundTag>;
 
 class GameVariables {
 public:
