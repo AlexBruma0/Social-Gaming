@@ -18,14 +18,6 @@ TEST(messageQueue_tests, simpletest)
     ASSERT_EQ(mq.remove().prompt,input2);
 }
 
-// struct Message2
-// {
-//     MessageType type;
-//     std::vector<std::string> choices;
-//     std::string prompt;
-//     Connection connection;
-// };
-
 TEST(messageQueue_tests, idTest){
     MessageQueue mq = MessageQueue();
     std::string input = "input";
@@ -53,4 +45,25 @@ TEST(messageQueue_tests, idNotFoundTest){
     mq.add(msg2);
     ASSERT_TRUE(mq.getMessageFromID(falseConnection).empty());
     ASSERT_FALSE(mq.getMessageFromID(con2).empty());
+}
+
+TEST(messageQueue_tests, realisticUseTest){
+    MessageQueue mq = MessageQueue();
+
+    //Server generates message to be put into Queue
+    std::string prompt = "Select Weapon: 1, 2, 3";
+    networking::Connection clientConnection{1};
+    networking::Message2 outgoingMessage {networking::MessageType::SEND, emptyChoices, prompt, clientConnection};
+
+    //add Message to the Queue
+    mq.add(outgoingMessage);
+
+    //Server pulls the oldest message from the queue to send
+    networking::Message2 toSendMessage = mq.remove();
+    //Server can now send to client by using their connectionID: toSendMessage.connection
+    ASSERT_EQ(toSendMessage.connection.id, clientConnection.id);
+    //Client can display prompt: toSendMessage.prompt
+    ASSERT_EQ(toSendMessage.prompt, prompt);
+    //List of choices not necessary I believe for send message
+    ASSERT_TRUE(toSendMessage.choices.empty());
 }
