@@ -57,12 +57,14 @@ struct Message {
   Connection connection;
   std::string text;
 };
-enum MessageType { SEND, RESPONSE };
 
-struct Message2 {
-    MessageType type;
-    std::vector<std::string> choices;
+struct SendMessage {
+    std::vector<int> choices;
     std::string prompt;
+};
+
+struct ReceiveMessage {
+    int choice;
     Connection connection;
 };
 /** A compilation firewall for the server. */

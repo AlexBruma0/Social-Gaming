@@ -34,7 +34,7 @@ target_link_libraries(utils
         tree-sitter-socialgaming
         cpp-tree-sitter
         gameState
-
+        networking
 )
 
 install(TARGETS parser
