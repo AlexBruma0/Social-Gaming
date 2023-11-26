@@ -261,7 +261,7 @@ TEST(RuleTests, InputTests){
     gs.setVars(gameVars);
 
     std::string type = "input_choice";
-    auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs);
+    auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs, nullptr, nullptr);
     inputNode->setNodeVariables(idVarsInput);
 
     inputNode->execute();

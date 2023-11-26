@@ -10,6 +10,8 @@
 #include "ruleNodeSupport.h"
 #include <memory>
 #include <nlohmann/json.hpp>
+#include "Server.h"
+
 
 
 
@@ -309,28 +311,6 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, 
     nodeVariables = gv;
 }
 
-using json = nlohmann::json;
-
-enum MessageType { SEND, RESPONSE };
-// tempory message type before Lex adds updates the message struct in networking
-struct Message {
-    MessageType type;
-    std::vector<int> choices;
-    std::string prompt;
-    int playerID;
-
-    // used for debugging to print the contents of a Message type. 
-    void print(){
-        json j = json{
-            {"type", type},
-            {"choices", choices},
-            {"prompt", prompt},
-            {"playerID", playerID}
-        };
-        std::cout << j.dump() << std::endl;
-    }
-};
-
 
 void InputChoiceNodeImpl::execute(){
 
@@ -345,7 +325,7 @@ void InputChoiceNodeImpl::execute(){
     auto target = gameVars->getNestedMap(targetID);
     auto prompt = gameVars->getNestedMap(promptID);
 
-    Message InputMessage;
+    networking::SendMessage InputMessage;
     int intTarget;
     std::string stringPrompt;
     std::vector<int> intChoices;
@@ -380,7 +360,7 @@ void InputChoiceNodeImpl::execute(){
         }
     }, choices);
 
-    InputMessage = Message{ MessageType{SEND}, intChoices, stringPrompt, intTarget };
+    InputMessage = networking::SendMessage{ intChoices, stringPrompt };
     //const int PORT_ID = 8888;
     
     // for testing:
