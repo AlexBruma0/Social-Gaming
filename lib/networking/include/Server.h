@@ -1,3 +1,4 @@
+
 /////////////////////////////////////////////////////////////////////////////
 //                         Single Threaded Networking
 //
@@ -57,7 +58,15 @@ struct Message {
   std::string text;
 };
 
+struct SendMessage {
+    std::vector<int> choices;
+    std::string prompt;
+};
 
+struct ReceiveMessage {
+    int choice;
+    Connection connection;
+};
 /** A compilation firewall for the server. */
 class ServerImpl;
 

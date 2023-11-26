@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "ruleNode.h"
 #include "ruleNodeSupport.h"
+#include <memory>
 #include <nlohmann/json.hpp>
 
 
@@ -18,8 +19,10 @@ TREE NODE CLASS
 -------------------------------------------
 */
 
-TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode , GameState* gameState) : nodeType(type) {
-    impl = std::move(this->parseNode(tsNode, gameState, sourceCode));
+TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode,
+                   GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : nodeType(type) {
+    impl = std::move(this->parseNode(tsNode, gameState, sourceCode, in, out));
+    // TODO: put the queues in parse, then put those in the impl
     //std::cout << impl->getIdentifierData().dump();
     //std::cout << "address of impl " << impl.get() << std::endl;
 }
@@ -41,8 +44,8 @@ std::string TreeNode::getType(){
     return nodeType;
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code) {
-    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState*, const std::string& )>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code, const  SendMessageQueue* in, const ReceiveMessageQueue* out) {
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState*, const std::string&, const SendMessageQueue* , const ReceiveMessageQueue* )>> typeToFunction;
     typeToFunction["for"] = processFor;
     typeToFunction["discard"] = processDiscard;
     typeToFunction["message"] = processMessage;
@@ -54,18 +57,27 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
     typeToFunction["scores"] = processScores;
     typeToFunction["assignment"] = processAssignment;
 
+
     if (typeToFunction.count(nodeType) > 0) {
-        std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](tsNode, gameState, source_code);
+        std::unique_ptr<TreeNodeImpl> impl = typeToFunction[nodeType](tsNode, gameState, source_code, in, out);
         //std::cout << std::endl << impl->getIdentifierData().dump();
         return std::move(impl);
     }
-    return std::make_unique<TreeNodeImpl>("", gameState);
+    return std::make_unique<TreeNodeImpl>("", gameState, in , out);
 }
 
 
 void TreeNode::execute() const{
     //std::cout<< "executing" <<std::endl;
     impl->execute();
+}
+
+TreeNode& TreeNode::operator=(const TreeNode& other) {
+    if (this != &other) {
+        impl = std::make_unique<TreeNodeImpl>(std::move(*other.impl));
+        nodeType = other.nodeType;
+    }
+    return *this;
 }
 
 /*
@@ -75,7 +87,7 @@ NODE CLASSES
 */
 
 
-TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState): content(id), gameState(_gameState) {
+TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* sq, const ReceiveMessageQueue* rq): content(id), gameState(_gameState), in(sq), out(rq) {
     identifiers = json::parse("{}");
     GameVariables gv;
     gv.insert("_type", std::string("generic"));
@@ -148,7 +160,30 @@ void TreeNodeImpl::eraseMessage(){
     // Implement this will the queue
 }
 
-ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState): TreeNodeImpl(id, _gameState) {
+TreeNodeImpl::TreeNodeImpl(TreeNodeImpl&& other) noexcept
+        : identifiers(std::move(other.identifiers)),
+          nodeVariables(std::move(other.nodeVariables)),
+          idIndexes(std::move(other.idIndexes)),
+          children(std::move(other.children)),
+          content(std::move(other.content)),
+          gameState(other.gameState) {
+    other.gameState = nullptr;
+}
+
+TreeNodeImpl& TreeNodeImpl::operator=(TreeNodeImpl&& other) noexcept {
+    if (this != &other) {
+        identifiers = std::move(other.identifiers);
+        nodeVariables = std::move(other.nodeVariables);
+        idIndexes = std::move(other.idIndexes);
+        children = std::move(other.children);
+        content = std::move(other.content);
+        gameState = other.gameState;
+        other.gameState = nullptr;
+    }
+    return *this;
+}
+
+ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out): TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "for"})");
     GameVariables gv;
     gv.insert("_type", std::string("for"));
@@ -174,7 +209,7 @@ void ForNodeImpl::execute(){
     
 }
 
-DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "discard"})");
     GameVariables gv;
     gv.insert("_type", std::string("discard"));
@@ -183,9 +218,9 @@ DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState) : TreeNo
 
 // Checking if the array should be fully wiped
 // Appreciate feedback on this
-bool DiscardNodeImpl::extractSize(const std::string_view operand){
-    return  std::string_view::npos != operand.find(".size()");
-}
+// bool DiscardNodeImpl::extractSize(const std::string_view operand){
+//     return  std::string_view::npos != operand.find(".size()");
+// }
 
 void DiscardNodeImpl::execute(){
     // //std::cout<< "executing discard" <<std::endl;
@@ -208,7 +243,7 @@ void DiscardNodeImpl::execute(){
     }
 }
 
-MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "message"})");
     GameVariables gv;
     gv.insert("_type", std::string("message"));
@@ -224,7 +259,7 @@ void MessageNodeImpl::execute(){
     //TODO: once Arjun has the server I/O interface ready, call it here to send the message
 }
 
-ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "parallel_for"})");
     GameVariables gv;
     gv.insert("_type", std::string("parallel_for"));
@@ -267,7 +302,7 @@ void ParallelForNodeImpl::execute(){
     }, collection);
 }
 
-InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "input_choice"})");
     GameVariables gv;
     gv.insert("_type", std::string("input_choice"));
@@ -363,7 +398,7 @@ void InputChoiceNodeImpl::execute(){
     }
 }
 
-ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState,const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "scores"})");
     GameVariables gv;
     gv.insert("_type", std::string("scores"));
@@ -379,7 +414,7 @@ void ScoresNodeImpl::execute(){
     //TODO: get scores from game state, sort it, then message it to everyone
 }
 
-AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "assignment"})");
     GameVariables gv;
     gv.insert("_type", std::string("assignment"));
@@ -405,7 +440,7 @@ void AssignmentNodeImpl::execute(){
     }
 }
 
-MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "match"})");
     GameVariables gv;
     gv.insert("_type", std::string("match"));
@@ -421,7 +456,7 @@ void MatchNodeImpl::execute(){
     //TODO: evaluate the condition and then write it to the game state, to be compared against the match_entry nodes
 }
 
-MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "match_entry"})");
     GameVariables gv;
     gv.insert("_type", std::string("match_entry"));
@@ -437,7 +472,7 @@ void MatchEntryNodeImpl::execute(){
     //TODO: evaluate the condition and then compare it to the game state's stored match expression
 }
 
-ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState) : TreeNodeImpl(id, _gameState) {
+ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState,const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "extend"})");
     GameVariables gv;
     gv.insert("_type", std::string("extend"));

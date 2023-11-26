@@ -42,7 +42,7 @@ extern "C" {
 // Overrides the other classes so we can test that something happens
 class dummyNode: public TreeNodeImpl{
     public:
-        dummyNode(GameState* gameState): TreeNodeImpl("dummy", gameState){
+        dummyNode(GameState* gameState): TreeNodeImpl("dummy", gameState, nullptr, nullptr){
         }
         void execute(){
             auto gameData = getGameStateData();
@@ -120,7 +120,7 @@ class dummyNode: public TreeNodeImpl{
 class childNode: public TreeNode{
     public:
         childNode(const ts::Node& node, std::string type, std::string& sourceCode, GameState* gameState, std::unique_ptr<TreeNodeImpl> d):
-            TreeNode(node, type, sourceCode, gameState){
+            TreeNode(node, type, sourceCode, gameState, nullptr, nullptr){
             impl = std::move(d);
         }
 
@@ -201,7 +201,7 @@ TEST(RuleTests, parallelTest){
     gs.setVars(gameVars);
 
     std::string type = "child";
-    auto assignment = std::make_unique<ParallelForNodeImpl> (type, &gs);
+    auto assignment = std::make_unique<ParallelForNodeImpl> (type, &gs, nullptr, nullptr);
     assignment->setNodeVariables(idVars);
 
 

@@ -1,7 +1,4 @@
 #include <gtest/gtest.h>
-#include <cassert>
-#include <cstdio>
-#include <memory>
 #include <string>
 #include <iostream>
 
@@ -361,7 +358,7 @@ TEST(ParserTests, OP_TREE_TEST) {
 
     ts::Node root = tree.getRootNode();
 
-    TreeNode node = buildRuleTree(root, sourcecode);
+    //TreeNode node = buildRuleTree(root, sourcecode, nullptr, nullptr);
 
     //node.printTree();
 }

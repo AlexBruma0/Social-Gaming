@@ -6,12 +6,17 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
-
+#include "gameParser.h"
+#include "MessageQueue.h"
 
 using networking::Server;
 using networking::Connection;
 using networking::Message;
 
+// gameServer should store two message queues
+
+// hardcoded for now; maybe ask the first player to get a location later
+#define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
 std::vector<Connection> clients;
 std::vector<std::string> codes;
@@ -201,6 +206,8 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
     } else {
       result << message.connection.id << "> " << message.text << "\n";
     }
+
+    // make server-side validation here, depending on what we can take as valid choices.
   }
   return MessageResult{result.str(), quit};
 }
@@ -230,6 +237,60 @@ getHTTPMessage(const char* htmlLocation) {
   std::exit(-1);
 }
 
+//TODO: pass message queue pointers into the nodes
+
+// wrapper class to the server to make interactions clearer
+class GameServer {
+public:
+    GameServer(unsigned short port, const std::string& htmlResponse,
+               void (*onConnectCallback)(Connection),
+               void (*onDisconnectCallback)(Connection))
+            : server(port, htmlResponse, onConnectCallback, onDisconnectCallback),
+            in(SendMessageQueue()),
+            out(ReceiveMessageQueue()) {
+
+
+        // initialize the root of the rules
+        std::string sourcecode = file_to_string(RPS_LOCATION);
+        ts::Tree tree = string_to_tree(sourcecode);
+        ts::Node tsRoot = tree.getRootNode();
+
+        root = buildRuleTree(tsRoot, sourcecode, &in, &out);
+    }
+
+    void update() {
+        server.update();
+    }
+
+    std::deque<Message> receive() {
+        return server.receive();
+    }
+
+    void send(const std::deque<Message>& messages) {
+        server.send(messages);
+    }
+
+    void disconnect(Connection connection) {
+        server.disconnect(connection);
+    }
+
+    Server& getServer() {
+        return server;
+    }
+
+    std::string getMessage() {
+        // dummy string for now, just to make sure we can get data from the game
+        return root.getType();
+    }
+
+private:
+    Server server;
+
+    SendMessageQueue in;
+    ReceiveMessageQueue out;
+
+    TreeNode root;
+};
 
 int
 main(int argc, char* argv[]) {
@@ -240,22 +301,27 @@ main(int argc, char* argv[]) {
   }
 
   const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
+  GameServer gameServer(port, getHTTPMessage(argv[2]), onConnect, onDisconnect);
 
   while (true) {
     bool errorWhileUpdating = false;
     try {
-      server.update();
+        gameServer.update();
     } catch (std::exception& e) {
       std::cerr << "Exception from Server update:\n"
                 << " " << e.what() << "\n\n";
       errorWhileUpdating = true;
     }
 
-    const auto incoming = server.receive();
-    const auto [log, shouldQuit] = processMessages(server, incoming);
+    // instead of receiving and broadcasting from the server, we should receive messages from the in queue
+    const auto incoming = gameServer.receive();
+    const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
     const auto outgoing = buildOutgoing(log);
-    server.send(outgoing);
+    gameServer.send(outgoing);
+
+    // testing getting basic info from the game
+    const auto test = buildOutgoing(std::string(gameServer.getMessage()));
+    gameServer.send(test);
 
     if (shouldQuit || errorWhileUpdating) {
       break;

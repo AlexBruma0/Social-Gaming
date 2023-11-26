@@ -1,26 +1,42 @@
 
 #include "MessageQueue.h"
 
-MessageQueue & MessageQueue::operator=(const MessageQueue &mq){
+SendMessageQueue & SendMessageQueue::operator=(const SendMessageQueue &mq){
     this->messages = mq.messages;
     return *this;
 }
 
-int MessageQueue::add(networking::Message message){
+int SendMessageQueue::add(networking::SendMessage message){
     messages.push_back(message);
     return messages.size()-1;
 }
 
-networking::Message MessageQueue::remove(){
-    networking::Message message = messages.front();
+networking::SendMessage SendMessageQueue::remove(){
+    networking::SendMessage message = messages.front();
     messages.erase(messages.begin());
     return message;
 }
 
-std::vector<networking::Message> MessageQueue::getMessageFromID(networking::Connection connection){
+ReceiveMessageQueue & ReceiveMessageQueue::operator=(const ReceiveMessageQueue &mq){
+    this->messages = mq.messages;
+    return *this;
+}
+
+int ReceiveMessageQueue::add(networking::ReceiveMessage message){
+    messages.push_back(message);
+    return messages.size()-1;
+}
+
+networking::ReceiveMessage ReceiveMessageQueue::remove(){
+    networking::ReceiveMessage message = messages.front();
+    messages.erase(messages.begin());
+    return message;
+}
+
+std::vector<networking::ReceiveMessage> ReceiveMessageQueue::getMessageFromID(networking::Connection connection){
     uintptr_t id = connection.id;
-    std::vector<networking::Message> returnVec;
-    for(networking::Message msg:messages){
+    std::vector<networking::ReceiveMessage> returnVec;
+    for(networking::ReceiveMessage msg:messages){
         if(msg.connection.id == id) returnVec.push_back(msg);
     }
     return returnVec;
