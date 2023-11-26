@@ -13,6 +13,7 @@ class SendMessageQueue{
     SendMessageQueue& operator=(const SendMessageQueue& mq);
     int add(networking::SendMessage message) const ;
     networking::SendMessage remove();
+    int size();
 };
 
 class ReceiveMessageQueue{
@@ -23,6 +24,7 @@ public:
     int add(networking::ReceiveMessage message);
     networking::ReceiveMessage remove();
     std::vector<networking::ReceiveMessage> getMessageFromID(networking::Connection);
+    int size();
 };
 
 #endif // MESSAGE_QUEUE_H

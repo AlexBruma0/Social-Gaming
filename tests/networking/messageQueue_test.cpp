@@ -83,3 +83,24 @@ TEST(messageQueue_tests, realisticUseTest){
     ASSERT_EQ(received3.connection.id, con3.id);
     ASSERT_FALSE(std::find(weaponChoices.begin(), weaponChoices.end(), received3.choice) != weaponChoices.end());
 }
+
+TEST(messageQueue_tests, simpleSendSizeTest){
+    SendMessageQueue mq = SendMessageQueue();
+    std::string prompt = "";
+    networking::SendMessage msg{emptyChoices, prompt};
+    mq.add(msg);
+    mq.add(msg);
+    mq.add(msg);
+    ASSERT_EQ(mq.size(), 3);
+}
+
+TEST(messageQueue_tests, simpleReceiveSizeTest){
+    ReceiveMessageQueue mq = ReceiveMessageQueue();
+    int choice = 1;
+    networking::Connection con{8};
+    networking::ReceiveMessage msg{choice, con};
+    mq.add(msg);
+    mq.add(msg);
+    mq.add(msg);
+    ASSERT_EQ(mq.size(), 3);
+}
