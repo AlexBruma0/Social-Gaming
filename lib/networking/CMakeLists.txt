@@ -7,6 +7,10 @@ target_include_directories(networking
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+target_link_libraries(networking
+        PUBLIC
+        nlohmann_json
+)
 
 if (NETWORKING_EMSCRIPTEN_BUILD)
   target_link_libraries(networking

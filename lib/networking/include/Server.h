@@ -15,6 +15,10 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
+
+#include <iostream>
+using json = nlohmann::json;
 
 
 namespace networking {
@@ -61,11 +65,29 @@ struct Message {
 struct SendMessage {
     std::vector<int> choices;
     std::string prompt;
+
+    // used for debugging to print the contents of a Message type. 
+    void print(){
+        json j = json{
+            {"choices", choices},
+            {"prompt", prompt},
+        };
+        std::cout << j.dump() << std::endl;
+    }
 };
 
 struct ReceiveMessage {
     int choice;
     Connection connection;
+
+    // used for debugging to print the contents of a Message type. 
+    void print(){
+        json j = json{
+            {"choice", choice},
+            {"ConnectionID", connection.id}
+        };
+        std::cout << j.dump() << std::endl;
+    }
 };
 /** A compilation firewall for the server. */
 class ServerImpl;

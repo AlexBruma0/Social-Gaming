@@ -76,6 +76,9 @@ class TreeNodeImpl {
         inline const static std::string OPERAND_ID = "operand";
         inline const static std::string TARGET_ID = "target";
         inline const static std::string VALUE_ID = "value";
+        inline const static std::string PLAYER_ID = "player";
+        inline const static std::string PROMPT_ID = "prompt";
+        inline const static std::string CHOICES_ID = "choices";
 
         inline const static std::string NULL_STRING = "";
 

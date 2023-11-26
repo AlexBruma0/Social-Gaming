@@ -7,6 +7,8 @@
 #include <gmock/gmock.h>
 #include <type_traits>
 #include <variant>
+#include "MessageQueue.h"
+
 
 // Wrapper API
 #include <cpp-tree-sitter.h>
@@ -235,6 +237,69 @@ TEST(RuleTests, parallelTest){
             }
         }
     }, elements);
+}
+
+TEST(RuleTests, InputNodeCreatingAndPrintingSendMessage){
+
+    std::vector<int> weapons = {1, 2, 3};
+
+    json j;
+    j["weapons"] = weapons;
+    j["player"] = 1;
+    j["prompt"] = "choose your weapon!";
+
+    json identifiersInput;
+    identifiersInput[TreeNodeImpl::CHOICES_ID] = "weapons";
+    identifiersInput[TreeNodeImpl::TARGET_ID] = "player";
+    identifiersInput[TreeNodeImpl::PROMPT_ID] = "prompt"; 
+
+    GameVariables idVarsInput;
+    createGameVariables(identifiersInput, idVarsInput);
+
+    GameVariables gameVars;
+    createGameVariables(j, gameVars);
+
+    GameState gs{&j};
+    gs.setVars(gameVars);
+
+    std::string type = "input_choice";
+    auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs, nullptr, nullptr);
+    inputNode->setNodeVariables(idVarsInput);
+
+    inputNode->execute();
+}
+TEST(RuleTests, InputNodeAddingMessageToQueue){
+
+    std::vector<int> weapons = {1, 2, 3};
+
+    json j;
+    j["weapons"] = weapons;
+    j["player"] = 1;
+    j["prompt"] = "choose your weapon!";
+
+    json identifiersInput;
+    identifiersInput[TreeNodeImpl::CHOICES_ID] = "weapons";
+    identifiersInput[TreeNodeImpl::TARGET_ID] = "player";
+    identifiersInput[TreeNodeImpl::PROMPT_ID] = "prompt"; 
+
+    GameVariables idVarsInput;
+    createGameVariables(identifiersInput, idVarsInput);
+
+    GameVariables gameVars;
+    createGameVariables(j, gameVars);
+
+    GameState gs{&j};
+    gs.setVars(gameVars);
+
+    std::string type = "input_choice";
+
+    const SendMessageQueue smq = SendMessageQueue();
+    auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs, &smq, nullptr);
+    inputNode->setNodeVariables(idVarsInput);
+
+    inputNode->execute();
+
+
 }
 
 
