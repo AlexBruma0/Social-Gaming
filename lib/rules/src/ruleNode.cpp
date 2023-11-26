@@ -325,7 +325,6 @@ void InputChoiceNodeImpl::execute(){
     auto target = gameVars->getNestedMap(targetID);
     auto prompt = gameVars->getNestedMap(promptID);
 
-    networking::SendMessage InputMessage;
     int intTarget;
     std::string stringPrompt;
     std::vector<int> intChoices;
@@ -360,18 +359,12 @@ void InputChoiceNodeImpl::execute(){
         }
     }, choices);
 
-    InputMessage = networking::SendMessage{ intChoices, stringPrompt };
-    //const int PORT_ID = 8888;
+    networking::SendMessage InputMessage = networking::SendMessage{ intChoices, stringPrompt };
     
-    // for testing:
     InputMessage.print();
-    
-    // Adding to the queue will look something like this. Queue is not yet instantiated globally
-
-    // networking::Connection con{PORT_ID};
-    // networking::Message networkingMessage{con, serializeMessage(InputMessage)};
-    // MessageQueue.add(networkingMessage);
-
+    if(in != nullptr){
+        in->add(InputMessage);
+    }
 
     for (const auto& child : children) {
         child->execute();

@@ -6,7 +6,7 @@ SendMessageQueue & SendMessageQueue::operator=(const SendMessageQueue &mq){
     return *this;
 }
 
-int SendMessageQueue::add(networking::SendMessage message){
+int SendMessageQueue::add(networking::SendMessage message) const {
     messages.push_back(message);
     return messages.size()-1;
 }
