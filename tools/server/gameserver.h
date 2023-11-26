@@ -25,11 +25,15 @@ public:
 
     std::string getMessage();
 
+    void sendAndAwaitResponse(int timeout);
+
 private:
     networking::Server server;
     SendMessageQueue in;
     ReceiveMessageQueue out;
     TreeNode root;
+
+    void processResponses(const std::deque<networking::Message>& messages, std::vector<int> choices);
 };
 
 #endif //GAMESERVER_H

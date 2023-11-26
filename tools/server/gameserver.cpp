@@ -277,6 +277,51 @@ std::string GameServer::getMessage() {
     return root.getType();
 }
 
+void GameServer::sendAndAwaitResponse(int timeout) {
+    networking::SendMessage sm = in.remove();
+    std::vector<int> choices = sm.choices;
+    std::string prompt = sm.prompt;
+
+    const auto outgoing = buildOutgoing(prompt);
+    send(outgoing);
+    int elapsedTime = 0;
+
+    while (true) {
+        // get any incoming messages and put the result, if valid, into the outgoing queue
+        const auto incoming = receive();
+        processResponses(incoming, choices);
+
+        if (elapsedTime > timeout) {
+            return;
+        }
+
+        elapsedTime++;
+        sleep(1);
+    }
+}
+
+void GameServer::processResponses(const std::deque<networking::Message>& messages, std::vector<int> choices) {
+    for (const auto& message : messages) {
+        try {
+            int response = std::stoi(message.text);
+            auto it = std::find(choices.begin(), choices.end(), response);
+
+            if (it != choices.end()) {
+                // if the response is one of the valid choices, then add it to the outgoing queue
+                auto rm = networking::ReceiveMessage {response, message.connection};
+                out.add(rm);
+            } else {
+                // do nothing for now, but once we can actually send messages to each client individually,
+                // inform them that they've entered some invalid choice (out of range)
+            }
+        } catch (const std::invalid_argument& e) {
+            // do nothing for now, but once we can actually send messages to each client individually,
+            // inform them that they've entered some invalid choice (not numerical)
+        }
+    }
+}
+
+
 int main(int argc, char* argv[]) {
   if (argc < 3) {
     std::cerr << "Usage:\n  " << argv[0] << " <port> <html response>\n"
