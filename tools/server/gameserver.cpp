@@ -1,12 +1,11 @@
 #include "Server.h"
-#include "gameserver.h"
+#include "gameServer.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <unistd.h>
 #include <vector>
-#include "gameParser.h"
 #include "MessageQueue.h"
 
 using networking::Server;
@@ -18,7 +17,6 @@ using networking::Message;
 // hardcoded for now; maybe ask the first player to get a location later
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
-std::vector<Connection> clients;
 std::vector<std::string> codes;
 std::deque<Connection> playerOrder;
 
@@ -163,21 +161,6 @@ void handleGameChoiceRequest(Server& server, const Message &message, std::deque<
     server.send(responseMessages);
 }
 
-void
-onConnect(Connection c) {
-  std::cout << "New connection found: " << c.id << "\n";
-  clients.push_back(c);
-  playerOrder.push_back(c); // Add the player to the order queue
-}
-
-
-void
-onDisconnect(Connection c) {
-  std::cout << "Connection lost: " << c.id << "\n";
-  auto eraseBegin = std::remove(std::begin(clients), std::end(clients), c);
-  clients.erase(eraseBegin, std::end(clients));
-}
-
 
 struct MessageResult {
   std::string result;
@@ -212,17 +195,6 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
   return MessageResult{result.str(), quit};
 }
 
-
-std::deque<Message>
-buildOutgoing(const std::string& log) {
-  std::deque<Message> outgoing;
-  for (auto client : clients) {
-    outgoing.push_back({client, log});
-  }
-  return outgoing;
-}
-
-
 std::string
 getHTTPMessage(const char* htmlLocation) {
   if (access(htmlLocation, R_OK ) != -1) {
@@ -237,91 +209,6 @@ getHTTPMessage(const char* htmlLocation) {
   std::exit(-1);
 }
 
-GameServer::GameServer(unsigned short port, const std::string& htmlResponse,
-                       void (*onConnectCallback)(Connection),
-                       void (*onDisconnectCallback)(Connection))
-        : server(port, htmlResponse, onConnectCallback, onDisconnectCallback),
-          in(SendMessageQueue()),
-          out(ReceiveMessageQueue()) {
-
-    // initialize the root of the rules
-    std::string sourcecode = file_to_string(RPS_LOCATION);
-    ts::Tree tree = string_to_tree(sourcecode);
-    ts::Node tsRoot = tree.getRootNode();
-
-    root = buildRuleTree(tsRoot, sourcecode, &in, &out);
-}
-
-void GameServer::update() {
-    server.update();
-}
-
-std::deque<Message> GameServer::receive() {
-    return server.receive();
-}
-
-void GameServer::send(const std::deque<Message>& messages) {
-    server.send(messages);
-}
-
-void GameServer::disconnect(Connection connection) {
-    server.disconnect(connection);
-}
-
-Server& GameServer::getServer() {
-    return server;
-}
-
-std::string GameServer::getMessage() {
-    // dummy string for now, just to make sure we can get data from the game
-    return root.getType();
-}
-
-void GameServer::sendAndAwaitResponse(int timeout) {
-    networking::SendMessage sm = in.remove();
-    std::vector<int> choices = sm.choices;
-    std::string prompt = sm.prompt;
-
-    const auto outgoing = buildOutgoing(prompt);
-    send(outgoing);
-    int elapsedTime = 0;
-
-    while (true) {
-        // get any incoming messages and put the result, if valid, into the outgoing queue
-        const auto incoming = receive();
-        processResponses(incoming, choices);
-
-        if (elapsedTime > timeout) {
-            return;
-        }
-
-        elapsedTime++;
-        sleep(1);
-    }
-}
-
-void GameServer::processResponses(const std::deque<networking::Message>& messages, std::vector<int> choices) {
-    for (const auto& message : messages) {
-        try {
-            int response = std::stoi(message.text);
-            auto it = std::find(choices.begin(), choices.end(), response);
-
-            if (it != choices.end()) {
-                // if the response is one of the valid choices, then add it to the outgoing queue
-                auto rm = networking::ReceiveMessage {response, message.connection};
-                out.add(rm);
-            } else {
-                // do nothing for now, but once we can actually send messages to each client individually,
-                // inform them that they've entered some invalid choice (out of range)
-            }
-        } catch (const std::invalid_argument& e) {
-            // do nothing for now, but once we can actually send messages to each client individually,
-            // inform them that they've entered some invalid choice (not numerical)
-        }
-    }
-}
-
-
 int main(int argc, char* argv[]) {
   if (argc < 3) {
     std::cerr << "Usage:\n  " << argv[0] << " <port> <html response>\n"
@@ -330,7 +217,7 @@ int main(int argc, char* argv[]) {
   }
 
   const unsigned short port = std::stoi(argv[1]);
-  GameServer gameServer(port, getHTTPMessage(argv[2]), onConnect, onDisconnect);
+  GameServer gameServer(port, getHTTPMessage(argv[2]));
 
   while (true) {
     bool errorWhileUpdating = false;
@@ -345,11 +232,11 @@ int main(int argc, char* argv[]) {
     // instead of receiving and broadcasting from the server, we should receive messages from the in queue
     const auto incoming = gameServer.receive();
     const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
-    const auto outgoing = buildOutgoing(log);
+    const auto outgoing = gameServer.buildOutgoing(log);
     gameServer.send(outgoing);
 
     // testing getting basic info from the game
-    const auto test = buildOutgoing(std::string(gameServer.getMessage()));
+    const auto test = gameServer.buildOutgoing(std::string(gameServer.getMessage()));
     gameServer.send(test);
 
     if (shouldQuit || errorWhileUpdating) {

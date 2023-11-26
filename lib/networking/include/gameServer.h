@@ -1,16 +1,49 @@
-//
-// Created by kevin on 11/26/2023.
-//
+#ifndef GAMESERVER_H
+#define GAMESERVER_H
 
-#ifndef KLAH_GAMESERVER_H
-#define KLAH_GAMESERVER_H
+#include "MessageQueue.h"
+#include "Server.h"
+#include "ruleNode.h"
+#include <vector>
 
+class GameServer {
+public:
+    GameServer(unsigned short port, const std::string& htmlResponse);
 
+    void update();
 
-class gameServer {
+    std::deque<networking::Message> receive();
 
+    void send(const std::deque<networking::Message>& messages);
+
+    void disconnect(networking::Connection connection);
+
+    networking::Server& getServer();
+
+    std::string getMessage();
+
+    void sendAndAwaitResponse(int timeout);
+
+    void printClients() {
+        std::cout << "clients: \n";
+        for (auto client : clients) {
+            std::cout << "client: " << client.id << std::endl;
+        }
+    }
+
+    std::deque<networking::Message> buildOutgoing(const std::string& log);
+
+private:
+    networking::Server server;
+    SendMessageQueue in;
+    ReceiveMessageQueue out;
+    TreeNode root;
+    std::vector<networking::Connection> clients;
+
+    void processResponses(const std::deque<networking::Message>& messages, std::vector<int> choices);
+
+    void onConnectCallback(networking::Connection c);
+    void onDisconnectCallback(networking::Connection c);
 };
 
-
-
-#endif //KLAH_GAMESERVER_H
+#endif //GAMESERVER_H
