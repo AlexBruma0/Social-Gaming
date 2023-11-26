@@ -1,5 +1,5 @@
 #include "Server.h"
-
+#include "gameserver.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -237,63 +237,47 @@ getHTTPMessage(const char* htmlLocation) {
   std::exit(-1);
 }
 
-//TODO: pass message queue pointers into the nodes
+GameServer::GameServer(unsigned short port, const std::string& htmlResponse,
+                       void (*onConnectCallback)(Connection),
+                       void (*onDisconnectCallback)(Connection))
+        : server(port, htmlResponse, onConnectCallback, onDisconnectCallback),
+          in(SendMessageQueue()),
+          out(ReceiveMessageQueue()) {
 
-// wrapper class to the server to make interactions clearer
-class GameServer {
-public:
-    GameServer(unsigned short port, const std::string& htmlResponse,
-               void (*onConnectCallback)(Connection),
-               void (*onDisconnectCallback)(Connection))
-            : server(port, htmlResponse, onConnectCallback, onDisconnectCallback),
-            in(SendMessageQueue()),
-            out(ReceiveMessageQueue()) {
+    // initialize the root of the rules
+    std::string sourcecode = file_to_string(RPS_LOCATION);
+    ts::Tree tree = string_to_tree(sourcecode);
+    ts::Node tsRoot = tree.getRootNode();
 
+    root = buildRuleTree(tsRoot, sourcecode, &in, &out);
+}
 
-        // initialize the root of the rules
-        std::string sourcecode = file_to_string(RPS_LOCATION);
-        ts::Tree tree = string_to_tree(sourcecode);
-        ts::Node tsRoot = tree.getRootNode();
+void GameServer::update() {
+    server.update();
+}
 
-        root = buildRuleTree(tsRoot, sourcecode, &in, &out);
-    }
+std::deque<Message> GameServer::receive() {
+    return server.receive();
+}
 
-    void update() {
-        server.update();
-    }
+void GameServer::send(const std::deque<Message>& messages) {
+    server.send(messages);
+}
 
-    std::deque<Message> receive() {
-        return server.receive();
-    }
+void GameServer::disconnect(Connection connection) {
+    server.disconnect(connection);
+}
 
-    void send(const std::deque<Message>& messages) {
-        server.send(messages);
-    }
+Server& GameServer::getServer() {
+    return server;
+}
 
-    void disconnect(Connection connection) {
-        server.disconnect(connection);
-    }
+std::string GameServer::getMessage() {
+    // dummy string for now, just to make sure we can get data from the game
+    return root.getType();
+}
 
-    Server& getServer() {
-        return server;
-    }
-
-    std::string getMessage() {
-        // dummy string for now, just to make sure we can get data from the game
-        return root.getType();
-    }
-
-private:
-    Server server;
-
-    SendMessageQueue in;
-    ReceiveMessageQueue out;
-
-    TreeNode root;
-};
-
-int
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
   if (argc < 3) {
     std::cerr << "Usage:\n  " << argv[0] << " <port> <html response>\n"
               << "  e.g. " << argv[0] << " 4002 ./webchat.html\n";

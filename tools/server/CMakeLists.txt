@@ -1,6 +1,6 @@
 
 add_executable(gameserver
-gameserver.cpp
+               gameserver.cpp
 )
 
 set_target_properties(gameserver
@@ -13,12 +13,12 @@ set_target_properties(gameserver
 find_package(Threads REQUIRED)
 
 target_link_libraries(gameserver
-  networking
-  parser
-  ${CMAKE_THREAD_LIBS_INIT}
+                      networking
+                      parser
+                      ${CMAKE_THREAD_LIBS_INIT}
 )
 
 
 install(TARGETS gameserver
-  RUNTIME DESTINATION bin
+        RUNTIME DESTINATION bin
 )
