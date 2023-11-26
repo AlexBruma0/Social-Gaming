@@ -10,6 +10,8 @@
 #include "ruleNodeSupport.h"
 #include <memory>
 #include <nlohmann/json.hpp>
+#include "Server.h"
+
 
 
 
@@ -309,13 +311,64 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, 
     nodeVariables = gv;
 }
 
+
 void InputChoiceNodeImpl::execute(){
-    //std::cout<< "executing input choice" <<std::endl;
+
+    auto idVars = getNodeVariables();
+
+    auto targetID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::TARGET_ID));
+    auto promptID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::PROMPT_ID));
+    auto choicesID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::CHOICES_ID));
+
+    auto gameVars = gameState->getVars();
+    auto choices = gameVars->getNestedMap(choicesID);
+    auto target = gameVars->getNestedMap(targetID);
+    auto prompt = gameVars->getNestedMap(promptID);
+
+    int intTarget;
+    std::string stringPrompt;
+    std::vector<int> intChoices;
+
+    std::visit([&prompt, &stringPrompt](auto&& e){
+            using T = std::decay_t<decltype(e)>;
+            if constexpr (std::is_same_v<T, std::string> ){
+                stringPrompt = std::get<std::string>(prompt);
+            }
+        }, prompt);
+
+ 
+    std::visit([&target, &intTarget](auto&& e){
+            using T = std::decay_t<decltype(e)>;
+            if constexpr (std::is_same_v<T, int> ){
+                intTarget = std::get<int>(target);
+            }
+        }, target);
+
+    std::visit([&choices, &intChoices ](auto&& elements){
+        using U = std::decay_t<decltype(elements)>;
+        if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
+            for(auto& el: elements){
+                std::visit([&el, &intChoices](auto&& e){
+                    using T = std::decay_t<decltype(e)>;
+                    if constexpr (std::is_same_v<T, int> ){
+                        auto intChoice = std::get<int>(el);
+                        intChoices.emplace_back(intChoice);
+                    }
+                }, el);
+            }
+        }
+    }, choices);
+
+    networking::SendMessage InputMessage = networking::SendMessage{ intChoices, stringPrompt };
+    
+    InputMessage.print();
+    if(in != nullptr){
+        in->add(InputMessage);
+    }
+
     for (const auto& child : children) {
         child->execute();
     }
-
-    //TODO: once Arjun has the server I/O interface ready, call it here to send prompt and get answer (probably with IDs)
 }
 
 ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState,const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {

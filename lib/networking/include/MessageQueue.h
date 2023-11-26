@@ -8,10 +8,10 @@
 
 class SendMessageQueue{
     private:
-    std::vector<networking::SendMessage> messages;
+    mutable std::vector<networking::SendMessage> messages;
     public:
     SendMessageQueue& operator=(const SendMessageQueue& mq);
-    int add(networking::SendMessage message);
+    int add(networking::SendMessage message) const ;
     networking::SendMessage remove();
 };
 
