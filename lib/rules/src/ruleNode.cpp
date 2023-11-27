@@ -68,6 +68,9 @@ std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameSta
     return std::make_unique<TreeNodeImpl>("", gameState, in , out);
 }
 
+GameVariables TreeNode::getNodeVariables(){
+    return impl->getNodeVariables();
+}
 
 void TreeNode::execute() const{
     //std::cout<< "executing" <<std::endl;
@@ -268,6 +271,21 @@ ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState, 
     nodeVariables = gv;
 }
 
+void ParallelForNodeImpl::broadcastInputs(){
+    // Place holder function for returning control back to the networking side
+    // Will call a function on the networking portion to broadcast messages in the msesage queue
+
+    // std::cout<<"broadcasting"<<std::endl;
+}
+
+void ParallelForNodeImpl::waitResponses(size_t duration){
+    // Place holder function for returning control back to the networking side
+    // Will call a function on the networking portion to recieve messages for a set duration
+
+    // std::cout<<"responding"<<std::endl;
+    // std::cout<<duration<<std::endl;
+}
+
 void ParallelForNodeImpl::execute(){
     auto idVars = getNodeVariables();
     auto freshID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::VARIABLE_ID));
@@ -293,10 +311,37 @@ void ParallelForNodeImpl::execute(){
                     child->execute();
                 }
             }
+            
+            // Keep track of the different timeouts 
+            // Uses the address of the childNode as a key
+            std::map<TreeNode*, size_t> durationMap;
 
-            // Depending on what child is what handle the outcomes
-            // Right now only inputNode is programmed into the map
+            // Once all the messages are in the queue
+            // Give control to the networking side and send all those messages
+            // Also get the waiting durations for all children
+            for (const auto& child : children) {
+                GameVariables childVars = child->getNodeVariables();
+                size_t duration = 0;
+                auto timeoutVariant = childVars.getNestedMap(TIMEOUT_ID);
+
+                broadcastInputs();
+
+                // Check to see if a child node has a timeout field
+                // If it does convert and record it 
+                std::visit([&duration](const auto& v){
+                    using U = std::decay_t<decltype(v)>;
+                    if constexpr (std::is_same_v<U, std::string>){
+                        duration = std::stoi(v);
+                    }
+                }, timeoutVariant); 
+                durationMap[(child.get())] = duration;
+            }
+
+            // Wait for messages from the server
+            // Then execute a function based on the type
+            // For input nodes it will write the response to the global game state
             for (const auto& child : children){
+                waitResponses(durationMap[(child.get())]);
                 (visitParallelMap[child->getType()](this, value.size(), freshID));
             }
             

@@ -58,6 +58,8 @@ class TreeNode {
 
         std::string getType();
 
+        GameVariables getNodeVariables();
+
         virtual void execute() const;
 
         std::unique_ptr<TreeNodeImpl> parseNode(const ts::Node tsNode, GameState *gameState, const std::string &source_code, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
@@ -79,6 +81,7 @@ class TreeNodeImpl {
         inline const static std::string PLAYER_ID = "player";
         inline const static std::string PROMPT_ID = "prompt";
         inline const static std::string CHOICES_ID = "choices";
+        inline const static std::string TIMEOUT_ID = "timeout";
 
         inline const static std::string NULL_STRING = "";
 
@@ -134,9 +137,6 @@ public:
     ForNodeImpl(std::string id, GameState* _gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
     ~ForNodeImpl(){}
     void execute();
-    void update();
-
-
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{
@@ -144,9 +144,6 @@ public:
     DiscardNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
     ~DiscardNodeImpl(){}
     void execute();
-
-private:
-    bool extractSize(const std::string_view operand, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
@@ -161,6 +158,8 @@ public:
     ParallelForNodeImpl(std::string id, GameState* gameState,const  SendMessageQueue* in, const ReceiveMessageQueue* out);
     ~ParallelForNodeImpl() {}
     void execute();
+    void broadcastInputs();
+    void waitResponses(size_t duration);
 };
 
 class InputChoiceNodeImpl: public TreeNodeImpl{
