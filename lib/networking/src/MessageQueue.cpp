@@ -41,3 +41,11 @@ std::vector<networking::ReceiveMessage> ReceiveMessageQueue::getMessageFromID(ne
     }
     return returnVec;
 }
+
+int SendMessageQueue::size(){
+    return this->messages.size();
+}
+
+int ReceiveMessageQueue::size(){
+    return this->messages.size();
+}
