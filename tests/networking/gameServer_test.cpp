@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include "Server.h"
-#include "gameserver.h"
+#include "gameServer.h"
 
 void
 onConnect(networking::Connection c) {
