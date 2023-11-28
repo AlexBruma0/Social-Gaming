@@ -22,7 +22,9 @@ public:
 
     std::string getMessage();
 
-    void sendAndAwaitResponse(int timeout);
+    void broadcastMessage();
+
+    void awaitResponse(int timeout, const std::vector<int>& choices);
 
     void printClients() {
         std::cout << "clients: \n";

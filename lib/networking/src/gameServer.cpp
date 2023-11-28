@@ -45,15 +45,17 @@ std::string GameServer::getMessage() {
     return root.getType();
 }
 
-void GameServer::sendAndAwaitResponse(int timeout) {
+void GameServer::broadcastMessage() {
     // take a message from the in queue
     networking::SendMessage sm = in.remove();
-    std::vector<int> choices = sm.choices;
     std::string prompt = sm.prompt;
 
     // build the messages to each client
     const auto outgoing = buildOutgoing(prompt);
     send(outgoing);
+}
+
+void GameServer::awaitResponse(int timeout, const std::vector<int>& choices) {
     int elapsedTime = 0;
 
     // for [timeout] seconds, await responses
