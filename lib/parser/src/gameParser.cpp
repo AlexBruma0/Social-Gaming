@@ -6,13 +6,11 @@
 #include <cpp-tree-sitter.h>
 #include <vector>
 #include <exception>
-#include <algorithm>
 #include "ruleNode.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "GameState.h"
 #include "MessageQueue.h"
-
 
 
 // Current Directory is your build directory
@@ -117,7 +115,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code,
-                        const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+                        const SendMessageQueue* in, const ReceiveMessageQueue* out, GameServer* server) {
     const int num_players = 2;
     const int num_rounds = 2;
 
@@ -137,7 +135,7 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     jsonData["players"][1]["name"] = "Bob";
     GameVariables emptyGameVar{};
     createGameVariables(jsonData, emptyGameVar);
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, server};
     gs.setVars(emptyGameVar);
     //std::cout << gs.getState().dump();
 

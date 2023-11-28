@@ -17,7 +17,7 @@ GameServer::GameServer(unsigned short port, const std::string& htmlResponse)
     ts::Tree tree = string_to_tree(sourcecode);
     ts::Node tsRoot = tree.getRootNode();
 
-    root = buildRuleTree(tsRoot, sourcecode, &in, &out);
+    root = buildRuleTree(tsRoot, sourcecode, &in, &out, this);
 }
 
 void GameServer::update() {

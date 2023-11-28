@@ -1,6 +1,8 @@
 #ifndef GAMESERVER_H
 #define GAMESERVER_H
 
+#pragma once
+
 #include "MessageQueue.h"
 #include "Server.h"
 #include "ruleNode.h"

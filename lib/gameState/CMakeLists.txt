@@ -1,5 +1,5 @@
 
-add_library(gameState src/GameState.cpp)
+add_library(gameState src/GameState.cpp src/gameVariables.cpp)
 
 target_include_directories(gameState
   PUBLIC

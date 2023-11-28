@@ -45,7 +45,7 @@ TEST(gameStateTest, Initial) {
     for(int i = 0; i < num_players; i++){
         jsonData["players"][i] = jsonData["per-player"];
     }
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, nullptr};
     std::cout << gs.getState()->dump();
 
 }
@@ -60,7 +60,7 @@ TEST(gameStateTest, GAMEVARIABLES_BASIC) {
     gv.insert("test1", std::string("test"));
     gv.insert("test2", 1);
 
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, nullptr};
     gs.setVars(gv);
 
     auto result = std::get<std::string>(gs.getVars()->getValue("test1"));
@@ -84,7 +84,7 @@ TEST(gameStateTest, GAMEVARIABLES_ARRAYS) {
     gv.insert("test1", std::vector<int>{1, 2, 3});
     gv.insert("test2", std::vector<std::string>{"1", "2", "3"});
 
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, nullptr};
     gs.setVars(gv);
 
     auto result = std::get<std::vector<int>>(gs.getVars()->getValue("test1"));
@@ -109,7 +109,7 @@ TEST(gameStateTest, GAMEVARIABLES_NESTED) {
     gv2.insert("second", gv3);
     gv.insert("first", gv2);
 
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, nullptr};
     gs.setVars(gv);
 
     ASSERT_TRUE(std::holds_alternative<GameVariables>(gs.getVars()->getValue("first")));
@@ -139,7 +139,7 @@ TEST(gameStateTest, GAMEVARIABLES_ERASE) {
     gv.insert("not deleted", std::string("yay!"));
     gv.erase("deleted");
 
-    GameState gs{&jsonData};
+    GameState gs{&jsonData, nullptr};
     gs.setVars(gv);
 
     auto result = gs.getVars()->getValue("deleted");
