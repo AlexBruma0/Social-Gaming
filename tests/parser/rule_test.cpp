@@ -187,11 +187,13 @@ TEST(RuleTests, parallelTest){
 
     json j;
     j["players"] = vecData;
+    j[TreeNodeImpl::TIMEOUT_ID] = "10";
 
     // Passing in the dummy indexes which will be incremented by the forNode
     json identifiers;
     identifiers[TreeNodeImpl::COLLECTION_ID] = "players";
     identifiers[TreeNodeImpl::VARIABLE_ID] = "player";
+    identifiers[TreeNodeImpl::TIMEOUT_ID] = "10";
 
     GameVariables idVars;
     createGameVariables(identifiers, idVars);
@@ -209,6 +211,7 @@ TEST(RuleTests, parallelTest){
 
     auto input = std::make_unique<dummyNode> (&gs);
     ts::Node tsNode = getEmptyTSNode();
+    input->setNodeVariables(idVars);
     type = "type";
 
     //need to change type after to avoid parsing segfaults
@@ -231,7 +234,7 @@ TEST(RuleTests, parallelTest){
                         // Should be printing the number 1 six times
                         // Theres a function in ruleNodeSupport.cpp called parseResponse
                         // Right now it returns 1 it will be changed in the futrue 
-                        std::cout<<e<<std::endl;
+                        ASSERT_EQ(1, e);
                     }
                 }, el);
             }
