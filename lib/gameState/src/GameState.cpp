@@ -30,3 +30,7 @@ json* GameState::getState() const{
     return this->gameState;
 }
 
+GameServer* GameState::getServer(){
+    return server;
+}
+

@@ -275,7 +275,8 @@ void ParallelForNodeImpl::broadcastInputs(){
     // Place holder function for returning control back to the networking side
     // Will call a function on the networking portion to broadcast messages in the msesage queue
 
-    // std::cout<<"broadcasting"<<std::endl;
+    std::cout<<"broadcasting"<<std::endl;
+    this->gameState->getServer()->broadcastMessage();
 }
 
 void ParallelForNodeImpl::waitResponses(size_t duration){
@@ -323,7 +324,6 @@ void ParallelForNodeImpl::execute(){
                 GameVariables childVars = child->getNodeVariables();
                 size_t duration = 0;
                 auto timeoutVariant = childVars.getNestedMap(TIMEOUT_ID);
-
                 broadcastInputs();
 
                 // Check to see if a child node has a timeout field

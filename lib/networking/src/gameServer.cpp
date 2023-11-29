@@ -5,19 +5,19 @@
 
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
-GameServer::GameServer(unsigned short port, const std::string& htmlResponse)
+GameServer::GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out)
         : server(port, htmlResponse,
                  [this](networking::Connection c) { onConnectCallback(c); },
                  [this](networking::Connection c) { onDisconnectCallback(c); }),
-          in(SendMessageQueue()),
-          out(ReceiveMessageQueue()) {
+          in(in),
+          out(out) {
 
     // initialize the root of the rules
     std::string sourcecode = file_to_string(RPS_LOCATION);
     ts::Tree tree = string_to_tree(sourcecode);
     ts::Node tsRoot = tree.getRootNode();
 
-    root = buildRuleTree(tsRoot, sourcecode, &in, &out, this);
+    root = buildRuleTree(tsRoot, sourcecode, in, out, this);
 }
 
 void GameServer::update() {
@@ -47,9 +47,8 @@ std::string GameServer::getMessage() {
 
 void GameServer::broadcastMessage() {
     // take a message from the in queue
-    networking::SendMessage sm = in.remove();
+    networking::SendMessage sm = in->remove();
     std::string prompt = sm.prompt;
-
     // build the messages to each client
     const auto outgoing = buildOutgoing(prompt);
     send(outgoing);
@@ -82,7 +81,7 @@ void GameServer::processResponses(const std::deque<networking::Message>& message
             if (it != choices.end()) {
                 // if the response is one of the valid choices, then add it to the outgoing queue
                 auto rm = networking::ReceiveMessage {response, message.connection};
-                out.add(rm);
+                out->add(rm);
             } else {
                 // do nothing for now, but once we can actually send messages to each client individually,
                 // inform them that they've entered some invalid choice (out of range)

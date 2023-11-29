@@ -16,6 +16,7 @@ public:
     void setState(json* gameState);
     GameVariables* getVars();
     void setVars(GameVariables gv);
+    GameServer* getServer();
     GameState(json* gameState, GameServer* server);
     GameState();
 };
