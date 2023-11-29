@@ -10,6 +10,11 @@ set_target_properties(networking_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAK
 target_link_libraries(networking_test networking ${GTEST_BOTH_LIBRARIES} pthread)
 add_test(NAME networking_test COMMAND networking_test)
 
+add_executable(gameServer_test gameServer_test.cpp)
+set_target_properties(gameServer_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/networking)
+target_link_libraries(gameServer_test networking ${GTEST_BOTH_LIBRARIES} pthread)
+add_test(NAME gameServer_test COMMAND gameServer_test)
+
 # Command for adding something into the resource folder
 # Need to change the target
 add_custom_command(
@@ -21,4 +26,4 @@ add_custom_command(
 
 #Automatically runs the tests
 #Commented out temporarily because the tests don't work
-#add_custom_command(TARGET networking_test POST_BUILD COMMAND ctest "networking_test" --output-on-failure)
+#add_custom_command(TARGET messageQueue_test POST_BUILD COMMAND ctest "messageQueue_test" --output-on-failure)

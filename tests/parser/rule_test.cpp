@@ -201,7 +201,7 @@ TEST(RuleTests, parallelTest){
     GameVariables gameVars;
     createGameVariables(j, gameVars);
 
-    GameState gs{&j};
+    GameState gs{&j, nullptr};
     gs.setVars(gameVars);
 
     std::string type = "child";
@@ -262,7 +262,7 @@ TEST(RuleTests, InputNodeCreatingAndPrintingSendMessage){
     GameVariables gameVars;
     createGameVariables(j, gameVars);
 
-    GameState gs{&j};
+    GameState gs{&j, nullptr};
     gs.setVars(gameVars);
 
     std::string type = "input_choice";
@@ -291,7 +291,7 @@ TEST(RuleTests, InputNodeAddingMessageToQueue){
     GameVariables gameVars;
     createGameVariables(j, gameVars);
 
-    GameState gs{&j};
+    GameState gs{&j, nullptr};
     gs.setVars(gameVars);
 
     std::string type = "input_choice";

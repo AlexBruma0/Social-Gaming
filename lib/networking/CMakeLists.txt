@@ -1,4 +1,4 @@
-add_library(networking src/Server.cpp src/Client.cpp src/MessageQueue.cpp)
+add_library(networking src/Server.cpp src/Client.cpp src/MessageQueue.cpp src/gameServer.cpp)
 
 target_include_directories(networking
         PUBLIC
@@ -10,6 +10,8 @@ target_include_directories(networking
 target_link_libraries(networking
         PUBLIC
         nlohmann_json
+        parser
+        rules
 )
 
 if (NETWORKING_EMSCRIPTEN_BUILD)

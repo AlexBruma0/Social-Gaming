@@ -11,14 +11,16 @@
 #include <variant>
 #include <gtest/gtest_prod.h>
 #include <nlohmann/json.hpp>
-#include "../../gameState/include/GameState.h"
+// #include "../../gameState/include/GameState.h"
 #include "cpp-tree-sitter.h"
 #include "MessageQueue.h"
+#include "GameVariables.h"
 
 // Forward declarations for classes used in RuleTrait and RuleNode
 
 class TreeNode;
 class TreeNodeImpl;
+class GameState;
 
 /*
     Overall Format
