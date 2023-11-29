@@ -114,8 +114,8 @@ TEST(ServerTests, treeNodeCalls){
     gs.setVars(gameVars);
 
     std::string type = "child";
-    auto assignment = std::make_unique<ParallelForNodeImpl> (type, &gs, &in, &out);
-    assignment->setNodeVariables(idVars);
+    auto parallelNode = std::make_unique<ParallelForNodeImpl> (type, &gs, &in, &out);
+    parallelNode->setNodeVariables(idVars);
 
     type = "input_choice";
     auto input = std::make_unique<InputChoiceNodeImpl> (type, &gs, &in, &out);
@@ -126,9 +126,14 @@ TEST(ServerTests, treeNodeCalls){
     //need to change type after to avoid parsing segfaults
     auto child = std::make_unique<childNode>(tsNode, type, type, &gs, std::move(input));
     child->changeType("input_choice");
-    assignment->addChild(std::move(child));
+    parallelNode->addChild(std::move(child));
 
-    assignment->execute();
+    auto start_time = std::chrono::high_resolution_clock::now();
+    parallelNode->execute();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_GE(duration.count(), 10);
 }
 
 TEST(GAMESERVER_TEST, timeout) {
