@@ -279,12 +279,12 @@ void ParallelForNodeImpl::broadcastInputs(){
     this->gameState->getServer()->broadcastMessage();
 }
 
-void ParallelForNodeImpl::waitResponses(size_t duration){
+void ParallelForNodeImpl::waitResponses(size_t duration, const std::vector<int>& choices){
     // Place holder function for returning control back to the networking side
     // Will call a function on the networking portion to recieve messages for a set duration
 
     // std::cout<<"responding"<<std::endl;
-    // std::cout<<duration<<std::endl;
+    this->gameState->getServer()->awaitResponse(duration, choices);
 }
 
 void ParallelForNodeImpl::execute(){
@@ -341,7 +341,27 @@ void ParallelForNodeImpl::execute(){
             // Then execute a function based on the type
             // For input nodes it will write the response to the global game state
             for (const auto& child : children){
-                waitResponses(durationMap[(child.get())]);
+                GameVariables childVars = child->getNodeVariables();
+                auto choicesID = std::get<std::string>(childVars.getNestedMap(TreeNodeImpl::CHOICES_ID));
+                auto choices = gameVars->getNestedMap(choicesID);
+
+                std::vector<int> intChoices;
+
+                std::visit([&choices, &intChoices ](auto&& elements){
+                    using U = std::decay_t<decltype(elements)>;
+                    if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
+                        for(auto& el: elements){
+                            std::visit([&el, &intChoices](auto&& e){
+                                using T = std::decay_t<decltype(e)>;
+                                if constexpr (std::is_same_v<T, int> ){
+                                    auto intChoice = std::get<int>(el);
+                                    intChoices.emplace_back(intChoice);
+                                }
+                            }, el);
+                        }
+                    }
+                }, choices);
+                waitResponses(durationMap[(child.get())], intChoices);
                 (visitParallelMap[child->getType()](this, value.size(), freshID));
             }
             

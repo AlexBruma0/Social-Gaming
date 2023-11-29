@@ -96,7 +96,7 @@ TEST(ServerTests, treeNodeCalls){
     identifiersInput[TreeNodeImpl::CHOICES_ID] = "weapons";
     identifiersInput[TreeNodeImpl::TARGET_ID] = "player";
     identifiersInput[TreeNodeImpl::PROMPT_ID] = "prompt"; 
-    identifiers[TreeNodeImpl::TIMEOUT_ID] = "10";
+    identifiersInput[TreeNodeImpl::TIMEOUT_ID] = "10";
 
     GameVariables idVars;
     createGameVariables(identifiers, idVars);
