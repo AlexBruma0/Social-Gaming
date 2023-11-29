@@ -275,7 +275,7 @@ void ParallelForNodeImpl::broadcastInputs(){
     // Place holder function for returning control back to the networking side
     // Will call a function on the networking portion to broadcast messages in the msesage queue
 
-    std::cout<<"broadcasting"<<std::endl;
+    //std::cout<<"broadcasting"<<std::endl;
     this->gameState->getServer()->broadcastMessage();
 }
 
@@ -406,11 +406,10 @@ void InputChoiceNodeImpl::execute(){
 
     networking::SendMessage InputMessage = networking::SendMessage{ intChoices, stringPrompt };
     
-    InputMessage.print();
+    //InputMessage.print();
     if(in != nullptr){
         in->add(InputMessage);
     }
-
     for (const auto& child : children) {
         child->execute();
     }

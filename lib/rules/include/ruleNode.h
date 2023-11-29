@@ -16,6 +16,7 @@
 #include "MessageQueue.h"
 #include "GameVariables.h"
 
+
 // Forward declarations for classes used in RuleTrait and RuleNode
 
 class TreeNode;
