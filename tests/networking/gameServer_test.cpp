@@ -1,21 +1,10 @@
 #include <gtest/gtest.h>
 #include <fstream>
+#include <chrono>
 #include "Server.h"
 #include "gameServer.h"
 
-void
-onConnect(networking::Connection c) {
-    std::cout << "New connection found: " << c.id << "\n";
-}
-
-
-void
-onDisconnect(networking::Connection c) {
-    std::cout << "Connection lost: " << c.id << "\n";
-}
-
-std::string
-getHTTPMessage(const char* htmlLocation) {
+std::string getHTTPMessage(const char* htmlLocation) {
     if (access(htmlLocation, R_OK ) != -1) {
         std::ifstream infile{htmlLocation};
         return std::string{std::istreambuf_iterator<char>(infile),
@@ -28,11 +17,32 @@ getHTTPMessage(const char* htmlLocation) {
     std::exit(-1);
 }
 
-TEST(dummy, dummy) {
+TEST(GAMESERVER_TEST, timeout) {
     int port = 8000;
     const char *argv2;
     argv2 = "resources/networking/webchat.html";
 
-    GameServer gameServer(port, getHTTPMessage(argv2));
-    SUCCEED();
+    GameServer gs(port, getHTTPMessage(argv2));
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    gs.awaitResponse(5, {});
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_GE(duration.count(), 5);
+}
+
+TEST(GAMESERVER_TEST, timeout_empty) {
+    int port = 8000;
+    const char *argv2;
+    argv2 = "resources/networking/webchat.html";
+
+    GameServer gs(port, getHTTPMessage(argv2));
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    gs.awaitResponse(0, {});
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_LE(duration.count(), 1);
 }
