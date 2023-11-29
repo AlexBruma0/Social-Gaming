@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
+#include <chrono>
 #include "Server.h"
 #include "gameServer.h"
 
@@ -62,7 +63,6 @@ GameServer getServer(SendMessageQueue* in, ReceiveMessageQueue* out){
     int port = 8000;
     const char *argv2;
     argv2 = "resources/networking/webchat.html";
-
     GameServer gameServer(port, getHTTPMessage(argv2), in, out);
     return gameServer;
 }
@@ -129,4 +129,30 @@ TEST(ServerTests, treeNodeCalls){
     assignment->addChild(std::move(child));
 
     assignment->execute();
+}
+
+TEST(GAMESERVER_TEST, timeout) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameServer gs = getServer(&in, &out);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    gs.awaitResponse(5, {});
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_GE(duration.count(), 5);
+}
+
+TEST(GAMESERVER_TEST, timeout_empty) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameServer gs = getServer(&in, &out);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    gs.awaitResponse(0, {});
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_LE(duration.count(), 1);
 }
