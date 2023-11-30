@@ -10,7 +10,7 @@
 
 class GameServer {
 public:
-    GameServer(unsigned short port, const std::string& htmlResponse);
+    GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out);
 
     void update();
 
@@ -39,8 +39,8 @@ public:
 
 private:
     networking::Server server;
-    SendMessageQueue in;
-    ReceiveMessageQueue out;
+    SendMessageQueue* in;
+    ReceiveMessageQueue* out;
     TreeNode root;
     std::vector<networking::Connection> clients;
 

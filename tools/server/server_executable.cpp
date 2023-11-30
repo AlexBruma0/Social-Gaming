@@ -216,8 +216,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  SendMessageQueue in = SendMessageQueue();
+  ReceiveMessageQueue out = ReceiveMessageQueue();
   const unsigned short port = std::stoi(argv[1]);
-  GameServer gameServer(port, getHTTPMessage(argv[2]));
+  GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out);
 
   while (true) {
     bool errorWhileUpdating = false;

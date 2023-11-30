@@ -16,6 +16,7 @@
 #include "MessageQueue.h"
 #include "GameVariables.h"
 
+
 // Forward declarations for classes used in RuleTrait and RuleNode
 
 class TreeNode;
@@ -161,7 +162,7 @@ public:
     ~ParallelForNodeImpl() {}
     void execute();
     void broadcastInputs();
-    void waitResponses(size_t duration);
+    void waitResponses(size_t duration, const std::vector<int>& choices);
 };
 
 class InputChoiceNodeImpl: public TreeNodeImpl{

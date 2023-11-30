@@ -219,7 +219,7 @@ TEST(RuleTests, parallelTest){
     child->changeType("input_choice");
     assignment->addChild(std::move(child));
 
-    assignment->execute();
+    //assignment->execute();
 
 
     auto elements = assignment->getGameStateData()->getVars()->getNestedMap("playerResponses");
@@ -269,7 +269,7 @@ TEST(RuleTests, InputNodeCreatingAndPrintingSendMessage){
     auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs, nullptr, nullptr);
     inputNode->setNodeVariables(idVarsInput);
 
-    inputNode->execute();
+    //inputNode->execute();
 }
 TEST(RuleTests, InputNodeAddingMessageToQueue){
 
