@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "gameServer.h"
+#include "GameState.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -219,34 +220,37 @@ int main(int argc, char* argv[]) {
   SendMessageQueue in = SendMessageQueue();
   ReceiveMessageQueue out = ReceiveMessageQueue();
   const unsigned short port = std::stoi(argv[1]);
-  GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out);
 
-  while (true) {
-    bool errorWhileUpdating = false;
-    try {
-        gameServer.update();
-    } catch (std::exception& e) {
-      std::cerr << "Exception from Server update:\n"
-                << " " << e.what() << "\n\n";
-      errorWhileUpdating = true;
-    }
+  GameState gs(nullptr, nullptr);
+  GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out, &gs);
+  gameServer.runTree();
 
-    // instead of receiving and broadcasting from the server, we should receive messages from the in queue
-    const auto incoming = gameServer.receive();
-    const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
-    const auto outgoing = gameServer.buildOutgoing(log);
-    gameServer.send(outgoing);
+  // while (true) {
+  //   bool errorWhileUpdating = false;
+  //   try {
+  //       gameServer.update();
+  //   } catch (std::exception& e) {
+  //     std::cerr << "Exception from Server update:\n"
+  //               << " " << e.what() << "\n\n";
+  //     errorWhileUpdating = true;
+  //   }
 
-    // testing getting basic info from the game
-    const auto test = gameServer.buildOutgoing(std::string(gameServer.getMessage()));
-    gameServer.send(test);
+  //   // instead of receiving and broadcasting from the server, we should receive messages from the in queue
+  //   const auto incoming = gameServer.receive();
+  //   const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
+  //   const auto outgoing = gameServer.buildOutgoing(log);
+  //   gameServer.send(outgoing);
 
-    if (shouldQuit || errorWhileUpdating) {
-      break;
-    }
+  //   // testing getting basic info from the game
+  //   const auto test = gameServer.buildOutgoing(std::string(gameServer.getMessage()));
+  //   gameServer.send(test);
 
-    sleep(1);
-  }
+  //   if (shouldQuit || errorWhileUpdating) {
+  //     break;
+  //   }
+
+  //   sleep(1);
+  // }
 
   return 0;
 }

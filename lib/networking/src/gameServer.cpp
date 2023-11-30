@@ -5,7 +5,7 @@
 
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
-GameServer::GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out)
+GameServer::GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out, GameState* gs)
         : server(port, htmlResponse,
                  [this](networking::Connection c) { onConnectCallback(c); },
                  [this](networking::Connection c) { onDisconnectCallback(c); }),
@@ -17,7 +17,7 @@ GameServer::GameServer(unsigned short port, const std::string& htmlResponse, Sen
     ts::Tree tree = string_to_tree(sourcecode);
     ts::Node tsRoot = tree.getRootNode();
 
-    root = buildRuleTree(tsRoot, sourcecode, in, out, this);
+    root = buildRuleTree(tsRoot, sourcecode, in, out, this, gs);
 }
 
 void GameServer::update() {

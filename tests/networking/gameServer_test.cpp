@@ -59,11 +59,11 @@ getHTTPMessage(const char* htmlLocation) {
     std::exit(-1);
 }
 
-GameServer getServer(SendMessageQueue* in, ReceiveMessageQueue* out){
+GameServer getServer(SendMessageQueue* in, ReceiveMessageQueue* out, GameState* gs){
     int port = 8000;
     const char *argv2;
     argv2 = "resources/networking/webchat.html";
-    GameServer gameServer(port, getHTTPMessage(argv2), in, out);
+    GameServer gameServer(port, getHTTPMessage(argv2), in, out, gs);
     return gameServer;
 }
 
@@ -109,8 +109,9 @@ TEST(ServerTests, treeNodeCalls){
 
     SendMessageQueue in = SendMessageQueue();
     ReceiveMessageQueue out = ReceiveMessageQueue();
-    GameServer g = getServer(&in, &out);
-    GameState gs{&j, &g};
+    GameState gs(nullptr, nullptr);
+    GameServer g = getServer(&in, &out, &gs);
+
     gs.setVars(gameVars);
 
     std::string type = "child";
@@ -139,7 +140,8 @@ TEST(ServerTests, treeNodeCalls){
 TEST(GAMESERVER_TEST, timeout) {
     SendMessageQueue in = SendMessageQueue();
     ReceiveMessageQueue out = ReceiveMessageQueue();
-    GameServer gs = getServer(&in, &out);
+    GameState g(nullptr, nullptr);
+    GameServer gs = getServer(&in, &out, &g);
 
     auto start_time = std::chrono::high_resolution_clock::now();
     gs.awaitResponse(5, {});
@@ -152,7 +154,8 @@ TEST(GAMESERVER_TEST, timeout) {
 TEST(GAMESERVER_TEST, timeout_empty) {
     SendMessageQueue in = SendMessageQueue();
     ReceiveMessageQueue out = ReceiveMessageQueue();
-    GameServer gs = getServer(&in, &out);
+    GameState g(nullptr, nullptr);
+    GameServer gs = getServer(&in, &out, &g);
 
     auto start_time = std::chrono::high_resolution_clock::now();
     gs.awaitResponse(0, {});

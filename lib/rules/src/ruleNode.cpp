@@ -275,7 +275,7 @@ void ParallelForNodeImpl::broadcastInputs(){
     // Place holder function for returning control back to the networking side
     // Will call a function on the networking portion to broadcast messages in the msesage queue
 
-    //std::cout<<"broadcasting"<<std::endl;
+    std::cout<<"broadcasting"<<std::endl;
     this->gameState->getServer()->broadcastMessage();
 }
 
@@ -283,18 +283,18 @@ void ParallelForNodeImpl::waitResponses(size_t duration, const std::vector<int>&
     // Place holder function for returning control back to the networking side
     // Will call a function on the networking portion to recieve messages for a set duration
 
-    // std::cout<<"responding"<<std::endl;
+    std::cout<<"responding"<<std::endl;
     this->gameState->getServer()->awaitResponse(duration, choices);
 }
 
 void ParallelForNodeImpl::execute(){
+    std::cout<< "parallel executing" <<std::endl;
     auto idVars = getNodeVariables();
     auto freshID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::VARIABLE_ID));
     auto collectionID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::COLLECTION_ID));
-
     auto gameVars = gameState->getVars();
-    auto collection = gameVars->getNestedMap(collectionID);
 
+    auto collection = gameVars->getNestedMap(collectionID);
     // Map of what to do after executing a node in parallel
     std::unordered_map<std::string, std::function<void(ParallelForNodeImpl*, const size_t& size, const std::string& )>> visitParallelMap;
     visitParallelMap["input_choice"] = visitParallelInput;
@@ -378,7 +378,7 @@ InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, 
 
 
 void InputChoiceNodeImpl::execute(){
-
+    std::cout<< "input executing" <<std::endl;
     auto idVars = getNodeVariables();
 
     auto targetID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::TARGET_ID));
