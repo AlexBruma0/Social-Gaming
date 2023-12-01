@@ -22,7 +22,7 @@ TREE NODE CLASS
 */
 
 TreeNode::TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode,
-                   GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : nodeType(type) {
+                   GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : nodeType(type) {
     impl = std::move(this->parseNode(tsNode, gameState, sourceCode, in, out));
     // TODO: put the queues in parse, then put those in the impl
     //std::cout << impl->getIdentifierData().dump();
@@ -46,8 +46,8 @@ std::string TreeNode::getType(){
     return nodeType;
 }
 
-std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code, const  SendMessageQueue* in, const ReceiveMessageQueue* out) {
-    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState*, const std::string&, const SendMessageQueue* , const ReceiveMessageQueue* )>> typeToFunction;
+std::unique_ptr<TreeNodeImpl> TreeNode::parseNode(const ts::Node tsNode, GameState* gameState,const std::string& source_code, SendMessageQueue* in, ReceiveMessageQueue* out) {
+    std::unordered_map<std::string, std::function<std::unique_ptr<TreeNodeImpl>(const ts::Node&, GameState*, const std::string&, SendMessageQueue* , ReceiveMessageQueue* )>> typeToFunction;
     typeToFunction["for"] = processFor;
     typeToFunction["discard"] = processDiscard;
     typeToFunction["message"] = processMessage;
@@ -92,7 +92,7 @@ NODE CLASSES
 */
 
 
-TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* sq, const ReceiveMessageQueue* rq): content(id), gameState(_gameState), in(sq), out(rq) {
+TreeNodeImpl::TreeNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* sq, ReceiveMessageQueue* rq): content(id), gameState(_gameState), in(sq), out(rq) {
     identifiers = json::parse("{}");
     GameVariables gv;
     gv.insert("_type", std::string("generic"));
@@ -154,10 +154,10 @@ GameVariables TreeNodeImpl::getNodeVariables() const {
     return nodeVariables;
 }
 
-std::string TreeNodeImpl::getMessage(){
+int TreeNodeImpl::getMessage(){
     // Temporary function for getting a message
     // Will be changed to use Lex's message queue
-    return "string";
+    return out->remove().choice;
 }
 
 void TreeNodeImpl::eraseMessage(){
@@ -188,7 +188,7 @@ TreeNodeImpl& TreeNodeImpl::operator=(TreeNodeImpl&& other) noexcept {
     return *this;
 }
 
-ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out): TreeNodeImpl(id, _gameState, in, out) {
+ForNodeImpl::ForNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out): TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "for"})");
     GameVariables gv;
     gv.insert("_type", std::string("for"));
@@ -214,7 +214,7 @@ void ForNodeImpl::execute(){
     
 }
 
-DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+DiscardNodeImpl::DiscardNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "discard"})");
     GameVariables gv;
     gv.insert("_type", std::string("discard"));
@@ -248,7 +248,7 @@ void DiscardNodeImpl::execute(){
     }
 }
 
-MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+MessageNodeImpl::MessageNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "message"})");
     GameVariables gv;
     gv.insert("_type", std::string("message"));
@@ -264,7 +264,7 @@ void MessageNodeImpl::execute(){
     //TODO: once Arjun has the server I/O interface ready, call it here to send the message
 }
 
-ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+ParallelForNodeImpl::ParallelForNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "parallel_for"})");
     GameVariables gv;
     gv.insert("_type", std::string("parallel_for"));
@@ -285,6 +285,7 @@ void ParallelForNodeImpl::waitResponses(size_t duration, const std::vector<int>&
 
     std::cout<<"responding"<<std::endl;
     this->gameState->getServer()->awaitResponse(duration, choices);
+    std::cout<<"done responding" <<std::endl;
 }
 
 void ParallelForNodeImpl::execute(){
@@ -347,6 +348,9 @@ void ParallelForNodeImpl::execute(){
 
                 std::vector<int> intChoices;
 
+                //Temp needs to be synced with inputNode
+                intChoices.push_back(1);
+
                 std::visit([&choices, &intChoices ](auto&& elements){
                     using U = std::decay_t<decltype(elements)>;
                     if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
@@ -369,7 +373,7 @@ void ParallelForNodeImpl::execute(){
     }, collection);
 }
 
-InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "input_choice"})");
     GameVariables gv;
     gv.insert("_type", std::string("input_choice"));
@@ -387,12 +391,15 @@ void InputChoiceNodeImpl::execute(){
 
     auto gameVars = gameState->getVars();
     auto choices = gameVars->getNestedMap(choicesID);
-    auto target = gameVars->getNestedMap(targetID);
-    auto prompt = gameVars->getNestedMap(promptID);
+    auto target = idVars.getNestedMap(targetID);
+    auto prompt = idVars.getNestedMap(TreeNodeImpl::PROMPT_ID);
 
     int intTarget;
     std::string stringPrompt;
     std::vector<int> intChoices;
+
+    //Temp
+    intChoices.push_back(1);
 
     std::visit([&prompt, &stringPrompt](auto&& e){
             using T = std::decay_t<decltype(e)>;
@@ -435,7 +442,7 @@ void InputChoiceNodeImpl::execute(){
     }
 }
 
-ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState,const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+ScoresNodeImpl::ScoresNodeImpl(std::string id, GameState* _gameState,SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "scores"})");
     GameVariables gv;
     gv.insert("_type", std::string("scores"));
@@ -451,7 +458,7 @@ void ScoresNodeImpl::execute(){
     //TODO: get scores from game state, sort it, then message it to everyone
 }
 
-AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+AssignmentNodeImpl::AssignmentNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "assignment"})");
     GameVariables gv;
     gv.insert("_type", std::string("assignment"));
@@ -477,7 +484,7 @@ void AssignmentNodeImpl::execute(){
     }
 }
 
-MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+MatchNodeImpl::MatchNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "match"})");
     GameVariables gv;
     gv.insert("_type", std::string("match"));
@@ -493,7 +500,7 @@ void MatchNodeImpl::execute(){
     //TODO: evaluate the condition and then write it to the game state, to be compared against the match_entry nodes
 }
 
-MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+MatchEntryNodeImpl::MatchEntryNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "match_entry"})");
     GameVariables gv;
     gv.insert("_type", std::string("match_entry"));
@@ -509,7 +516,7 @@ void MatchEntryNodeImpl::execute(){
     //TODO: evaluate the condition and then compare it to the game state's stored match expression
 }
 
-ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState,const SendMessageQueue* in, const ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
+ExtendNodeImpl::ExtendNodeImpl(std::string id, GameState* _gameState,SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
     identifiers = json::parse(R"({"_type": "extend"})");
     GameVariables gv;
     gv.insert("_type", std::string("extend"));

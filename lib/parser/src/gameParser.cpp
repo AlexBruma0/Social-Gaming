@@ -85,7 +85,7 @@ void printDfs(const ts::Node& node, const std::string& source_code, int depth) {
 }
 
 
-void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+void identifyOperations(const ts::Node& node, const std::string& source_code, TreeNode& parentNode, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out) {
     // list of stuff we need to implement, operation nodes defined by the language
     std::vector<std::string_view> allowedTypes = {
             "for", "loop", "parallel_for", "in_parallel", "match", "match_entry", "extend", "reverse", "shuffle",
@@ -115,7 +115,7 @@ void identifyOperations(const ts::Node& node, const std::string& source_code, Tr
 }
 
 TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_code,
-                        const SendMessageQueue* in, const ReceiveMessageQueue* out, GameServer* server, GameState* gs) {
+                        SendMessageQueue* in, ReceiveMessageQueue* out, GameServer* server, GameState* gs) {
     const int num_players = 2;
     const int num_rounds = 2;
 

@@ -30,6 +30,7 @@ std::deque<networking::Message> GameServer::receive() {
 
 void GameServer::send(const std::deque<networking::Message>& messages) {
     server.send(messages);
+    update();
 }
 
 void GameServer::disconnect(networking::Connection connection) {
@@ -56,11 +57,15 @@ void GameServer::broadcastMessage() {
 
 void GameServer::awaitResponse(int timeout, const std::vector<int>& choices) {
     int elapsedTime = 0;
-
     // for [timeout] seconds, await responses
     while (true) {
         // get any incoming messages and put the result, if valid, into the outgoing queue
+        update();
         const auto incoming = receive();
+        // for (auto& m : incoming){
+        //     std::cout<< m.text<<std::endl;
+        // }
+    
         processResponses(incoming, choices);
 
         if (elapsedTime > timeout) {
@@ -82,6 +87,7 @@ void GameServer::processResponses(const std::deque<networking::Message>& message
                 // if the response is one of the valid choices, then add it to the outgoing queue
                 auto rm = networking::ReceiveMessage {response, message.connection};
                 out->add(rm);
+
             } else {
                 // do nothing for now, but once we can actually send messages to each client individually,
                 // inform them that they've entered some invalid choice (out of range)

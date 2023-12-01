@@ -185,6 +185,7 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
     } else if (message.text == "create_game") {
         handleCreateRequest(server, message, responseMessages);
 
+
     } else if (message.text == "join_game") {
         handleJoinRequest(server, message, responseMessages);
     } else {
@@ -223,34 +224,34 @@ int main(int argc, char* argv[]) {
 
   GameState gs(nullptr, nullptr);
   GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out, &gs);
-  gameServer.runTree();
 
-  // while (true) {
-  //   bool errorWhileUpdating = false;
-  //   try {
-  //       gameServer.update();
-  //   } catch (std::exception& e) {
-  //     std::cerr << "Exception from Server update:\n"
-  //               << " " << e.what() << "\n\n";
-  //     errorWhileUpdating = true;
-  //   }
+  while (true) {
+    bool errorWhileUpdating = false;
+    try {
+        gameServer.update();
+    } catch (std::exception& e) {
+      std::cerr << "Exception from Server update:\n"
+                << " " << e.what() << "\n\n";
+      errorWhileUpdating = true;
+    }
 
-  //   // instead of receiving and broadcasting from the server, we should receive messages from the in queue
-  //   const auto incoming = gameServer.receive();
-  //   const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
-  //   const auto outgoing = gameServer.buildOutgoing(log);
-  //   gameServer.send(outgoing);
+    // instead of receiving and broadcasting from the server, we should receive messages from the in queue
+    const auto incoming = gameServer.receive();
+    const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
+    for (auto& m : incoming){
+        if (m.text == "c"){
+            gameServer.runTree();
+        }
+    }
+    // const auto outgoing = gameServer.buildOutgoing(log);
+    // gameServer.send(outgoing);
 
-  //   // testing getting basic info from the game
-  //   const auto test = gameServer.buildOutgoing(std::string(gameServer.getMessage()));
-  //   gameServer.send(test);
+    if (shouldQuit || errorWhileUpdating) {
+      break;
+    }
 
-  //   if (shouldQuit || errorWhileUpdating) {
-  //     break;
-  //   }
-
-  //   sleep(1);
-  // }
+    sleep(1);
+  }
 
   return 0;
 }

@@ -296,7 +296,7 @@ TEST(RuleTests, InputNodeAddingMessageToQueue){
 
     std::string type = "input_choice";
 
-    const SendMessageQueue smq = SendMessageQueue();
+    SendMessageQueue smq = SendMessageQueue();
     auto inputNode = std::make_unique<InputChoiceNodeImpl> (type, &gs, &smq, nullptr);
     inputNode->setNodeVariables(idVarsInput);
 
