@@ -131,8 +131,7 @@ TreeNode buildRuleTree(const ts::Node& syntaxTree, const std::string& source_cod
     jsonData["players"][0] = jsonData["per-player"];
     jsonData["players"][0]["name"] = "Alice";
 
-    jsonData["players"][1] = jsonData["per-player"];
-    jsonData["players"][1]["name"] = "Bob";
+
     GameVariables emptyGameVar{};
     createGameVariables(jsonData, emptyGameVar);
     gs->setVars(emptyGameVar);

@@ -238,6 +238,8 @@ int main(int argc, char* argv[]) {
     // instead of receiving and broadcasting from the server, we should receive messages from the in queue
     const auto incoming = gameServer.receive();
     const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
+
+    // Temporary way to start the game
     for (auto& m : incoming){
         if (m.text == "c"){
             gameServer.runTree();

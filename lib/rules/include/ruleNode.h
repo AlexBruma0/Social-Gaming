@@ -108,8 +108,9 @@ class TreeNodeImpl {
         void setNodeVariables(const GameVariables& data);
         GameVariables getNodeVariables() const;
 
-        int getMessage();
+        networking::ReceiveMessage getMessage();
         void eraseMessage();
+        void enqueueMessage(std::string mess);
 
         virtual void execute();
         

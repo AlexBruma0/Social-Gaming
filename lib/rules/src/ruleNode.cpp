@@ -154,15 +154,16 @@ GameVariables TreeNodeImpl::getNodeVariables() const {
     return nodeVariables;
 }
 
-int TreeNodeImpl::getMessage(){
+networking::ReceiveMessage TreeNodeImpl::getMessage(){
     // Temporary function for getting a message
     // Will be changed to use Lex's message queue
-    return out->remove().choice;
+    return out->remove();
 }
 
-void TreeNodeImpl::eraseMessage(){
-    // TODO 
-    // Implement this will the queue
+void TreeNodeImpl::enqueueMessage(std::string mess){
+    std::vector<int> choices;
+    networking::SendMessage smessage = networking::SendMessage{ choices , mess };
+    in->add(smessage);
 }
 
 TreeNodeImpl::TreeNodeImpl(TreeNodeImpl&& other) noexcept
@@ -350,27 +351,17 @@ void ParallelForNodeImpl::execute(){
 
                 //Temp needs to be synced with inputNode
                 intChoices.push_back(1);
-
-                std::visit([&choices, &intChoices ](auto&& elements){
-                    using U = std::decay_t<decltype(elements)>;
-                    if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
-                        for(auto& el: elements){
-                            std::visit([&el, &intChoices](auto&& e){
-                                using T = std::decay_t<decltype(e)>;
-                                if constexpr (std::is_same_v<T, int> ){
-                                    auto intChoice = std::get<int>(el);
-                                    intChoices.emplace_back(intChoice);
-                                }
-                            }, el);
-                        }
-                    }
-                }, choices);
+                intChoices.push_back(2);
+                intChoices.push_back(3);
                 waitResponses(durationMap[(child.get())], intChoices);
                 (visitParallelMap[child->getType()](this, value.size(), freshID));
             }
             
         } 
     }, collection);
+
+    // Messages to server are enqueud in visitparallelmap
+    broadcastInputs();
 }
 
 InputChoiceNodeImpl::InputChoiceNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out) : TreeNodeImpl(id, _gameState, in, out) {
@@ -387,7 +378,7 @@ void InputChoiceNodeImpl::execute(){
 
     auto targetID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::TARGET_ID));
     auto promptID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::PROMPT_ID));
-    auto choicesID = std::get<std::string>(idVars.getNestedMap(TreeNodeImpl::CHOICES_ID));
+    auto choicesID = "constants.weapons";
 
     auto gameVars = gameState->getVars();
     auto choices = gameVars->getNestedMap(choicesID);
@@ -397,9 +388,6 @@ void InputChoiceNodeImpl::execute(){
     int intTarget;
     std::string stringPrompt;
     std::vector<int> intChoices;
-
-    //Temp
-    intChoices.push_back(1);
 
     std::visit([&prompt, &stringPrompt](auto&& e){
             using T = std::decay_t<decltype(e)>;
@@ -418,8 +406,11 @@ void InputChoiceNodeImpl::execute(){
 
     std::visit([&choices, &intChoices ](auto&& elements){
         using U = std::decay_t<decltype(elements)>;
+        
         if constexpr (std::is_same_v<U, std::vector<ArrayType>> ){
+            
             for(auto& el: elements){
+
                 std::visit([&el, &intChoices](auto&& e){
                     using T = std::decay_t<decltype(e)>;
                     if constexpr (std::is_same_v<T, int> ){
@@ -431,6 +422,11 @@ void InputChoiceNodeImpl::execute(){
         }
     }, choices);
 
+
+    //Temp
+    intChoices.push_back(1);
+    intChoices.push_back(2);
+    intChoices.push_back(3);
     networking::SendMessage InputMessage = networking::SendMessage{ intChoices, stringPrompt };
     
     //InputMessage.print();

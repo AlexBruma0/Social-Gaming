@@ -12,9 +12,15 @@ int SendMessageQueue::add(networking::SendMessage message) const {
 }
 
 networking::SendMessage SendMessageQueue::remove(){
-    networking::SendMessage message = messages.front();
-    messages.erase(messages.begin());
-    return message;
+    if(size() > 0){
+        networking::SendMessage message = messages.front();
+        messages.erase(messages.begin());
+        return message;
+    }
+
+    std::vector<int> c;
+    return networking::SendMessage{c, networking::SendMessage::INVALID};
+    
 }
 
 ReceiveMessageQueue & ReceiveMessageQueue::operator=(const ReceiveMessageQueue &mq){
@@ -28,9 +34,13 @@ int ReceiveMessageQueue::add(networking::ReceiveMessage message){
 }
 
 networking::ReceiveMessage ReceiveMessageQueue::remove(){
-    networking::ReceiveMessage message = messages.front();
-    messages.erase(messages.begin());
-    return message;
+    if(size() > 0){
+        networking::ReceiveMessage message = messages.front();
+        messages.erase(messages.begin());
+        return message;
+    }
+    networking::Connection c;
+    return networking::ReceiveMessage{networking::ReceiveMessage::INVALID, c};
 }
 
 std::vector<networking::ReceiveMessage> ReceiveMessageQueue::getMessageFromID(networking::Connection connection){

@@ -286,19 +286,26 @@ void visitParallelInput(ParallelForNodeImpl* parent, const size_t& size, const s
     // Wait for all responses from the input node child
     // TODO the timeout
     std::vector<int> responses;
-    int tracking =0;
+    int tracking = 0;
     while(tracking < size){
         auto message = parent->getMessage();
-        responses.push_back(message);
-        parent->eraseMessage();
+        if(message.isValid()){
+            responses.push_back(message.choice);
+            std::string id= std::to_string(message.connection.id);
+
+            // Reflects a response
+            parent->enqueueMessage( id + " chose " + std::to_string(message.choice));
+        }
+        
         tracking++;
+        
         
     }
     parent->getGameStateData()->getVars()->insert(responseName+"Responses", responses);
 
-    //Print Validation
-    auto choicesID = std::get<std::vector<int>>(parent->getGameStateData()->getVars()->getNestedMap(responseName+"Responses"));
-    for(auto c:choicesID){
-        std::cout<< "Response " <<c<<std::endl;
-    }
+    // //Print Validation
+    // auto choicesID = std::get<std::vector<int>>(parent->getGameStateData()->getVars()->getNestedMap(responseName+"Responses"));
+    // for(auto c:choicesID){
+    //     std::cout<< "Response " <<c<<std::endl;
+    // }
 }
