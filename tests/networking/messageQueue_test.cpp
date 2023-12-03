@@ -329,6 +329,81 @@ TEST(messageQueue_tests, CheckMessageIntegrityAfterRemoval) {
 // TEST(messageQueue_tests, RemoveFromQueueAfterClear) {
 //     ReceiveMessageQueue mq;
 //     mq.add(networking::ReceiveMessage(14, networking::Connection(112233)));
-//     mq.clear();
 //     ASSERT_THROW(mq.remove(), std::out_of_range);
 // }
+
+TEST(messageQueue_tests, AddMessageWithExtremelyLongPrompt) {
+    SendMessageQueue mq;
+    std::string longPrompt(10000, 'A'); // A very long prompt
+    mq.add(networking::SendMessage(emptyChoices, longPrompt));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, RemoveAndCheckPromptLength) {
+    SendMessageQueue mq;
+    std::string longPrompt(500, 'B');
+    mq.add(networking::SendMessage(emptyChoices, longPrompt));
+    ASSERT_EQ(mq.remove().prompt.size(), 500);
+}
+
+TEST(messageQueue_tests, AddMessageWithVariousChoiceValues) {
+    SendMessageQueue mq;
+    std::vector<int> choices = {INT_MIN, -1, 0, 1, INT_MAX};
+    mq.add(networking::SendMessage(choices, "Various Choices"));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, CheckMessageIntegrityAfterMultipleAddsAndRemoves) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage({1, 2, 3}, "Message1"));
+    mq.add(networking::SendMessage({4, 5, 6}, "Message2"));
+    auto msg = mq.remove();
+    ASSERT_EQ(msg.prompt, "Message1");
+    msg = mq.remove();
+    ASSERT_EQ(msg.prompt, "Message2");
+}
+
+TEST(messageQueue_tests, QueueSizeIncrementAfterEachAdd) {
+    SendMessageQueue mq;
+    for (int i = 0; i < 5; i++) {
+        mq.add(networking::SendMessage(emptyChoices, "Msg" + std::to_string(i)));
+        ASSERT_EQ(mq.size(), i + 1);
+    }
+}
+
+
+TEST(messageQueue_tests, AddMessageAndCheckConnectionID) {
+    ReceiveMessageQueue mq;
+    networking::Connection con(123456);
+    mq.add(networking::ReceiveMessage(1, con));
+    ASSERT_EQ(mq.remove().connection.id, 123456);
+}
+
+TEST(messageQueue_tests, RemoveMessageAndCheckChoiceValue) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(999, networking::Connection(7890)));
+    ASSERT_EQ(mq.remove().choice, 999);
+}
+
+TEST(messageQueue_tests, AddMultipleMessagesDifferentConnections) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(10, networking::Connection(111)));
+    mq.add(networking::ReceiveMessage(20, networking::Connection(222)));
+    ASSERT_EQ(mq.size(), 2);
+}
+
+// TEST(messageQueue_tests, CheckQueueNotEmptyAfterAdd) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(30, networking::Connection(333)));
+// }
+
+TEST(messageQueue_tests, QueueSizeDecrementAfterEachRemove) {
+    ReceiveMessageQueue mq;
+    for (int i = 0; i < 5; i++) {
+        mq.add(networking::ReceiveMessage(i, networking::Connection(i)));
+    }
+    for (int i = 5; i > 0; i--) {
+        mq.remove();
+        ASSERT_EQ(mq.size(), i - 1);
+    }
+}
