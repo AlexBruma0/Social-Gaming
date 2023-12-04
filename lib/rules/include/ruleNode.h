@@ -47,7 +47,7 @@ class TreeNode {
         TreeNode() : impl(nullptr), nodeType("") {}
 
         TreeNode(const ts::Node& tsNode, std::string type, const std::string& sourceCode,
-                 GameState* gameState, const SendMessageQueue* in, const ReceiveMessageQueue* out);
+                 GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
 
         TreeNode& operator=(const TreeNode& other);
 
@@ -65,7 +65,7 @@ class TreeNode {
 
         virtual void execute() const;
 
-        std::unique_ptr<TreeNodeImpl> parseNode(const ts::Node tsNode, GameState *gameState, const std::string &source_code, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+        std::unique_ptr<TreeNodeImpl> parseNode(const ts::Node tsNode, GameState *gameState, const std::string &source_code, SendMessageQueue* in, ReceiveMessageQueue* out);
 
     protected:
         std::unique_ptr<TreeNodeImpl> impl;
@@ -88,7 +88,7 @@ class TreeNodeImpl {
 
         inline const static std::string NULL_STRING = "";
 
-        TreeNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+        TreeNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
         TreeNodeImpl();
         virtual~TreeNodeImpl();
         TreeNodeImpl(TreeNodeImpl&& other) noexcept;
@@ -108,8 +108,9 @@ class TreeNodeImpl {
         void setNodeVariables(const GameVariables& data);
         GameVariables getNodeVariables() const;
 
-        std::string getMessage();
+        networking::ReceiveMessage getMessage();
         void eraseMessage();
+        void enqueueMessage(std::string mess);
 
         virtual void execute();
         
@@ -131,34 +132,34 @@ class TreeNodeImpl {
         // common to all nodes
         GameState* gameState;
 
-        const SendMessageQueue* in;
-        const ReceiveMessageQueue* out;
+        SendMessageQueue* in;
+        ReceiveMessageQueue* out;
 };
 
 class ForNodeImpl: public TreeNodeImpl{
 public:
-    ForNodeImpl(std::string id, GameState* _gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    ForNodeImpl(std::string id, GameState* _gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~ForNodeImpl(){}
     void execute();
 };
 
 class DiscardNodeImpl: public TreeNodeImpl{
 public:
-    DiscardNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    DiscardNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~DiscardNodeImpl(){}
     void execute();
 };
 
 class MessageNodeImpl: public TreeNodeImpl{
 public:
-    MessageNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    MessageNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~MessageNodeImpl(){}
     void execute();
 };
 
 class ParallelForNodeImpl: public TreeNodeImpl {
 public:
-    ParallelForNodeImpl(std::string id, GameState* gameState,const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    ParallelForNodeImpl(std::string id, GameState* gameState,SendMessageQueue* in, ReceiveMessageQueue* out);
     ~ParallelForNodeImpl() {}
     void execute();
     void broadcastInputs();
@@ -167,42 +168,42 @@ public:
 
 class InputChoiceNodeImpl: public TreeNodeImpl{
 public:
-    InputChoiceNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    InputChoiceNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~InputChoiceNodeImpl(){}
     void execute();
 };
 
 class ScoresNodeImpl: public TreeNodeImpl{
 public:
-    ScoresNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    ScoresNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~ScoresNodeImpl(){}
     void execute();
 };
 
 class AssignmentNodeImpl: public TreeNodeImpl{
 public:
-    AssignmentNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    AssignmentNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~AssignmentNodeImpl(){}
     void execute();
 };
 
 class MatchNodeImpl: public TreeNodeImpl{
 public:
-    MatchNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    MatchNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~MatchNodeImpl(){}
     void execute();
 };
 
 class MatchEntryNodeImpl: public TreeNodeImpl{
 public:
-    MatchEntryNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    MatchEntryNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~MatchEntryNodeImpl(){}
     void execute();
 };
 
 class ExtendNodeImpl: public TreeNodeImpl{
 public:
-    ExtendNodeImpl(std::string id, GameState* gameState, const  SendMessageQueue* in, const ReceiveMessageQueue* out);
+    ExtendNodeImpl(std::string id, GameState* gameState, SendMessageQueue* in, ReceiveMessageQueue* out);
     ~ExtendNodeImpl(){}
     void execute();
 };

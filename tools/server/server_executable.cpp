@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "gameServer.h"
+#include "GameState.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -184,6 +185,7 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
     } else if (message.text == "create_game") {
         handleCreateRequest(server, message, responseMessages);
 
+
     } else if (message.text == "join_game") {
         handleJoinRequest(server, message, responseMessages);
     } else {
@@ -219,7 +221,9 @@ int main(int argc, char* argv[]) {
   SendMessageQueue in = SendMessageQueue();
   ReceiveMessageQueue out = ReceiveMessageQueue();
   const unsigned short port = std::stoi(argv[1]);
-  GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out);
+
+  GameState gs(nullptr, nullptr);
+  GameServer gameServer(port, getHTTPMessage(argv[2]), &in, &out, &gs);
 
   while (true) {
     bool errorWhileUpdating = false;
@@ -234,12 +238,15 @@ int main(int argc, char* argv[]) {
     // instead of receiving and broadcasting from the server, we should receive messages from the in queue
     const auto incoming = gameServer.receive();
     const auto [log, shouldQuit] = processMessages(gameServer.getServer(), incoming);
-    const auto outgoing = gameServer.buildOutgoing(log);
-    gameServer.send(outgoing);
 
-    // testing getting basic info from the game
-    const auto test = gameServer.buildOutgoing(std::string(gameServer.getMessage()));
-    gameServer.send(test);
+    // Temporary way to start the game
+    for (auto& m : incoming){
+        if (m.text == "c"){
+            gameServer.runTree();
+        }
+    }
+    // const auto outgoing = gameServer.buildOutgoing(log);
+    // gameServer.send(outgoing);
 
     if (shouldQuit || errorWhileUpdating) {
       break;
