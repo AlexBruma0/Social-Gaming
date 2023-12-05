@@ -34,3 +34,7 @@ GameServer* GameState::getServer(){
     return server;
 }
 
+void GameState::setServer(GameServer* server){
+    this->server = server;
+}
+

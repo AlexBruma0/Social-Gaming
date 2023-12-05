@@ -60,7 +60,7 @@ std::string getFirstLine(const std::string& input) {
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ForNodeImpl>(getFirstLine(input), gameState, in, out);
@@ -82,7 +82,7 @@ std::unique_ptr<TreeNodeImpl> processFor(const ts::Node& tsNode, GameState* game
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<DiscardNodeImpl>(input, gameState, in, out);
@@ -104,7 +104,7 @@ std::unique_ptr<TreeNodeImpl> processDiscard(const ts::Node& tsNode, GameState* 
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processMessage(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processMessage(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<MessageNodeImpl>(input, gameState, in, out);
@@ -126,7 +126,7 @@ std::unique_ptr<TreeNodeImpl> processMessage(const ts::Node& tsNode, GameState* 
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ParallelForNodeImpl>(getFirstLine(input), gameState, in, out);
@@ -148,7 +148,7 @@ std::unique_ptr<TreeNodeImpl> processParallelFor(const ts::Node& tsNode, GameSta
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processInputChoice(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processInputChoice(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<InputChoiceNodeImpl>(input, gameState, in, out);
@@ -176,7 +176,7 @@ std::unique_ptr<TreeNodeImpl> processInputChoice(const ts::Node& tsNode, GameSta
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<MatchNodeImpl>(input, gameState, in, out);
@@ -196,7 +196,7 @@ std::unique_ptr<TreeNodeImpl> processMatch(const ts::Node& tsNode, GameState* ga
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processMatchEntry(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processMatchEntry(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<MatchEntryNodeImpl>(getFirstLine(input), gameState, in, out);
@@ -217,7 +217,7 @@ std::unique_ptr<TreeNodeImpl> processMatchEntry(const ts::Node& tsNode, GameStat
 }
 
 
-std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ScoresNodeImpl>(getFirstLine(input), gameState, in, out);
@@ -237,7 +237,7 @@ std::unique_ptr<TreeNodeImpl> processScores(const ts::Node& tsNode, GameState* g
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<ExtendNodeImpl>(input, gameState, in, out);
@@ -259,7 +259,7 @@ std::unique_ptr<TreeNodeImpl> processExtend(const ts::Node& tsNode, GameState* g
     }
 }
 
-std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, const SendMessageQueue* in, const ReceiveMessageQueue* out) {
+std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameState* gameState, const std::string& sourceCode, SendMessageQueue* in, ReceiveMessageQueue* out) {
     if (tsNode.getNumChildren() > 0) {
         std::string input = getNodeStringValue(tsNode, sourceCode);
         std::unique_ptr<TreeNodeImpl> implPtr = std::make_unique<AssignmentNodeImpl>(getFirstLine(input), gameState, in, out);
@@ -282,25 +282,30 @@ std::unique_ptr<TreeNodeImpl> processAssignment(const ts::Node& tsNode, GameStat
 }
 
 
-ArrayType parseResponse(){
-    int response = 1;
-    return response;
-}
-
 void visitParallelInput(ParallelForNodeImpl* parent, const size_t& size, const std::string& responseName){
     // Wait for all responses from the input node child
     // TODO the timeout
-    std::vector<ArrayType> responses;
-    int tracking =0;
+    std::vector<int> responses;
+    int tracking = 0;
     while(tracking < size){
         auto message = parent->getMessage();
-        if( message != TreeNodeImpl::NULL_STRING){
-            auto response = parseResponse();
+        if(message.isValid()){
+            responses.push_back(message.choice);
+            std::string id= std::to_string(message.connection.id);
 
-            responses.push_back(response);
-            parent->eraseMessage();
-            tracking++;
+            // Reflects a response
+            parent->enqueueMessage( id + " chose " + std::to_string(message.choice));
         }
+        
+        tracking++;
+        
+        
     }
     parent->getGameStateData()->getVars()->insert(responseName+"Responses", responses);
+
+    // //Print Validation
+    // auto choicesID = std::get<std::vector<int>>(parent->getGameStateData()->getVars()->getNestedMap(responseName+"Responses"));
+    // for(auto c:choicesID){
+    //     std::cout<< "Response " <<c<<std::endl;
+    // }
 }

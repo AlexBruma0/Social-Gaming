@@ -5,7 +5,7 @@
 
 #define RPS_LOCATION "resources/games/rock-paper-scissors.game"
 
-GameServer::GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out)
+GameServer::GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out, GameState* gs)
         : server(port, htmlResponse,
                  [this](networking::Connection c) { onConnectCallback(c); },
                  [this](networking::Connection c) { onDisconnectCallback(c); }),
@@ -17,7 +17,7 @@ GameServer::GameServer(unsigned short port, const std::string& htmlResponse, Sen
     ts::Tree tree = string_to_tree(sourcecode);
     ts::Node tsRoot = tree.getRootNode();
 
-    root = buildRuleTree(tsRoot, sourcecode, in, out, this);
+    root = buildRuleTree(tsRoot, sourcecode, in, out, this, gs);
 }
 
 void GameServer::update() {
@@ -30,6 +30,7 @@ std::deque<networking::Message> GameServer::receive() {
 
 void GameServer::send(const std::deque<networking::Message>& messages) {
     server.send(messages);
+    update();
 }
 
 void GameServer::disconnect(networking::Connection connection) {
@@ -45,6 +46,13 @@ std::string GameServer::getMessage() {
     return root.getType();
 }
 
+void GameServer::sendNextMessage(networking::Connection con){
+    networking::SendMessage sm = in->remove();
+    server.sendSingle(sm, con);
+    
+}
+
+
 void GameServer::broadcastMessage() {
     // take a message from the in queue
     networking::SendMessage sm = in->remove();
@@ -56,11 +64,15 @@ void GameServer::broadcastMessage() {
 
 void GameServer::awaitResponse(int timeout, const std::vector<int>& choices) {
     int elapsedTime = 0;
-
     // for [timeout] seconds, await responses
     while (true) {
         // get any incoming messages and put the result, if valid, into the outgoing queue
+        update();
         const auto incoming = receive();
+        // for (auto& m : incoming){
+        //     std::cout<< m.text<<std::endl;
+        // }
+    
         processResponses(incoming, choices);
 
         if (elapsedTime > timeout) {
@@ -82,6 +94,7 @@ void GameServer::processResponses(const std::deque<networking::Message>& message
                 // if the response is one of the valid choices, then add it to the outgoing queue
                 auto rm = networking::ReceiveMessage {response, message.connection};
                 out->add(rm);
+
             } else {
                 // do nothing for now, but once we can actually send messages to each client individually,
                 // inform them that they've entered some invalid choice (out of range)

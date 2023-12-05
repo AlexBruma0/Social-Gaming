@@ -65,6 +65,7 @@ struct Message {
 struct SendMessage {
     std::vector<int> choices;
     std::string prompt;
+    inline const static std::string INVALID = "invalid";
 
     // used for debugging to print the contents of a Message type. 
     void print(){
@@ -74,9 +75,15 @@ struct SendMessage {
         };
         std::cout << j.dump() << std::endl;
     }
+    bool isValid(){
+      return (prompt != SendMessage::INVALID) && !(choices.empty());
+    }
 };
 
+
+
 struct ReceiveMessage {
+    inline const static int INVALID = -1;
     int choice;
     Connection connection;
 
@@ -87,6 +94,10 @@ struct ReceiveMessage {
             {"ConnectionID", connection.id}
         };
         std::cout << j.dump() << std::endl;
+    }
+
+    bool isValid(){
+      return (choice != ReceiveMessage::INVALID);
     }
 };
 /** A compilation firewall for the server. */
@@ -149,6 +160,7 @@ public:
    *  Send a list of messages to their respective Clients.
    */
   void send(const std::deque<Message>& messages);
+  void sendSingle(SendMessage msg, Connection con);
 
   /**
    *  Receive Message instances from Client instances. This returns all Message

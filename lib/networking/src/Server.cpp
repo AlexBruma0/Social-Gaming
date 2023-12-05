@@ -385,6 +385,13 @@ Server::receive() {
   return oldIncoming;
 }
 
+void
+Server::sendSingle(SendMessage msg, Connection con){
+  auto found = impl->channels.find(con);
+    if (impl->channels.end() != found) {
+      found->second->send(msg.prompt);
+    }
+}
 
 void
 Server::send(const std::deque<Message>& messages) {

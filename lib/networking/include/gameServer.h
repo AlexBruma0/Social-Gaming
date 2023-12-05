@@ -10,11 +10,13 @@
 
 class GameServer {
 public:
-    GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out);
+    GameServer(unsigned short port, const std::string& htmlResponse, SendMessageQueue* in, ReceiveMessageQueue* out, GameState* gs);
 
     void update();
 
     std::deque<networking::Message> receive();
+
+    void sendNextMessage(networking::Connection con);
 
     void send(const std::deque<networking::Message>& messages);
 
@@ -36,6 +38,10 @@ public:
     }
 
     std::deque<networking::Message> buildOutgoing(const std::string& log);
+
+    void runTree(){
+        root.execute();
+    }
 
 private:
     networking::Server server;
