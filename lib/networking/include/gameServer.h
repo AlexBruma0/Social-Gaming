@@ -16,6 +16,8 @@ public:
 
     std::deque<networking::Message> receive();
 
+    void sendNextMessage(networking::Connection con);
+
     void send(const std::deque<networking::Message>& messages);
 
     void disconnect(networking::Connection connection);

@@ -76,6 +76,8 @@ struct SendMessage {
     }
 };
 
+
+
 struct ReceiveMessage {
     int choice;
     Connection connection;
@@ -149,6 +151,7 @@ public:
    *  Send a list of messages to their respective Clients.
    */
   void send(const std::deque<Message>& messages);
+  void sendSingle(SendMessage msg, Connection con);
 
   /**
    *  Receive Message instances from Client instances. This returns all Message
