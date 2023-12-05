@@ -46,6 +46,13 @@ std::string GameServer::getMessage() {
     return root.getType();
 }
 
+void GameServer::sendNextMessage(networking::Connection con){
+    networking::SendMessage sm = in->remove();
+    server.sendSingle(sm, con);
+    
+}
+
+
 void GameServer::broadcastMessage() {
     // take a message from the in queue
     networking::SendMessage sm = in->remove();

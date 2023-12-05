@@ -80,6 +80,8 @@ struct SendMessage {
     }
 };
 
+
+
 struct ReceiveMessage {
     inline const static int INVALID = -1;
     int choice;
@@ -158,6 +160,7 @@ public:
    *  Send a list of messages to their respective Clients.
    */
   void send(const std::deque<Message>& messages);
+  void sendSingle(SendMessage msg, Connection con);
 
   /**
    *  Receive Message instances from Client instances. This returns all Message
