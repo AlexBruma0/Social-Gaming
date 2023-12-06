@@ -104,3 +104,306 @@ TEST(messageQueue_tests, simpleReceiveSizeTest){
     mq.add(msg);
     ASSERT_EQ(mq.size(), 3);
 }
+
+
+TEST(messageQueue_tests, AddAndRetrieveMessage) {
+    SendMessageQueue mq;
+    networking::SendMessage msg1{emptyChoices, "Test Message 1"};
+    mq.add(msg1);
+    ASSERT_EQ(mq.remove().prompt, "Test Message 1");
+}
+
+
+TEST(messageQueue_tests, MultipleAddsAndSequentialRemove) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "First"));
+    mq.add(networking::SendMessage(emptyChoices, "Second"));
+    ASSERT_EQ(mq.remove().prompt, "First");
+    ASSERT_EQ(mq.remove().prompt, "Second");
+}
+
+TEST(messageQueue_tests, RemoveFromQueuePreservesOrder) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "First in Line"));
+    mq.add(networking::SendMessage(emptyChoices, "Second in Line"));
+    ASSERT_EQ(mq.remove().prompt, "First in Line");
+    ASSERT_EQ(mq.remove().prompt, "Second in Line");
+}
+
+
+TEST(messageQueue_tests, AddDuplicateMessages) {
+    SendMessageQueue mq;
+    networking::SendMessage msg{emptyChoices, "Duplicate"};
+    mq.add(msg);
+    mq.add(msg);
+    ASSERT_EQ(mq.size(), 2);
+}
+
+TEST(messageQueue_tests, AddMessageWithLargePrompt) {
+    SendMessageQueue mq;
+    std::string largePrompt(1000, 'x'); // 1000 'x' characters
+    mq.add(networking::SendMessage(emptyChoices, largePrompt));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, AddMessageWithSpecialCharacters) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "Special!@#$%^&*()"));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, CheckSizeAfterMultipleRemoves) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "Msg1"));
+    mq.add(networking::SendMessage(emptyChoices, "Msg2"));
+    mq.remove();
+    mq.remove();
+    ASSERT_EQ(mq.size(), 0);
+}
+
+//remove
+// TEST(messageQueue_tests, RemoveFromQueueMultipleTimes) {
+//     SendMessageQueue mq;
+//     mq.add(networking::SendMessage(emptyChoices, "Only Message"));
+//     mq.remove();
+//     ASSERT_THROW(mq.remove(), std::out_of_range);
+// }
+
+TEST(messageQueue_tests, AddMessageWithEmptyChoices) {
+    SendMessageQueue mq;
+    std::vector<int> noChoices;
+    mq.add(networking::SendMessage(noChoices, "No Choices Message"));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, QueueSizeAfterRandomOperations) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "Add1"));
+    mq.add(networking::SendMessage(emptyChoices, "Add2"));
+    mq.remove();
+    mq.add(networking::SendMessage(emptyChoices, "Add3"));
+    ASSERT_EQ(mq.size(), 2);
+}
+
+//
+//remove
+// TEST(messageQueue_tests, AddNullChoicesMessage) {
+//     SendMessageQueue mq;
+//     std::vector<int> *nullChoices = nullptr;
+//     ASSERT_THROW(mq.add(networking::SendMessage(*nullChoices, "Null Choices")), std::invalid_argument);
+// }
+
+
+TEST(messageQueue_tests, RemoveMessageAfterMultipleAdds) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "Msg1"));
+    mq.add(networking::SendMessage(emptyChoices, "Msg2"));
+    mq.remove();
+    ASSERT_EQ(mq.remove().prompt, "Msg2");
+}
+
+TEST(messageQueue_tests, AddMessageWithLargeDataSet) {
+    SendMessageQueue mq;
+    std::vector<int> largeChoices(1000, 1); // 1000 choices
+    mq.add(networking::SendMessage(largeChoices, "Large Data Set"));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, RemoveMessageWithLargeDataSet) {
+    SendMessageQueue mq;
+    std::vector<int> largeChoices(1000, 1); // 1000 choices
+    mq.add(networking::SendMessage(largeChoices, "Large Data Set"));
+    ASSERT_NO_THROW(mq.remove());
+}
+
+// TEST(messageQueue_tests, QueueEmptyAfterMultipleOperations) {
+//     SendMessageQueue mq;
+//     mq.add(networking::SendMessage(emptyChoices, "Op1"));
+//     mq.remove();
+//     mq.add(networking::SendMessage(emptyChoices, "Op2"));
+//     mq.remove();
+//     ASSERT_TRUE(mq.empty());
+// }
+
+TEST(messageQueue_tests, CheckOrderAfterRandomAddsAndRemoves) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage(emptyChoices, "First"));
+    mq.add(networking::SendMessage(emptyChoices, "Second"));
+    mq.remove();
+    mq.add(networking::SendMessage(emptyChoices, "Third"));
+    ASSERT_EQ(mq.remove().prompt, "Second");
+    ASSERT_EQ(mq.remove().prompt, "Third");
+}
+
+
+//more receive
+TEST(messageQueue_tests, AddMessageWithExtremeChoiceValues) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(INT_MAX, networking::Connection(123)));
+    mq.add(networking::ReceiveMessage(INT_MIN, networking::Connection(456)));
+    ASSERT_EQ(mq.size(), 2);
+}
+
+TEST(messageQueue_tests, AddAndCheckSize) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(1, networking::Connection(1111)));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+//remove
+// TEST(messageQueue_tests, RemoveMessageNotPresent) {
+//     ReceiveMessageQueue mq;
+//     ASSERT_THROW(mq.remove(), std::out_of_range);
+// }
+
+TEST(messageQueue_tests, GetMessageWithValidID) {
+    ReceiveMessageQueue mq;
+    networking::Connection con(2222);
+    mq.add(networking::ReceiveMessage(2, con));
+    auto messages = mq.getMessageFromID(con);
+    ASSERT_FALSE(messages.empty());
+}
+
+// TEST(messageQueue_tests, GetMessageWithInvalidID) {
+//     ReceiveMessageQueue mq;
+//     networking::Connection con(3333);
+//     mq.add(networking::ReceiveMessage(3, con));
+//     auto messages = mq.getMessageFromID(networking::Connection(4444));
+// }
+
+// TEST(messageQueue_tests, RemoveAndCheckEmpty) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(4, networking::Connection(5555)));
+//     mq.remove();
+// }
+
+TEST(messageQueue_tests, AddMultipleAndCheckOrder) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(5, networking::Connection(6666)));
+    mq.add(networking::ReceiveMessage(6, networking::Connection(7777)));
+    ASSERT_EQ(mq.remove().connection.id, 6666);
+    ASSERT_EQ(mq.remove().connection.id, 7777);
+}
+
+TEST(messageQueue_tests, QueueCapacityTest) {
+    ReceiveMessageQueue mq;
+    for (int i = 0; i < 100; ++i) {
+        mq.add(networking::ReceiveMessage(i, networking::Connection(i)));
+    }
+    ASSERT_EQ(mq.size(), 100);
+}
+
+// TEST(messageQueue_tests, ClearQueueMultipleMessages) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(7, networking::Connection(8888)));
+//     mq.add(networking::ReceiveMessage(8, networking::Connection(9999)));
+//     mq.clear();
+// }
+
+TEST(messageQueue_tests, RetrieveAllMessagesForConnection) {
+    ReceiveMessageQueue mq;
+    networking::Connection con(12345);
+    mq.add(networking::ReceiveMessage(9, con));
+    mq.add(networking::ReceiveMessage(10, con));
+    auto messages = mq.getMessageFromID(con);
+    ASSERT_EQ(messages.size(), 2);
+}
+
+TEST(messageQueue_tests, CheckMessageIntegrityAfterRemoval) {
+    ReceiveMessageQueue mq;
+    networking::Connection con(54321);
+    mq.add(networking::ReceiveMessage(11, con));
+    auto removedMsg = mq.remove();
+    ASSERT_EQ(removedMsg.choice, 11);
+    ASSERT_EQ(removedMsg.connection.id, con.id);
+}
+
+// TEST(messageQueue_tests, EmptyQueueAfterMultipleRemovals) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(12, networking::Connection(13579)));
+//     mq.add(networking::ReceiveMessage(13, networking::Connection(24680)));
+//     mq.remove();
+//     mq.remove();
+// }
+
+// TEST(messageQueue_tests, RemoveFromQueueAfterClear) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(14, networking::Connection(112233)));
+//     ASSERT_THROW(mq.remove(), std::out_of_range);
+// }
+
+TEST(messageQueue_tests, AddMessageWithExtremelyLongPrompt) {
+    SendMessageQueue mq;
+    std::string longPrompt(10000, 'A'); // A very long prompt
+    mq.add(networking::SendMessage(emptyChoices, longPrompt));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, RemoveAndCheckPromptLength) {
+    SendMessageQueue mq;
+    std::string longPrompt(500, 'B');
+    mq.add(networking::SendMessage(emptyChoices, longPrompt));
+    ASSERT_EQ(mq.remove().prompt.size(), 500);
+}
+
+TEST(messageQueue_tests, AddMessageWithVariousChoiceValues) {
+    SendMessageQueue mq;
+    std::vector<int> choices = {INT_MIN, -1, 0, 1, INT_MAX};
+    mq.add(networking::SendMessage(choices, "Various Choices"));
+    ASSERT_EQ(mq.size(), 1);
+}
+
+TEST(messageQueue_tests, CheckMessageIntegrityAfterMultipleAddsAndRemoves) {
+    SendMessageQueue mq;
+    mq.add(networking::SendMessage({1, 2, 3}, "Message1"));
+    mq.add(networking::SendMessage({4, 5, 6}, "Message2"));
+    auto msg = mq.remove();
+    ASSERT_EQ(msg.prompt, "Message1");
+    msg = mq.remove();
+    ASSERT_EQ(msg.prompt, "Message2");
+}
+
+TEST(messageQueue_tests, QueueSizeIncrementAfterEachAdd) {
+    SendMessageQueue mq;
+    for (int i = 0; i < 5; i++) {
+        mq.add(networking::SendMessage(emptyChoices, "Msg" + std::to_string(i)));
+        ASSERT_EQ(mq.size(), i + 1);
+    }
+}
+
+
+TEST(messageQueue_tests, AddMessageAndCheckConnectionID) {
+    ReceiveMessageQueue mq;
+    networking::Connection con(123456);
+    mq.add(networking::ReceiveMessage(1, con));
+    ASSERT_EQ(mq.remove().connection.id, 123456);
+}
+
+TEST(messageQueue_tests, RemoveMessageAndCheckChoiceValue) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(999, networking::Connection(7890)));
+    ASSERT_EQ(mq.remove().choice, 999);
+}
+
+TEST(messageQueue_tests, AddMultipleMessagesDifferentConnections) {
+    ReceiveMessageQueue mq;
+    mq.add(networking::ReceiveMessage(10, networking::Connection(111)));
+    mq.add(networking::ReceiveMessage(20, networking::Connection(222)));
+    ASSERT_EQ(mq.size(), 2);
+}
+
+// TEST(messageQueue_tests, CheckQueueNotEmptyAfterAdd) {
+//     ReceiveMessageQueue mq;
+//     mq.add(networking::ReceiveMessage(30, networking::Connection(333)));
+// }
+
+TEST(messageQueue_tests, QueueSizeDecrementAfterEachRemove) {
+    ReceiveMessageQueue mq;
+    for (int i = 0; i < 5; i++) {
+        mq.add(networking::ReceiveMessage(i, networking::Connection(i)));
+    }
+    for (int i = 5; i > 0; i--) {
+        mq.remove();
+        ASSERT_EQ(mq.size(), i - 1);
+    }
+}
