@@ -164,3 +164,129 @@ TEST(GAMESERVER_TEST, timeout_empty) {
 
     EXPECT_LE(duration.count(), 1);
 }
+
+TEST(GAMESERVER_TEST, MessageHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    networking::Message testMessage;
+    testMessage.connectionId = 1;
+    testMessage.data = "Test message";
+    in.push(testMessage);
+
+    server.update();
+    auto received = out.pop();
+
+    EXPECT_EQ(received.connectionId, testMessage.connectionId);
+    EXPECT_EQ(received.data, testMessage.data);
+}
+
+TEST(GAMESERVER_TEST, TimeoutHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    server.awaitResponse(10, {});
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+
+    EXPECT_GE(duration.count(), 10);
+}
+
+TEST(GAMESERVER_TEST, SendMessage) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    std::string message = "Hello";
+    server.sendMessage(1, message);
+
+    auto sentMessage = in.pop();
+    EXPECT_EQ(sentMessage.data, message);
+}
+
+TEST(GAMESERVER_TEST, HandleMultipleClients) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Simulate multiple clients sending messages
+    for (int i = 1; i <= 5; i++) {
+        networking::Message msg;
+        msg.connectionId = i;
+        msg.data = "Client " + std::to_string(i);
+        in.push(msg);
+    }
+
+    server.update();
+
+    // Check if messages from all clients are received
+    for (int i = 1; i <= 5; i++) {
+        auto received = out.pop();
+        EXPECT_EQ(received.connectionId, i);
+        EXPECT_EQ(received.data, "Client " + std::to_string(i));
+    }
+}
+
+TEST(GAMESERVER_TEST, InvalidMessageHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    networking::Message invalidMessage;
+    invalidMessage.connectionId = -1;
+    invalidMessage.data = "Invalid";
+    in.push(invalidMessage);
+
+    server.update();
+
+    // Expect the server not to crash or behave unexpectedly
+    EXPECT_TRUE(out.empty());
+}
+
+TEST(GAMESERVER_TEST, ServerShutdown) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Call the shutdown method (you need to implement it if it doesn't exist)
+    server.shutdown();
+
+    // Check if the server is no longer accepting messages
+    networking::Message testMessage;
+    testMessage.connectionId = 1;
+    testMessage.data = "Test after shutdown";
+    in.push(testMessage);
+
+    server.update();
+
+    // The message should not be processed
+    EXPECT_TRUE(out.empty());
+}
+
+TEST(GAMESERVER_TEST, EmptyMessageHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    networking::Message emptyMessage;
+    emptyMessage.connectionId = 1;
+    emptyMessage.data = "";
+    in.push(emptyMessage);
+
+    server.update();
+
+    // Check how the server handles empty messages
+    auto received = out.pop();
+    EXPECT_EQ(received.connectionId, 1);
+    EXPECT_EQ(received.data, "");
+}
