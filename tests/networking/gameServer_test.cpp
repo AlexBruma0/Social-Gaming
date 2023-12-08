@@ -290,3 +290,113 @@ TEST(GAMESERVER_TEST, EmptyMessageHandling) {
     EXPECT_EQ(received.connectionId, 1);
     EXPECT_EQ(received.data, "");
 }
+
+TEST(GAMESERVER_TEST, HandleDisconnectedClients) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Simulate a client connecting and then disconnecting
+    networking::Message connectMessage;
+    connectMessage.connectionId = 1;
+    connectMessage.data = "Client connected";
+    in.push(connectMessage);
+    server.update();
+
+    // Simulate disconnection
+    server.handleClientDisconnection(1);
+
+    // Attempt to send a message to the disconnected client
+    server.sendMessage(1, "Test message to disconnected client");
+    server.update();
+
+    // Expect that no message is sent to the disconnected client
+    EXPECT_TRUE(out.empty());
+}
+
+TEST(GAMESERVER_TEST, BroadcastMessage) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Simulate multiple clients
+    for (int i = 1; i <= 3; i++) {
+        networking::Message msg;
+        msg.connectionId = i;
+        msg.data = "Client " + std::to_string(i);
+        in.push(msg);
+    }
+    server.update();
+
+    // Broadcast a message to all clients
+    server.broadcastMessage("Broadcast test");
+
+    // Check if all clients received the broadcast message
+    for (int i = 1; i <= 3; i++) {
+        auto received = out.pop();
+        EXPECT_EQ(received.data, "Broadcast test");
+    }
+}
+
+TEST(GAMESERVER_TEST, CorruptedMessageHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Simulate a corrupted message (e.g., malformed data)
+    networking::Message corruptedMessage;
+    corruptedMessage.connectionId = 1;
+    corruptedMessage.data = "\x01\x02\x03\x04"; // Non-ASCII characters
+    in.push(corruptedMessage);
+
+    server.update();
+
+    // Check how the server handles corrupted messages
+    EXPECT_TRUE(out.empty()); // Expect no response or handled gracefully
+}
+
+TEST(GAMESERVER_TEST, LoadHandling) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    // Simulate high load by sending a large number of messages
+    for (int i = 0; i < 1000; i++) {
+        networking::Message msg;
+        msg.connectionId = 1;
+        msg.data = "Message " + std::to_string(i);
+        in.push(msg);
+    }
+
+    server.update();
+
+    // Check if server can handle high load without crashing or losing messages
+    for (int i = 0; i < 1000; i++) {
+        EXPECT_FALSE(out.empty());
+        out.pop();
+    }
+}
+
+TEST(GAMESERVER_TEST, ResponseLatency) {
+    SendMessageQueue in = SendMessageQueue();
+    ReceiveMessageQueue out = ReceiveMessageQueue();
+    GameState gs(nullptr, nullptr);
+    GameServer server = getServer(&in, &out, &gs);
+
+    networking::Message testMessage;
+    testMessage.connectionId = 1;
+    testMessage.data = "Latency test";
+    in.push(testMessage);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    server.update();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto latency = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+
+    // Check the response latency is within an acceptable range (e.g., less than 100ms)
+    EXPECT_LE(latency, 100);
+}
