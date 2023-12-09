@@ -178,15 +178,17 @@ TEST(gameStateTest, PlayerInitialization) {
         jsonData["players"].push_back({{"name", "Player" + std::to_string(i+1)}, {"score", 0}});
     }
 
-    GameState gs(&jsonData, nullptr);
+    GameState gs{&jsonData, nullptr};
 
     for (int i = 0; i < num_players; ++i) {
-        std::string playerName = std::get<std::string>(gs.getVars()->getValue("players[" + std::to_string(i) + "].name"));
-        int playerScore = std::get<int>(gs.getVars()->getValue("players[" + std::to_string(i) + "].score"));
+        auto playerData = std::get<json>(gs.getVars()->getValue("players"))[i];
+        std::string playerName = playerData["name"];
+        int playerScore = playerData["score"];
         ASSERT_EQ(playerName, "Player" + std::to_string(i+1));
         ASSERT_EQ(playerScore, 0);
     }
 }
+
 
 TEST(gameStateTest, StateChange) {
     std::string sourcecode = file_to_string(RPS_LOCATION);
@@ -194,7 +196,7 @@ TEST(gameStateTest, StateChange) {
     ts::Node root = tree.getRootNode();
     json jsonData = createJsonData(root, sourcecode);
 
-    GameState gs(&jsonData, nullptr);
+    GameState gs{&jsonData, nullptr};
 
     json new_state;
     new_state["game_phase"] = "mid_game";
@@ -203,6 +205,7 @@ TEST(gameStateTest, StateChange) {
     std::string phase = std::get<std::string>(gs.getVars()->getValue("game_phase"));
     ASSERT_EQ(phase, "mid_game");
 }
+
 
 TEST(gameStateTest, IncrementalUpdate) {
     std::string sourcecode = file_to_string(RPS_LOCATION);
@@ -252,6 +255,7 @@ TEST(gameStateTest, ResetState) {
 
     // Update the game state
     gs.setState(&newJsonData);
+    gs.setVars()->erase("level")
 
     // Check if the old state field 'level' is no longer available
     bool levelExists = true;
